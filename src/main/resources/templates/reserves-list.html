@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestió de reserves - Nothingan Pri</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img th:src="@{/img/logo.png}"
+                 alt="Nothingan Pri" class="logo">
+        </div>
+
+        <nav class="nav-menu">
+            <a th:href="@{/web/reserves/all}" class="active">• Reserves</a>
+            <a th:href="@{/web/vehicles/all}">• Vehicles</a>
+            <a th:href="@{/web/usuaris/all}">• Clients</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+
+        <header class="top-header">
+            <h2>Gestió de reserves</h2>
+
+            <div class="user-dropdown">
+                <span>(agent) ▾</span>
+                <div class="user-avatar"></div>
+            </div>
+        </header>
+
+        <div th:if="${missatge}"
+             class="alert-success"
+             th:text="${missatge}"></div>
+
+        <div th:if="${error}"
+             class="alert-error"
+             th:text="${error}"></div>
+
+        <div class="top-bar">
+            <h3>Llistat de reserves</h3>
+
+            <a th:href="@{/web/reserves/new}" class="btn btn-add">
+                + Nova reserva
+            </a>
+        </div>
+
+        <!-- RF42: filtres de reserves -->
+        <div class="table-card"
+             style="padding: 20px; margin-bottom: 20px;">
+
+            <form th:action="@{/web/reserves/all}" method="get">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="dni">DNI del client</label>
+                        <input type="text"
+                               id="dni"
+                               name="dni"
+                               placeholder="Introdueix el DNI"
+                               th:value="${dni}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="codiReserva">Codi de reserva</label>
+                        <input type="text"
+                               id="codiReserva"
+                               name="codiReserva"
+                               placeholder="Codi de reserva"
+                               th:value="${codiReserva}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="matricula">Matrícula del vehicle</label>
+                        <input type="text"
+                               id="matricula"
+                               name="matricula"
+                               placeholder="Introdueix la matrícula"
+                               th:value="${matricula}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dataReserva">Data de reserva</label>
+                        <input type="date"
+                               id="dataReserva"
+                               name="dataReserva"
+                               th:value="${dataReserva}">
+                    </div>
+
+                </div>
+
+                <div class="button-group" style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-filter">
+                        Filtrar
+                    </button>
+
+                    <a th:href="@{/web/reserves/all}"
+                       class="btn btn-cancel">
+                        Netejar filtres
+                    </a>
+                </div>
+
+            </form>
+        </div>
+
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Codi</th>
+                        <th>Client</th>
+                        <th>Vehicle</th>
+                        <th>Data inici</th>
+                        <th>Data fi</th>
+                        <th>Preu</th>
+                        <th>Estat</th>
+                        <th>Accions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr th:each="r : ${reserves}">
+
+                        <td th:text="${r.codiReserva != null ? r.codiReserva : '-'}"></td>
+
+                        <td th:text="${r.usuari != null ? r.usuari.nom : '-'}"></td>
+
+                        <td th:text="${r.vehicle != null ? r.vehicle.matricula : '-'}"></td>
+
+                        <td th:text="${r.dataInici != null ? #temporals.format(r.dataInici, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+                        <td th:text="${r.dataFi != null ? #temporals.format(r.dataFi, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+                        <td>
+                            <span th:if="${r.preuLloguer != null}"
+                                  th:text="${#numbers.formatDecimal(r.preuLloguer, 1, 2) + ' €'}"></span>
+                            <span th:unless="${r.preuLloguer != null}">-</span>
+                        </td>
+
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${r.estat != null and r.estat.name() == 'Confirmada'} ? ' badge-validat' : (${r.estat != null and r.estat.name() == 'Anulada'} ? ' badge-rebutjat' : ' badge-baixa')"
+                                  th:text="${r.estat != null ? r.estat : '-'}"></span>
+                        </td>
+
+                        <td class="actions-cell">
+                            <a th:href="@{/web/reserves/detall/{id}(id=${r.id})}">
+                                Veure
+                            </a>
+
+                            <form th:if="${r.estat != null and r.estat.name() != 'Anulada' and r.estat.name() != 'Lliurada'}"
+                                  th:action="@{/web/reserves/cancelar/{id}(id=${r.id})}"
+                                  method="post"
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Segur que vols anul·lar aquesta reserva?');">
+
+                                <button type="submit" class="action-link">
+                                    Anul·lar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(reserves)}">
+                        <td colspan="8" class="empty-state">
+                            No s'han trobat reserves.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
+
+</body>
+</html>
