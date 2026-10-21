@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulari Vehicle</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container my-4">
+        <div class="card shadow">
+            
+            <!-- Capçalera del formulari -->
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title mb-0">Formulari Vehicle</h3>
+            </div>
+
+            <!-- Cos del formulari -->
+            <div class="card-body">
+                
+                <form th:action="@{/web/vehicles/save}" th:object="${vehicle}" method="post">
+                    
+                    <!-- Camp ocult per a l'ID (Clau primària) -->
+                    <input type="hidden" th:field="*{id}" />
+
+                    <div class="row g-3">
+                        
+                        <!-- Matrícula -->
+                        <div class="col-md-6">
+                            <label for="matricula" class="form-label">Matrícula</label>
+                            <input type="text" id="matricula" th:field="*{matricula}" class="form-control" maxlength="15" required />
+                        </div>
+
+                        <!-- Marca -->
+                        <div class="col-md-6">
+                            <label for="marca" class="form-label">Marca</label>
+                            <input type="text" id="marca" th:field="*{marca}" class="form-control" maxlength="50" required />
+                        </div>
+
+                        <!-- Model -->
+                        <div class="col-md-6">
+                            <label for="model" class="form-label">Model</label>
+                            <input type="text" id="model" th:field="*{model}" class="form-control" maxlength="50" required />
+                        </div>
+
+                        <!-- Any de Fabricació -->
+                        <div class="col-md-6">
+                            <label for="anyFabricacio" class="form-label">Any de Fabricació</label>
+                            <input type="number" id="anyFabricacio" th:field="*{anyFabricacio}" class="form-control" min="1900" max="2099" required />
+                        </div>
+
+                        <!-- Categoria (Enum) -->
+                        <div class="col-md-6">
+                            <label for="categoria" class="form-label">Categoria</label>
+                            <select id="categoria" th:field="*{categoria}" class="form-select" required>
+                                <option value="">Selecciona una categoria...</option>
+                                <option th:each="cat : ${T(cat.copernic.Projecte1_Equip4.entity.Enum.Categoria).values()}" 
+                                        th:value="${cat}" 
+                                        th:text="${cat}">SUV</option>
+                            </select>
+                        </div>
+
+                        <!-- Preu per Dia (BigDecimal precision 5, scale 2) -->
+                        <div class="col-md-6">
+                            <label for="preuDia" class="form-label">Preu per Dia (€)</label>
+                            <input type="number" step="0.01" min="0" max="999.99" id="preuDia" th:field="*{preuDia}" class="form-control" required />
+                        </div>
+
+                        <!-- Estat del Vehicle (Enum) -->
+                        <div class="col-md-6">
+                            <label for="estatVehicle" class="form-label">Estat del Vehicle</label>
+                            <select id="estatVehicle" th:field="*{estatVehicle}" class="form-select" required>
+                                <option th:each="estat : ${T(cat.copernic.Projecte1_Equip4.entity.Enum.EstatVehicle).values()}" 
+                                        th:value="${estat}" 
+                                        th:text="${estat}">Disponible</option>
+                            </select>
+                        </div>
+
+                        <!-- Foto del Vehicle -->
+                        <div class="col-md-6">
+                            <label for="fotoVehicle" class="form-label">Ruta / Nom de la Foto</label>
+                            <input type="text" id="fotoVehicle" th:field="*{fotoVehicle}" class="form-control" maxlength="255" placeholder="ej: cotxe1.jpg" />
+                        </div>
+
+                        <!-- Vehicle Actiu (Checkbox) -->
+                        <div class="col-md-12">
+                            <div class="form-check mt-2">
+                                <input type="checkbox" id="actiu" th:field="*{actiu}" class="form-check-input" />
+                                <label for="actiu" class="form-check-label">Vehicle Actiu</label>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Botons d'acció -->
+                    <div class="mt-4 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Desar Vehicle</button>
+                        <a th:href="@{/web/vehicles/all}" class="btn btn-secondary">Cancel·lar</a>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
