@@ -32,20 +32,12 @@ public class UsuarisController {
         // Inicialització si fos necessària
     }
 
-    // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
+    // --- LLISTAT GENERAL (AGENT) ---
     @GetMapping("/all")
-    public String findAll(@RequestParam(value = "dni", required = false) String dni, Model model) {
-        logger.debug("Getting usuaris with filter DNI: " + dni);
-        
-        List<Usuaris> llista;
-        if (dni != null && !dni.trim().isEmpty()) {
-            llista = usuarisService.findByDni(dni.trim());
-        } else {
-            llista = usuarisService.findAllUsuaris();
-        }
-        
+    public String findAll(Model model) {
+        logger.debug("Getting all usuaris...");
+        List<Usuaris> llista = usuarisService.findAllUsuaris();
         model.addAttribute("usuaris", llista);
-        model.addAttribute("dniFiltre", dni); // Manté el valor a l'input
         return "usuaris-list";
     }
 
@@ -55,8 +47,8 @@ public class UsuarisController {
         logger.debug("Creating new usuari...");
 
         Usuaris u = new Usuaris();
-        u.setEstatRegistre("PENDENT"); // Evita camps nuls en selectors
-        u.setPremium(false);           // Evita errors en checkboxes
+        u.setEstatRegistre("PENDENT"); // Evita campos nulos en selectores
+        u.setPremium(false);           // Evita errores en checkboxes
 
         model.addAttribute("usuari", u);
         return "edit-usuari";
@@ -75,7 +67,7 @@ public class UsuarisController {
         return "edit-usuari";
     }
 
-    // Guarda o actualitza les dades quan l'agent edita des de edit-usuari (RF12, RF13, RF21, RF22)
+    // Guarda o actualiza les dades quan l'agente edita des de edit-usuari (RF12, RF13, RF21, RF22)
     @PostMapping("/save")
     public String save(@ModelAttribute("usuari") Usuaris usuari) {
         logger.debug("Saving usuari " + usuari);
@@ -97,7 +89,7 @@ public class UsuarisController {
     // --- AUTENTICACIÓ (LOGIN) ---
     @GetMapping("/login")
     public String mostrarLogin() {
-        return "login";
+        return "login"; // O "login" segons la carpeta del teu HTML
     }
 
     @PostMapping("/login")
@@ -120,7 +112,7 @@ public class UsuarisController {
     @GetMapping("/registre")
     public String mostrarRegistre(Model model) {
         model.addAttribute("usuari", new Usuaris());
-        return "registre";
+        return "registre"; // O "registre" segons la carpeta del teu HTML
     }
 
     @PostMapping("/registre")

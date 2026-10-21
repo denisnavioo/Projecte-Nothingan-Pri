@@ -6,7 +6,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
-import jakarta.persistence.Column;
 
 @Entity
 public class Usuaris {
@@ -19,7 +18,7 @@ public class Usuaris {
     private String nom;
     private String email;
     private String password;
-    private int telefon;
+    private int  telefon; // Cambiado a String para evitar errores de formato
     private String adreca;
     private String nacionalitat;
 
@@ -40,31 +39,22 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
-    @Column(name = "is_premium")
-    private boolean premium = false;// Nombre estándar para el atributo
+    private boolean premium = false; // Nombre estándar para el atributo
 
     public Usuaris() {
     }
 
-    public Usuaris(Long id, String nom, String email, String password, int telefon, String adreca, String nacionalitat, String dni, LocalDate dataCaducitatDni, String imatgedni, String tipusLlicencia, LocalDate dataCaducitatLlicencia, String imatgeLlicencia, String targetaCredit, String estatRegistre) {
-        this.id = id;
+    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre) {
         this.nom = nom;
+        this.dni = dni;
         this.email = email;
         this.password = password;
         this.telefon = telefon;
-        this.adreca = adreca;
-        this.nacionalitat = nacionalitat;
-        this.dni = dni;
-        this.dataCaducitatDni = dataCaducitatDni;
-        this.imatgedni = imatgedni;
-        this.tipusLlicencia = tipusLlicencia;
-        this.dataCaducitatLlicencia = dataCaducitatLlicencia;
-        this.imatgeLlicencia = imatgeLlicencia;
-        this.targetaCredit = targetaCredit;
         this.estatRegistre = estatRegistre;
     }
 
     // --- GETTERS Y SETTERS ---
+
     public Long getId() {
         return id;
     }
