@@ -56,7 +56,7 @@
                             <label for="categoria" class="form-label">Categoria</label>
                             <select id="categoria" th:field="*{categoria}" class="form-select" required>
                                 <option value="">Selecciona una categoria...</option>
-                                <option th:each="cat : ${T(cat.copernic.Projecte1_Equip4.entity.Enum.Categoria).values()}" 
+                                <option th:each="cat : ${T(cat.copernic.Projecte1.entity.Enum.Categoria).values()}" 
                                         th:value="${cat}" 
                                         th:text="${cat}">SUV</option>
                             </select>
@@ -72,7 +72,7 @@
                         <div class="col-md-6">
                             <label for="estatVehicle" class="form-label">Estat del Vehicle</label>
                             <select id="estatVehicle" th:field="*{estatVehicle}" class="form-select" required>
-                                <option th:each="estat : ${T(cat.copernic.Projecte1_Equip4.entity.Enum.EstatVehicle).values()}" 
+                                <option th:each="estat : ${T(cat.copernic.Projecte1.entity.Enum.EstatVehicle).values()}" 
                                         th:value="${estat}" 
                                         th:text="${estat}">Disponible</option>
                             </select>
