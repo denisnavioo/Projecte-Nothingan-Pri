@@ -2,46 +2,53 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Inici de Sessió</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Inicia sessió - Nothingan Pri</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="bg-light d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+<body class="bg-light">
 
-    <div class="card shadow-sm p-4" style="width: 100%; max-width: 420px;">
-        <h3 class="text-center mb-4 text-primary">Inici de Sessió</h3>
+    <div class="login-wrapper">
+        <div class="login-card">
+            
+            <!-- Logotip -->
+            <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="login-logo" />
 
-        <!-- Formulari de Login -->
-        <form th:action="@{/web/usuaris/login}" method="post">
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" id="email" name="email" class="form-control" placeholder="nom@exemple.com" required />
+            <p class="login-title">Inicia sessió</p>
+
+            <!-- Formulari de Login -->
+            <form th:action="@{/web/usuaris/login}" method="post">
+                <div class="form-group-login">
+                    <label for="email">Email (usuari)</label>
+                    <input type="email" id="email" name="email" placeholder="dnavio@alumnat.copernic.cat" required />
+                </div>
+
+                <div class="form-group-login">
+                    <label for="password">Contrasenya</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required />
+                </div>
+
+                <button type="submit" class="btn-primary-full">Entrar</button>
+
+                <div class="login-links">
+                    <a th:href="@{/web/usuaris/registre}" class="link-blue">No tens compte? Registra't</a>
+                    <a href="#" class="link-subtle">Has oblidat la contrasenya?</a>
+                </div>
+            </form>
+
+            <!-- Missatges d'Error (si les credencials són incorrectes) -->
+            <div th:if="${error}" class="info-box" style="background-color: #fee2e2; color: #991b1b; margin-top: 20px;" role="alert" th:text="${error}">
+                Credencials incorrectes.
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Contrasenya</label>
-                <input type="password" id="password" name="password" class="form-control" required />
+            <!-- Missatges d'Avís (quan ve d'enviar el registre) -->
+            <div th:if="${param.registrePendent}" class="info-box" style="margin-top: 20px;" role="alert">
+                La teva sol·licitud s'ha enviat correctament! Està pendent de revisió per un agent.
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 mb-3">Iniciar Sessió</button>
-
-            <div class="text-center mb-3">
-                <span class="text-muted">No tens un compte?</span>
-                <a th:href="@{/web/usuaris/registre}" class="text-decoration-none">Registra't</a>
+            <div th:if="${alertaPendent}" class="info-box" style="background-color: #fef3c7; color: #92400e; margin-top: 20px;" role="alert" th:text="${alertaPendent}">
+                El teu usuari encara no està validat per un agent.
             </div>
-        </form>
 
-        <!-- Missatges d'Error (alerta si credencials incorrectes) -->
-        <div th:if="${error}" class="alert alert-danger mb-2" role="alert" th:text="${error}">
-            Credencials incorrectes.
-        </div>
-
-        <!-- Missatges d'Avís a Baix (Quan ve de enviar el registre) -->
-        <div th:if="${param.registrePendent}" class="alert alert-info mt-3 mb-0 text-center" role="alert">
-            La teva sol·licitud s'ha enviat correctament! Està pendent de revisió per un agent.
-        </div>
-
-        <div th:if="${alertaPendent}" class="alert alert-warning mt-3 mb-0 text-center" role="alert" th:text="${alertaPendent}">
-            El teu usuari encara no està validat per un agent.
         </div>
     </div>
 
