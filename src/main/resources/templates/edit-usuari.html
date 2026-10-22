@@ -1,132 +1,136 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${usuari.id != null} ? 'Editar Client - Nothingan Pri' : 'Alta de Client - Nothingan Pri'">Alta de Client - Nothingan Pri</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulari Client - Nothingan Pri</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
-<body class="bg-light">
+<body>
 
-    <div class="layout">
-        
-        <!-- Sidebar lateral -->
-        <aside class="sidebar">
-            <div class="logo-container">
-                <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo" />
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img th:src="@{/img/logo.png}"
+                 alt="Nothingan Pri" class="logo">
+        </div>
+
+        <nav class="nav-menu">
+            <a th:href="@{/web/reserves/all}">• Reserves</a>
+            <a th:href="@{/web/vehicles/all}">• Vehicles</a>
+            <a th:href="@{/web/usuaris/all}" class="active">• Clients</a>
+        </nav>
+    </aside>
+
+    <main class="content">
+
+        <header class="top-header">
+            <h2>Gestió de clients</h2>
+
+            <div class="user-dropdown">
+                <span>(agent) ▾</span>
+                <div class="user-avatar"></div>
             </div>
-            
-            <nav class="nav-menu">
-                <a href="#">● Reserves</a>
-                <a href="#">● Vehicles</a>
-                <a th:href="@{/web/usuaris/all}" class="active">● Clients</a>
-            </nav>
-        </aside>
+        </header>
 
-        <!-- Contenido principal -->
-        <main class="content">
-            
-            <!-- Cabecera superior -->
-            <header class="top-header">
-                <h2 th:text="${usuari.id != null} ? 'Editar Client' : 'Alta de Client'">Alta de Client</h2>
-                <div class="user-dropdown">
-                    <span>Anna (agent) ▾</span>
-                    <div class="user-avatar"></div>
+        <div class="top-bar">
+            <h3>Formulari Client</h3>
+
+            <a th:href="@{/web/usuaris/all}"
+               class="btn btn-cancel">
+                Tornar al llistat
+            </a>
+        </div>
+
+        <div th:if="${error}"
+             class="alert-error"
+             th:text="${error}"></div>
+
+        <div class="table-card" style="padding: 24px;">
+
+            <!-- Formulari connectat amb Spring Boot -->
+            <form th:action="@{/web/usuaris/save}"
+                  th:object="${usuari}"
+                  method="post">
+
+                <!-- ID ocult per saber si creem o editem -->
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="nom">Nom complet</label>
+                        <input type="text"
+                               id="nom"
+                               th:field="*{nom}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dni">DNI / NIE</label>
+                        <input type="text"
+                               id="dni"
+                               th:field="*{dni}"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefon">Telèfon</label>
+                        <input type="tel"
+                               id="telefon"
+                               th:field="*{telefon}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email (Usuari)</label>
+                        <input type="email"
+                               id="email"
+                               th:field="*{email}"
+                               required>
+                    </div>
+
+                    <!-- Secció Gestió de l'Estat del Registre (RF12/RF13) -->
+                    <div class="form-group">
+                        <label for="estatRegistre">Estat del Registre (RF12/RF13)</label>
+                        <select id="estatRegistre" th:field="*{estatRegistre}">
+                            <option value="PENDENT">PENDENT (Pendent de revisió)</option>
+                            <option value="VALIDAT">VALIDAT (Aprovat / Donat d'alta)</option>
+                            <option value="REBUTJAT">REBUTJAT (Sol·licitud denegada)</option>
+                            <option value="BAIXA">BAIXA (Client Inactiu)</option>
+                        </select>
+                    </div>
+
+                    <!-- Checkbox Client Premium (RF21/RF22) -->
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="premium" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox"
+                                   id="premium"
+                                   th:field="*{premium}"
+                                   style="width: auto;">
+                            <span><strong>Client Premium (RF21/RF22)</strong> (Aplica descomptes en la fiança)</span>
+                        </label>
+                    </div>
+
                 </div>
-            </header>
 
-            <!-- Tarjeta contenedora principal del formulario -->
-            <div class="form-container-card">
-                <form th:action="@{/web/usuaris/save}" th:object="${usuari}" method="post">
-                    
-                    <input type="hidden" th:field="*{id}" />
+                <div class="button-group" style="margin-top: 24px;">
+                    <button type="submit" class="btn btn-filter">
+                        Desar Client
+                    </button>
 
-                    <div class="form-fields-grid">
-                        <div class="field-group">
-                            <label for="nom">Nom complet</label>
-                            <input type="text" id="nom" th:field="*{nom}" placeholder="Ej. Denis Navio" required />
-                        </div>
+                    <a th:href="@{/web/usuaris/all}"
+                       class="btn btn-cancel">
+                        Cancel·lar
+                    </a>
+                </div>
 
-                        <div class="field-group">
-                            <label for="dni">DNI / Passaport</label>
-                            <input type="text" id="dni" th:field="*{dni}" placeholder="12345678A" required />
-                        </div>
+            </form>
 
-                        <div class="field-group">
-                            <label for="dataCaducitatDni">Caducitat DNI</label>
-                            <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" required />
-                        </div>
+        </div>
 
-                        <div class="field-group">
-                            <label for="tipusLlicencia">Tipus de llicència</label>
-                            <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" placeholder="B" />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="dataCaducitatLlicencia">Caducitat llicència</label>
-                            <input type="date" id="dataCaducitatLlicencia" th:field="*{dataCaducitatLlicencia}" />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="telefon">Telèfon</label>
-                            <input type="tel" id="telefon" th:field="*{telefon}" placeholder="600000000" required />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="adreca">Adreça del domicili</label>
-                            <input type="text" id="adreca" th:field="*{adreca}" placeholder="C/ Major 1, Terrassa" />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="nacionalitat">Nacionalitat</label>
-                            <input type="text" id="nacionalitat" th:field="*{nacionalitat}" placeholder="Espanyola" />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="targetaCredit">Número targeta de crèdit</label>
-                            <input type="text" id="targetaCredit" th:field="*{targetaCredit}" placeholder="4500 •••• •••• 1234" />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="email">Email (usuari)</label>
-                            <input type="email" id="email" th:field="*{email}" placeholder="denis@gmail.com" required />
-                        </div>
-
-                        <div class="field-group">
-                            <label for="password">Contrasenya</label>
-                            <input type="password" id="password" th:field="*{password}" placeholder="••••••••" required />
-                        </div>
-
-                        <!-- Estat de registre -->
-                        <div class="field-group">
-                            <label for="estatRegistre">Estat de registre</label>
-                            <select id="estatRegistre" th:field="*{estatRegistre}">
-                                <option value="PENDENT">PENDENT</option>
-                                <option value="VALIDAT">VALIDAT</option>
-                                <option value="REBUTJAT">REBUTJAT</option>
-                                <option value="BAIXA">BAIXA</option>
-                            </select>
-                        </div>
-
-                        <!-- Checkbox Client Premium (Alineado y agrupado correctamente) -->
-                        <div class="field-group checkbox-field">
-                            <label class="checkbox-container">
-                                <input type="checkbox" id="premium" th:field="*{premium}" />
-                                <span>Client Premium</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-add">Guardar client</button>
-                        <a th:href="@{/web/usuaris/all}" class="btn btn-cancel">Cancel·lar</a>
-                    </div>
-
-                </form>
-            </div>
-
-        </main>
-    </div>
+    </main>
+</div>
 
 </body>
 </html>

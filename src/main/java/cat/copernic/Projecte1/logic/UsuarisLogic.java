@@ -19,6 +19,7 @@ public class UsuarisLogic {
     }
 
     // --- OPERACIONES BÁSICAS CRUD ---
+
     public List<Usuaris> findAllUsuaris() {
         return usuariRepo.findAll();
     }
@@ -47,15 +48,16 @@ public class UsuarisLogic {
     }
 
     // --- LÓGICA DE NEGOCIO (REQUISITOS FUNCIONALES) ---
+
     /**
      * RF08 i RF09: Registrar client des de la web pública amb validacions.
      */
     public Long registrarClientWeb(Usuaris client) throws IllegalArgumentException {
 
         // 1. Validar camps obligatoris
-        if (client.getEmail() == null || client.getEmail().isBlank()
-                || client.getNom() == null || client.getNom().isBlank()
-                || client.getDni() == null || client.getDni().isBlank()) {
+        if (client.getEmail() == null || client.getEmail().isBlank() ||
+            client.getNom() == null || client.getNom().isBlank() ||
+            client.getDni() == null || client.getDni().isBlank()) {
             throw new IllegalArgumentException("Tots els camps obligatoris s'han d'omplir.");
         }
 
@@ -126,8 +128,7 @@ public class UsuarisLogic {
     }
 
     /**
-     * Actualitzar dades del client per l'agent des del formulari d'edició
-     * (RF12, RF13, RF19, RF21, RF22).
+     * Actualitzar dades del client per l'agent des del formulari d'edició (RF12, RF13, RF19, RF21, RF22).
      */
     public void actualitzarClientPerAgent(Usuaris usuariEditat) {
         Usuaris usuariExistent = usuariRepo.findById(usuariEditat.getId())
@@ -150,9 +151,5 @@ public class UsuarisLogic {
         usuariExistent.setPremium(usuariEditat.getPremium() != null ? usuariEditat.getPremium() : false);
 
         usuariRepo.save(usuariExistent);
-    }
-
-    public List<Usuaris> findByDni(String dni) {
-        return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
 }

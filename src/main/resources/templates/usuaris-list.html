@@ -1,98 +1,132 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestió de Clients - Nothingan Pri</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
 
-    <div class="layout">
-        
-        <!-- Sidebar lateral -->
-        <aside class="sidebar">
-            <div class="logo-container">
-                <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo" />
+<div class="layout">
+
+    <!-- Menú Lateral Esquerre -->
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+        </div>
+
+        <nav class="nav-menu">
+            <a th:href="@{/web/reserves/all}">• Reserves</a>
+            <a th:href="@{/web/vehicles/all}">• Vehicles</a>
+            <a th:href="@{/web/usuaris/all}" class="active">• Clients</a>
+        </nav>
+    </aside>
+
+    <!-- Contingut Principal -->
+    <main class="content">
+
+        <!-- Capçalera superior -->
+        <header class="top-header">
+            <h2>Gestió de clients</h2>
+
+            <div class="user-dropdown">
+                <span>(agent) ▾</span>
+                <div class="user-avatar"></div>
             </div>
-            
-            <nav class="nav-menu">
-                <a href="#">● Reserves</a>
-                <a href="#">● Vehicles</a>
-                <a th:href="@{/web/usuaris/all}" class="active">● Clients</a>
-            </nav>
-        </aside>
+        </header>
 
-        <!-- Contenido principal -->
-        <main class="content">
-            
-            <!-- Cabecera superior -->
-            <header class="top-header">
-                <h2>Gestió de clients</h2>
-                <div class="user-dropdown">
-                    <span>Anna (agent) ▾</span>
-                    <div class="user-avatar"></div>
-                </div>
-            </header>
+        <!-- Capçalera de secció i botó Alta -->
+        <div class="top-bar">
+            <h3>Llistat de clients</h3>
 
-            <!-- Barra de Filtro y Botón Alta -->
-            <div class="top-bar">
-                <form th:action="@{/web/usuaris/all}" method="get" class="filter-group">
-                    <div class="input-wrapper">
-                        <label for="filterDni">Filtrar per DNI</label>
-                        <input type="text" id="filterDni" name="dni" th:value="${dniFiltre}" placeholder="12345678A" />
+            <a th:href="@{/web/usuaris/new}" class="btn btn-add">
+                + Alta de client
+            </a>
+        </div>
+
+        <!-- Cercador i Filtres -->
+        <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
+            <form class="d-flex gap-2" method="get" th:action="@{/web/usuaris/all}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="dni">DNI del client</label>
+                        <input type="text"
+                               id="dni"
+                               name="dni"
+                               placeholder="Filtrar per DNI"
+                               th:value="${param.dni}">
                     </div>
-                    <button class="btn btn-filter" type="submit">Filtrar</button>
-                    
-                    <!-- Botón para limpiar filtro cuando hay un DNI buscado -->
-                    <a th:if="${dniFiltre != null and !dniFiltre.empty}" th:href="@{/web/usuaris/all}" class="btn btn-cancel" style="padding: 10px 14px; text-decoration: none;">Netejar</a>
-                </form>
+                </div>
 
-                <a th:href="@{/web/usuaris/new}" class="btn btn-add">+ Alta de client</a>
-            </div>
+                <div class="button-group" style="margin-top: 15px;">
+                    <button type="submit" class="btn btn-filter">
+                        Filtrar
+                    </button>
 
-            <!-- Tabla de Clientes -->
-            <div class="table-card">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>DNI</th>
-                            <th>Telèfon</th>
-                            <th>Email</th>
-                            <th>Registre</th>
-                            <th>Accions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="u : ${usuaris}">
-                            <td th:text="${u.nom}">Denis Navio</td>
-                            <td th:text="${u.dni}">12345678A</td>
-                            <td th:text="${u.telefon}">600000000</td>
-                            <td th:text="${u.email}">dnavio@alumnat.copernic.cat</td>
-                            <td>
-                                <!-- Mapeo visual de badges según el estado -->
-                                <span th:if="${u.estatRegistre == 'VALIDAT' or u.estatRegistre == 'ACCEPTAT'}" class="badge badge-validat">Validat</span>
-                                <span th:if="${u.estatRegistre == 'PENDENT' or u.estatRegistre == null}" class="badge badge-pendent">Pendent</span>
-                                <span th:if="${u.estatRegistre == 'REBUTJAT'}" class="badge badge-rebutjat">Rebutjat</span>
-                                <span th:if="${u.estatRegistre == 'BAIXA'}" class="badge badge-baixa">Baixa</span>
-                            </td>
-                            <td class="actions-cell">
-                                <a th:href="@{/web/usuaris/edit/{id}(id=${u.id})}">Veure</a> · 
-                                <a th:href="@{/web/usuaris/edit/{id}(id=${u.id})}">Editar</a> · 
-                                <a th:href="@{/web/usuaris/delete/{id}(id=${u.id})}" onclick="return confirm('Estàs segur de donar de baixa aquest client?')">Baixa</a>
-                            </td>
-                        </tr>
-                        
-                        <!-- Estado vacío si no hay usuarios en la lista -->
-                        <tr th:if="${#lists.isEmpty(usuaris)}">
-                            <td colspan="6" class="empty-state">No s'han trobat clients registrats.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <a th:href="@{/web/usuaris/all}" class="btn btn-cancel">
+                        Netejar filtres
+                    </a>
+                </div>
+            </form>
+        </div>
 
-        </main>
-    </div>
+        <!-- Taula d'usuaris -->
+        <div class="table-card">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nom</th>
+                        <th>DNI</th>
+                        <th>Telèfon</th>
+                        <th>Email</th>
+                        <th>Registre</th>
+                        <th>Accions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${usuaris}">
+                        <td>
+                            <span th:text="${u.nom}">Nom</span>
+                            <!-- Badge per mostrar si és Premium (RF21/RF22) -->
+                            <span th:if="${u.premium}" class="badge badge-validat" style="margin-left: 5px;">★ Premium</span>
+                        </td>
+                        <td th:text="${u.dni}">DNI</td>
+                        <td th:text="${u.telefon}">Telèfon</td>
+                        <td th:text="${u.email}">Email</td>
+
+                        <!-- Columna Registre amb etiquetes segons l'estat -->
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${#strings.toString(u.estatRegistre) == 'VALIDAT'} ? ' badge-validat' : (${#strings.toString(u.estatRegistre) == 'PENDENT'} ? ' badge-baixa' : ' badge-rebutjat')"
+                                  th:text="${u.estatRegistre != null ? u.estatRegistre : 'PENDENT'}">
+                                PENDENT
+                            </span>
+                        </td>
+
+                        <td class="actions-cell">
+                            <a th:href="@{/web/usuaris/edit/{id}(id=${u.id})}">Editar</a>
+
+                            <a th:href="@{/web/usuaris/delete/{id}(id=${u.id})}"
+                               class="action-link"
+                               style="color: var(--danger-color, #d9534f);"
+                               onclick="return confirm('Segur que vols donar de baixa aquest usuari?')">
+                                Baixa
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(usuaris)}">
+                        <td colspan="6" class="empty-state">
+                            No s'han trobat clients registrats.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </main>
+</div>
 
 </body>
 </html>
