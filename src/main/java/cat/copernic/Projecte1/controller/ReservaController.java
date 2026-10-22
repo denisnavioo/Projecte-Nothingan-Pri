@@ -153,10 +153,7 @@ public class ReservaController {
 
     // RF41: consultar els detalls d'una reserva
     @GetMapping("/detall/{id}")
-    public String details(
-            @PathVariable("id") Integer id, Model model) {
-
-        logger.debug("Getting reserva details: " + id);
+    public String details(@PathVariable("id") Integer id, Model model) {
 
         Reserva reserva = reservaLogic.getReservaById(id);
 
@@ -164,9 +161,10 @@ public class ReservaController {
             return "redirect:/web/reserves/all";
         }
 
-        model.addAttribute("reserva", reserva);
+        model.addAttribute("reserves", reservaLogic.findAllReservas());
+        model.addAttribute("reservaSeleccionada", reserva);
 
-        return "reserva-details";
+        return "reserves-list";
     }
 
     // RF38: anul·lar una reserva

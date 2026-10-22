@@ -57,5 +57,11 @@ public class VehicleLogic {
         return (p != null);
     }
     
+    public List<Vehicle> findByMatricula(String matricula) {
+    if (matricula == null || matricula.trim().isEmpty()) {
+        return vehicleRepo.findAll();
+    }
+    return vehicleRepo.findByMatriculaContainingIgnoreCase(matricula);
+}
 }
 

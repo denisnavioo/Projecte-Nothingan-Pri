@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  *
@@ -30,33 +31,32 @@ public class VehicleController {
     Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
     @PostConstruct
-    private void init()
-    {
+    private void init() {
 
     }
 
     @Autowired
     private VehicleLogic vehicleLogic;
 
-
     @GetMapping("/all")
-    public String findAll(Model model){
+    public String findAll(@RequestParam(name = "matricula", required = false) String matricula, Model model) {
 
-        logger.debug("Getting all vehicle...");
+        logger.debug("Getting all vehicles with filter: " + matricula);
 
-        List<Vehicle> llista = vehicleLogic.findAllProducts();
+        List<Vehicle> llista = vehicleLogic.findByMatricula(matricula);
 
         model.addAttribute("vehicle", llista);
+        model.addAttribute("matricula", matricula); // Reté la cerca al quadre de text
 
         return "vehicles-list";
     }
 
     @GetMapping("/new")
-    public String getForm(Model model){
+    public String getForm(Model model) {
 
         logger.debug("Creating new vehicle...");
 
-        Vehicle p = new Vehicle(0,"","","",0,Categoria.SUV,BigDecimal.ZERO,"");
+        Vehicle p = new Vehicle(0, "", "", "", 0, Categoria.SUV, BigDecimal.ZERO, "");
 
         model.addAttribute("vehicle", p);
 
@@ -65,7 +65,7 @@ public class VehicleController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute("vehicle") Vehicle vehicle){
+    public String save(@ModelAttribute("vehicle") Vehicle vehicle) {
 
         logger.debug("Saving vehicle " + vehicle);
 
@@ -76,7 +76,7 @@ public class VehicleController {
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteById(@PathVariable("id") Long vehicleId){
+    public String deleteById(@PathVariable("id") Long vehicleId) {
 
         logger.debug("Deleting vehicle " + vehicleId);
 
@@ -100,4 +100,6 @@ public class VehicleController {
         model.addAttribute("vehicle", vehicle);
         return "edit-vehicle";
     }
+
+    
 }
