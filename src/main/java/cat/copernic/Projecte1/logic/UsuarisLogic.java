@@ -150,6 +150,6 @@ public class UsuarisLogic {
         usuariExistent.setEstatRegistre(usuariEditat.getEstatRegistre());
         usuariExistent.setPremium(usuariEditat.getPremium() != null ? usuariEditat.getPremium() : false);
 
-        usuariRepo.save(usuariExistent);
+        usuariRepo.save(usuariExistent); 
     }
 }
