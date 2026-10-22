@@ -44,7 +44,7 @@ public class Projecte1Equip4Application {
                 usuarisRepo.save(u1);
                 usuarisRepo.save(u2);
 
-                System.out.println("✅ Usuaris de prova creats correctament!");
+                System.out.println("http://localhost:8080/web/usuaris/login");
             }
         };
     }
