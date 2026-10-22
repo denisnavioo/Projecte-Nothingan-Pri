@@ -151,5 +151,11 @@ public class UsuarisLogic {
         usuariExistent.setPremium(usuariEditat.getPremium() != null ? usuariEditat.getPremium() : false);
 
         usuariRepo.save(usuariExistent);
+        
+    }
+    
+    // Mètode per filtrar usuaris per DNI
+    public List<Usuaris> findByDni(String dni) {
+        return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
 }
