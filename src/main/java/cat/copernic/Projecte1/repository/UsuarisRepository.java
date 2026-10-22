@@ -5,6 +5,7 @@
 package cat.copernic.Projecte1.repository;
 
 import cat.copernic.Projecte1.entity.Usuaris;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,5 +20,8 @@ public interface UsuarisRepository extends JpaRepository<Usuaris, Long>{
 
     // Método útil para el filtro por DNI si lo necesitas más adelante (RF18)
     Optional<Usuaris> findByDni(String dni);
+    
+    // Búsqueda por DNI (coincidencia parcial)
+    List<Usuaris> findByDniContainingIgnoreCase(String dni);
     
 }

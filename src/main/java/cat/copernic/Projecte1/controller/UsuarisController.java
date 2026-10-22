@@ -32,12 +32,20 @@ public class UsuarisController {
         // Inicialització si fos necessària
     }
 
-    // --- LLISTAT GENERAL (AGENT) ---
+    // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
-    public String findAll(Model model) {
-        logger.debug("Getting all usuaris...");
-        List<Usuaris> llista = usuarisService.findAllUsuaris();
+    public String findAll(@RequestParam(value = "dni", required = false) String dni, Model model) {
+        logger.debug("Getting usuaris with filter DNI: " + dni);
+        
+        List<Usuaris> llista;
+        if (dni != null && !dni.trim().isEmpty()) {
+            llista = usuarisService.findByDni(dni.trim());
+        } else {
+            llista = usuarisService.findAllUsuaris();
+        }
+        
         model.addAttribute("usuaris", llista);
+        model.addAttribute("dniFiltre", dni); // Mantiene el DNI escrito en la caja de texto
         return "usuaris-list";
     }
 
@@ -89,7 +97,7 @@ public class UsuarisController {
     // --- AUTENTICACIÓ (LOGIN) ---
     @GetMapping("/login")
     public String mostrarLogin() {
-        return "login"; // O "login" segons la carpeta del teu HTML
+        return "login";
     }
 
     @PostMapping("/login")
@@ -112,7 +120,7 @@ public class UsuarisController {
     @GetMapping("/registre")
     public String mostrarRegistre(Model model) {
         model.addAttribute("usuari", new Usuaris());
-        return "registre"; // O "registre" segons la carpeta del teu HTML
+        return "registre";
     }
 
     @PostMapping("/registre")
