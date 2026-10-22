@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestió de vehicles - Nothingan Pri</title>
+    <title>Gestió de reserves - Nothingan Pri</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -17,8 +17,8 @@
         </div>
 
         <nav class="nav-menu">
-            <a th:href="@{/web/reserves/all}">• Reserves</a>
-            <a th:href="@{/web/vehicles/all}" class="active">• Vehicles</a>
+            <a th:href="@{/web/reserves/all}" class="active">• Reserves</a>
+            <a th:href="@{/web/vehicles/all}">• Vehicles</a>
             <a th:href="@{/web/usuaris/all}">• Clients</a>
         </nav>
     </aside>
@@ -26,7 +26,7 @@
     <main class="content">
 
         <header class="top-header">
-            <h2>Gestió de vehicles</h2>
+            <h2>Gestió de reserves</h2>
 
             <div class="user-dropdown">
                 <span>(agent) ▾</span>
@@ -43,18 +43,39 @@
              th:text="${error}"></div>
 
         <div class="top-bar">
-            <h3>Llistat de vehicles</h3>
+            <h3>Llistat de reserves</h3>
 
-            <a th:href="@{/web/vehicles/new}" class="btn btn-add">
-                + Nou vehicle
+            <a th:href="@{/web/reserves/new}" class="btn btn-add">
+                + Nova reserva
             </a>
         </div>
 
-        <!-- Filtre per matrícula -->
-        <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
-            <form th:action="@{/web/vehicles/all}" method="get">
+        <!-- RF42: filtres de reserves -->
+        <div class="table-card"
+             style="padding: 20px; margin-bottom: 20px;">
+
+            <form th:action="@{/web/reserves/all}" method="get">
 
                 <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="dni">DNI del client</label>
+                        <input type="text"
+                               id="dni"
+                               name="dni"
+                               placeholder="Introdueix el DNI"
+                               th:value="${dni}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="codiReserva">Codi de reserva</label>
+                        <input type="text"
+                               id="codiReserva"
+                               name="codiReserva"
+                               placeholder="Codi de reserva"
+                               th:value="${codiReserva}">
+                    </div>
+
                     <div class="form-group">
                         <label for="matricula">Matrícula del vehicle</label>
                         <input type="text"
@@ -63,6 +84,15 @@
                                placeholder="Introdueix la matrícula"
                                th:value="${matricula}">
                     </div>
+
+                    <div class="form-group">
+                        <label for="dataReserva">Data de reserva</label>
+                        <input type="date"
+                               id="dataReserva"
+                               name="dataReserva"
+                               th:value="${dataReserva}">
+                    </div>
+
                 </div>
 
                 <div class="button-group" style="margin-top: 15px;">
@@ -70,8 +100,8 @@
                         Filtrar
                     </button>
 
-                    <!-- Botó per netejar el filtre -->
-                    <a th:href="@{/web/vehicles/all}" class="btn btn-cancel">
+                    <a th:href="@{/web/reserves/all}"
+                       class="btn btn-cancel">
                         Netejar filtres
                     </a>
                 </div>
@@ -79,59 +109,67 @@
             </form>
         </div>
 
-        <!-- Taula de vehicles -->
         <div class="table-card">
             <table class="data-table">
                 <thead>
                     <tr>
-                        <th>Matrícula</th>
-                        <th>Marca</th>
-                        <th>Model</th>
-                        <th>Categoria</th>
-                        <th>Preu/Dia</th>
+                        <th>Codi</th>
+                        <th>Client</th>
+                        <th>Vehicle</th>
+                        <th>Data inici</th>
+                        <th>Data fi</th>
+                        <th>Preu</th>
                         <th>Estat</th>
                         <th>Accions</th>
                     </tr>
                 </thead>
 
                 <tbody>
-                    <tr th:each="v : ${vehicle}">
-                        <td th:text="${v.matricula != null ? v.matricula : '-'}"></td>
-                        <td th:text="${v.marca != null ? v.marca : '-'}"></td>
-                        <td th:text="${v.model != null ? v.model : '-'}"></td>
-                        <td th:text="${v.categoria != null ? v.categoria : '-'}"></td>
-                        
+                    <tr th:each="r : ${reserves}">
+
+                        <td th:text="${r.codiReserva != null ? r.codiReserva : '-'}"></td>
+
+                        <td th:text="${r.usuari != null ? r.usuari.nom : '-'}"></td>
+
+                        <td th:text="${r.vehicle != null ? r.vehicle.matricula : '-'}"></td>
+
+                        <td th:text="${r.dataInici != null ? #temporals.format(r.dataInici, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+                        <td th:text="${r.dataFi != null ? #temporals.format(r.dataFi, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
                         <td>
-                            <span th:if="${v.preuDia != null}"
-                                  th:text="${#numbers.formatDecimal(v.preuDia, 1, 2) + ' €'}"></span>
-                            <span th:unless="${v.preuDia != null}">-</span>
+                            <span th:if="${r.preuLloguer != null}"
+                                  th:text="${#numbers.formatDecimal(r.preuLloguer, 1, 2) + ' €'}"></span>
+                            <span th:unless="${r.preuLloguer != null}">-</span>
                         </td>
 
                         <td>
                             <span class="badge"
-                                  th:classappend="${v.estatVehicle != null and v.estatVehicle.name() == 'Disponible'} ? ' badge-validat' : ' badge-rebutjat'"
-                                  th:text="${v.estatVehicle != null ? v.estatVehicle : '-'}"></span>
+                                  th:classappend="${r.estat != null and r.estat.name() == 'Confirmada'} ? ' badge-validat' : (${r.estat != null and r.estat.name() == 'Anulada'} ? ' badge-rebutjat' : ' badge-baixa')"
+                                  th:text="${r.estat != null ? r.estat : '-'}"></span>
                         </td>
 
                         <td class="actions-cell">
-                            <a th:href="@{/web/vehicles/edit/{id}(id=${v.id})}">
-                                Editar
+                            <a th:href="@{/web/reserves/detall/{id}(id=${r.id})}">
+                                Veure
                             </a>
 
-                            <form th:action="@{/web/vehicles/delete/{id}(id=${v.id})}"
-                                  method="get"
+                            <form th:if="${r.estat != null and r.estat.name() != 'Anulada' and r.estat.name() != 'Lliurada'}"
+                                  th:action="@{/web/reserves/cancelar/{id}(id=${r.id})}"
+                                  method="post"
                                   style="display: inline;"
-                                  onsubmit="return confirm('Segur que vols eliminar aquest vehicle?');">
-                                <button type="submit" class="action-link" style="color: red; border: none; background: none; cursor: pointer;">
-                                    Eliminar
+                                  onsubmit="return confirm('Segur que vols anul·lar aquesta reserva?');">
+
+                                <button type="submit" class="action-link">
+                                    Anul·lar
                                 </button>
                             </form>
                         </td>
                     </tr>
 
-                    <tr th:if="${#lists.isEmpty(vehicle)}">
-                        <td colspan="7" class="empty-state">
-                            No s'han trobat vehicles.
+                    <tr th:if="${#lists.isEmpty(reserves)}">
+                        <td colspan="8" class="empty-state">
+                            No s'han trobat reserves.
                         </td>
                     </tr>
                 </tbody>
