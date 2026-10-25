@@ -6,17 +6,16 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarisLogic {
 
-    private final UsuarisRepository usuariRepo;
 
-    // Inyección por constructor limpia (sin necesidad de @Autowired explícito)
-    public UsuarisLogic(UsuarisRepository usuariRepo) {
-        this.usuariRepo = usuariRepo;
-    }
+    @Autowired
+    private UsuarisRepository usuariRepo;
+     
 
     // --- OPERACIONES BÁSICAS CRUD ---
 
@@ -154,7 +153,7 @@ public class UsuarisLogic {
         
     }
     
-    // Mètode per filtrar usuaris per DNI
+    // Mètode per filtrar usuaris per DNI de forma Parcial
     public List<Usuaris> findByDni(String dni) {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
