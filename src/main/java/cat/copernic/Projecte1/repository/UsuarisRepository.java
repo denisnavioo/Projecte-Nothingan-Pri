@@ -15,13 +15,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UsuarisRepository extends JpaRepository<Usuaris, Long>{
     
+    //Optional ESTRIVTO List PARCIAL
+    
     // Método necesario para comprobar correos duplicados (RF09)
     Optional<Usuaris> findByEmail(String email);
-
-    // Método útil para el filtro por DNI si lo necesitas más adelante (RF18)
-    Optional<Usuaris> findByDni(String dni);
     
-    // Búsqueda por DNI (coincidencia parcial)
+    // Busqueda Dni parcial (sale dni exacto o equivalentes)
     List<Usuaris> findByDniContainingIgnoreCase(String dni);
     
 }

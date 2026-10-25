@@ -18,7 +18,7 @@ public class Usuaris {
     private String nom;
     private String email;
     private String password;
-    private int  telefon; // Cambiado a String para evitar errores de formato
+    private int telefon;
     private String adreca;
     private String nacionalitat;
 
@@ -39,7 +39,7 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
-    private boolean premium = false; // Nombre estándar para el atributo
+    private Boolean premium;
 
     public Usuaris() {
     }
@@ -175,16 +175,11 @@ public class Usuaris {
         this.estatRegistre = estatRegistre;
     }
 
-    // Métodos para 'premium' (para compatibilidad con 'isPremium' y 'getPremium')
-    public boolean isPremium() {
-        return premium;
-    }
-
     public Boolean getPremium() {
         return premium;
     }
 
-    public void setPremium(boolean premium) {
+    public void setPremium(Boolean premium) {
         this.premium = premium;
-    }
+    }   
 }
