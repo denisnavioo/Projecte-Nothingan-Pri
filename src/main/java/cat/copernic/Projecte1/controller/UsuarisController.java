@@ -2,12 +2,10 @@ package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
-import jakarta.annotation.PostConstruct;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,18 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/web/usuaris")
-@Scope("request")
 public class UsuarisController {
 
     private final Logger logger = LoggerFactory.getLogger(UsuarisController.class);
 
     @Autowired
     private UsuarisLogic usuarisService;
-
-    @PostConstruct
-    private void init() {
-        // Inicialització si fos necessària
-    }
 
     // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
