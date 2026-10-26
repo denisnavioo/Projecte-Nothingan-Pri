@@ -19,10 +19,11 @@ import java.math.BigDecimal;
 
 public class Vehicle {
     
-    @Id
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     
+    @Id
     @Column(name = "Matricula", nullable = false, unique = true, length = 15)
     private String matricula;
 
