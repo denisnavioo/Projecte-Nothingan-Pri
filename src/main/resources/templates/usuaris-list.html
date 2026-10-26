@@ -86,9 +86,9 @@
                             <span th:if="${u.estatRegistre == 'BAIXA'}" class="badge badge-baixa">Baixa</span>
                         </td>
 
-                        <!-- Columna d'accions amb format "Veure · Editar · Baixa" -->
+                        <!-- Columna d'accions amb la ruta /view/ corregida per a Veure -->
                         <td class="actions-cell">
-                            <a th:href="@{/web/usuaris/edit/{id}(id=${u.id})}">Veure</a> · 
+                            <a th:href="@{/web/usuaris/view/{id}(id=${u.id})}">Veure</a> · 
                             <a th:href="@{/web/usuaris/edit/{id}(id=${u.id})}">Editar</a> · 
                             <a th:href="@{/web/usuaris/delete/{id}(id=${u.id})}" onclick="return confirm('Estàs segur de donar de baixa aquest client?')">Baixa</a>
                         </td>

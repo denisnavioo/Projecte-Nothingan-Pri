@@ -20,7 +20,9 @@ public class Usuaris {
     private String password;
     private int telefon;
     private String adreca;
+    private String poblacio;
     private String nacionalitat;
+    private String rol;
 
     // Document d'identitat (DNI/Passaport)
     private String dni;
@@ -44,13 +46,14 @@ public class Usuaris {
     public Usuaris() {
     }
 
-    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre) {
+    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre, String rol) {
         this.nom = nom;
         this.dni = dni;
         this.email = email;
         this.password = password;
         this.telefon = telefon;
         this.estatRegistre = estatRegistre;
+        this.rol = rol;
     }
 
     // --- GETTERS Y SETTERS ---
@@ -182,4 +185,22 @@ public class Usuaris {
     public void setPremium(Boolean premium) {
         this.premium = premium;
     }   
+
+    public String getPoblacio() {
+        return poblacio;
+    }
+
+    public void setPoblacio(String poblacio) {
+        this.poblacio = poblacio;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+    
+    
 }
