@@ -24,4 +24,7 @@ public interface UsuarisRepository extends JpaRepository<Usuaris, Long>{
     // Búsqueda por DNI (coincidencia parcial)
     List<Usuaris> findByDniContainingIgnoreCase(String dni);
     
+    // Método para comprobar si existe un usuario con ese email
+    boolean existsByEmail(String email);
+    
 }

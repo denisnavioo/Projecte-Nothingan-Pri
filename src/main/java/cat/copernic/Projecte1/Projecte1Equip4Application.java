@@ -18,41 +18,30 @@ public class Projecte1Equip4Application {
     public CommandLineRunner initData(UsuarisRepository usuarisRepo) {
         return args -> {
 
-           
+            crearUsuariSiNoExisteix(usuarisRepo, "Alejandro Lorente", "alorente@alumnat.copernic.cat", "1212", 765432, "VALIDAT", "22");
+            crearUsuariSiNoExisteix(usuarisRepo, "Facundo jaeggi", "fjaeggi@alumnat.copernic.cat", "1212", 54152, "VALIDAT", "44");
+            crearUsuariSiNoExisteix(usuarisRepo, "Denis Navio", "dnavio@alumnat.copernic.cat", "1212", 600000000, "VALIDAT", "11");
 
-                Usuaris u1 = new Usuaris();
-                u1.setNom("Alejandro Lorente");
-                u1.setEmail("alorente@alumnat.copernic.cat");
-                u1.setPassword("1212");
-                u1.setTelefon(765432);
-                u1.setEstatRegistre("VALIDAT");
-                u1.setDni("22");
-
-                Usuaris u2 = new Usuaris();
-                u2.setNom("Facundo jaeggi");
-                u2.setEmail("fjaeggi@alumnat.copernic.cat");
-                u2.setPassword("1212");
-                u2.setTelefon(54152);
-                u2.setEstatRegistre("VALIDAT");
-                u2.setDni("44");
-
-                Usuaris u3 = new Usuaris();
-                u3.setNom("Denis Navio");
-                u3.setEmail("dnavio@alumnat.copernic.cat");
-                u3.setPassword("1212");
-                u3.setTelefon(600000000);
-                u3.setEstatRegistre("VALIDAT");
-                u3.setDni("11");
-
-                usuarisRepo.save(u1);
-                usuarisRepo.save(u2);
-                usuarisRepo.save(u3);
-
-            
             System.out.println("\n----------------------------------------------------------");
             System.out.println(" Aplicació iniciada correctament!");
             System.out.println(" Accés al login: http://localhost:8080/web/usuaris/login");
             System.out.println("----------------------------------------------------------\n");
         };
+    }
+
+    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, int telefon, String estat, String dni) {
+        if (!repo.existsByEmail(email)) {
+            Usuaris u = new Usuaris();
+            u.setNom(nom);
+            u.setEmail(email);
+            u.setPassword(password);
+            u.setTelefon(telefon);
+            u.setEstatRegistre(estat);
+            u.setDni(dni);
+            repo.save(u);
+            System.out.println("Usuari creat: " + email);
+        } else {
+            System.out.println("L'usuari ja existeix a la BD: " + email);
+        }
     }
 }
