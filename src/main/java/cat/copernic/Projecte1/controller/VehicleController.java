@@ -91,7 +91,7 @@ public class VehicleController {
 
         logger.debug("Editing product " + vehicleId);
 
-        Vehicle vehicle = vehicleLogic.getProductById(vehicleId);
+        Vehicle vehicle = vehicleLogic.getVehicleById(vehicleId);
 
         if (vehicle == null) {
             return "redirect:/web/vehicles/all";

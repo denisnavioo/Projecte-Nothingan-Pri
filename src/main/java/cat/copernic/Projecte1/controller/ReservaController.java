@@ -191,7 +191,7 @@ public class ReservaController {
     }
 
     private void carregarDadesFormulari(Model model) {
-        model.addAttribute("vehicles", vehicleLogic.findAllProducts());
+        model.addAttribute("vehicles", vehicleLogic.findAllVehicles());
         model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
     }
 }
