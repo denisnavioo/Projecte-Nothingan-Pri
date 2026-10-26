@@ -20,7 +20,7 @@ public class VehicleLogic {
         this.vehicleRepo = vehicleRepo;
     }
 
-    public List<Vehicle> findAllProducts(){
+    public List<Vehicle> findAllVehicles(){
 
         List<Vehicle> ret;
 
@@ -44,7 +44,7 @@ public class VehicleLogic {
 
     }
 
-    public Vehicle getProductById(Long id){
+    public Vehicle getVehicleById(Long id){
 
         return vehicleRepo.findById(id).orElse(null);
 
@@ -57,5 +57,11 @@ public class VehicleLogic {
         return (p != null);
     }
     
+    public List<Vehicle> findByMatricula(String matricula) {
+    if (matricula == null || matricula.trim().isEmpty()) {
+        return vehicleRepo.findAll();
+    }
+    return vehicleRepo.findByMatriculaContainingIgnoreCase(matricula);
+}
 }
 
