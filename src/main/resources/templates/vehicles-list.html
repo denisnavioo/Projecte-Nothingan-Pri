@@ -1,139 +1,140 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestió de vehicles - Nothingan Pri</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestió de vehicles - Nothingan Pri</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
 
-<div class="layout">
+        <div class="layout">
 
-    <aside class="sidebar">
-        <div class="logo-container">
-            <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
-        </div>
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                    </a>        </div>
 
-        <nav class="nav-menu">
-            <a th:href="@{/web/reserves/all}">• Reserves</a>
-            <a th:href="@{/web/vehicles/all}" class="active">• Vehicles</a>
-            <a th:href="@{/web/usuaris/all}">• Clients</a>
-        </nav>
-    </aside>
+                <nav class="nav-menu">
+                    <a th:href="@{/web/reserves/all}">• Reserves</a>
+                    <a th:href="@{/web/vehicles/all}" class="active">• Vehicles</a>
+                    <a th:href="@{/web/usuaris/all}">• Clients</a>
+                </nav>
+            </aside>
 
-    <main class="content">
+            <main class="content">
 
-        <header class="top-header">
-            <h2>Gestió de vehicles</h2>
+                <header class="top-header">
+                    <h2>Gestió de vehicles</h2>
 
-            <div class="user-dropdown">
-                <span>(agent) ▾</span>
-                <div class="user-avatar"></div>
-            </div>
-        </header>
-
-        <div th:if="${missatge}"
-             class="alert-success"
-             th:text="${missatge}"></div>
-
-        <div th:if="${error}"
-             class="alert-error"
-             th:text="${error}"></div>
-
-        <div class="top-bar">
-            <h3>Llistat de vehicles</h3>
-
-            <a th:href="@{/web/vehicles/new}" class="btn btn-add">
-                + Alta de vehicle
-            </a>
-        </div>
-
-        <!-- Filtres de vehicles -->
-        <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
-            <form th:action="@{/web/vehicles/all}" method="get">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="matricula">Matrícula</label>
-                        <input type="text"
-                               id="matricula"
-                               name="matricula"
-                               placeholder="Filtrar per matrícula..."
-                               th:value="${param.matricula}">
+                    <div class="user-dropdown">
+                        <span>(agent) ▾</span>
+                        <div class="user-avatar"></div>
                     </div>
-                </div>
+                </header>
 
-                <div class="button-group" style="margin-top: 15px;">
-                    <button type="submit" class="btn btn-filter">
-                        Filtrar
-                    </button>
+                <div th:if="${missatge}"
+                     class="alert-success"
+                     th:text="${missatge}"></div>
 
-                    <a th:href="@{/web/vehicles/all}" class="btn btn-cancel">
-                        Netejar filtres
+                <div th:if="${error}"
+                     class="alert-error"
+                     th:text="${error}"></div>
+
+                <div class="top-bar">
+                    <h3>Llistat de vehicles</h3>
+
+                    <a th:href="@{/web/vehicles/new}" class="btn btn-add">
+                        + Alta de vehicle
                     </a>
                 </div>
-            </form>
-        </div>
 
-        <!-- Taula de Vehicles -->
-        <div class="table-card">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Matrícula</th>
-                        <th>Marca / Model</th>
-                        <th>Categoria</th>
-                        <th>Any</th>
-                        <th>Preu / Dia</th>
-                        <th>Estat</th>
-                        <th>Actiu</th>
-                        <th>Accions</th>
-                    </tr>
-                </thead>
+                <!-- Filtres de vehicles -->
+                <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
+                    <form th:action="@{/web/vehicles/all}" method="get">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="matricula">Matrícula</label>
+                                <input type="text"
+                                       id="matricula"
+                                       name="matricula"
+                                       placeholder="Filtrar per matrícula..."
+                                       th:value="${param.matricula}">
+                            </div>
+                        </div>
 
-                <tbody>
-                    <!-- Iteració sobre la llista de vehicles (${vehicle}) -->
-                    <tr th:each="v : ${vehicle}">
-                        <td th:text="${v.matricula}">1234ABC</td>
-                        <td th:text="${v.marca + ' ' + v.model}">Seat Ibiza</td>
-                        <td>
-                            <span class="badge" th:text="${v.categoria}">SUV</span>
-                        </td>
-                        <td th:text="${v.anyFabricacio}">2022</td>
-                        <td th:text="${#numbers.formatDecimal(v.preuDia, 1, 2) + ' €'}">45.00 €</td>
-                        <td>
-                            <span class="badge"
-                                  th:classappend="${v.estatVehicle != null and v.estatVehicle.name() == 'Disponible'} ? ' badge-validat' : ' badge-baixa'"
-                                  th:text="${v.estatVehicle}">Disponible</span>
-                        </td>
-                        <td>
-                            <span th:if="${v.actiu}" class="badge badge-validat">Sí</span>
-                            <span th:unless="${v.actiu}" class="badge badge-rebutjat">No</span>
-                        </td>
-                        <td class="actions-cell">
-                            <a th:href="@{/web/vehicles/edit/{id}(id=${v.id})}">Editar</a>
+                        <div class="button-group" style="margin-top: 15px;">
+                            <button type="submit" class="btn btn-filter">
+                                Filtrar
+                            </button>
 
-                            <a th:href="@{/web/vehicles/delete/{id}(id=${v.id})}"
-                               class="action-link"
-                               style="color: var(--danger-color, #d9534f);"
-                               onclick="return confirm('Estàs segur que vols eliminar aquest vehicle?');">
-                                Baixa
+                            <a th:href="@{/web/vehicles/all}" class="btn btn-cancel">
+                                Netejar filtres
                             </a>
-                        </td>
-                    </tr>
+                        </div>
+                    </form>
+                </div>
 
-                    <!-- Missatge quan no hi ha vehicles -->
-                    <tr th:if="${#lists.isEmpty(vehicle)}">
-                        <td colspan="8" class="empty-state">
-                            No s'han trobat vehicles registrats.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                <!-- Taula de Vehicles -->
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Matrícula</th>
+                                <th>Marca / Model</th>
+                                <th>Categoria</th>
+                                <th>Any</th>
+                                <th>Preu / Dia</th>
+                                <th>Estat</th>
+                                <th>Actiu</th>
+                                <th>Accions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <!-- Iteració sobre la llista de vehicles (${vehicle}) -->
+                            <tr th:each="v : ${vehicle}">
+                                <td th:text="${v.matricula}">1234ABC</td>
+                                <td th:text="${v.marca + ' ' + v.model}">Seat Ibiza</td>
+                                <td>
+                                    <span class="badge" th:text="${v.categoria}">SUV</span>
+                                </td>
+                                <td th:text="${v.anyFabricacio}">2022</td>
+                                <td th:text="${#numbers.formatDecimal(v.preuDia, 1, 2) + ' €'}">45.00 €</td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${v.estatVehicle != null and v.estatVehicle.name() == 'Disponible'} ? ' badge-validat' : ' badge-baixa'"
+                                          th:text="${v.estatVehicle}">Disponible</span>
+                                </td>
+                                <td>
+                                    <span th:if="${v.actiu}" class="badge badge-validat">Sí</span>
+                                    <span th:unless="${v.actiu}" class="badge badge-rebutjat">No</span>
+                                </td>
+                                <td class="actions-cell">
+                                    <a th:href="@{/web/vehicles/edit/{id}(id=${v.id})}">Editar</a>
+
+                                    <a th:href="@{/web/vehicles/delete/{id}(id=${v.id})}"
+                                       class="action-link"
+                                       style="color: var(--danger-color, #d9534f);"
+                                       onclick="return confirm('Estàs segur que vols eliminar aquest vehicle?');">
+                                        Baixa
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <!-- Missatge quan no hi ha vehicles -->
+                            <tr th:if="${#lists.isEmpty(vehicle)}">
+                                <td colspan="8" class="empty-state">
+                                    No s'han trobat vehicles registrats.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
         </div>
 
-    </main>
-</div>
-
-</body>
+    </body>
 </html>
