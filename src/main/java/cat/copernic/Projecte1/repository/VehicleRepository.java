@@ -1,6 +1,7 @@
 package cat.copernic.Projecte1.repository;
 
 
+import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 import cat.copernic.Projecte1.entity.Vehicle;
 import java.util.List;
 import java.util.Optional;
@@ -17,5 +18,5 @@ public interface VehicleRepository extends JpaRepository<Vehicle , Long>{
 
     // O si solo quieres coincidencia exacta, usa:
     // Optional<Vehicle> findByMatricula(String matricula);
-    
+    List<Vehicle> findByEstatVehicleAndActiuTrue(EstatVehicle estatVehicle);
 }

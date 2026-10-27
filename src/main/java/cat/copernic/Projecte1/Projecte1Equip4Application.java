@@ -18,9 +18,9 @@ public class Projecte1Equip4Application {
     public CommandLineRunner initData(UsuarisRepository usuarisRepo) {
         return args -> {
 
-            crearUsuariSiNoExisteix(usuarisRepo, "Alejandro Lorente", "alorente@alumnat.copernic.cat", "1212", 765432, "VALIDAT", "22");
-            crearUsuariSiNoExisteix(usuarisRepo, "Facundo jaeggi", "fjaeggi@alumnat.copernic.cat", "1212", 54152, "VALIDAT", "44");
-            crearUsuariSiNoExisteix(usuarisRepo, "Denis Navio", "dnavio@alumnat.copernic.cat", "1212", 600000000, "VALIDAT", "11");
+            crearUsuariSiNoExisteix(usuarisRepo, "Alejandro Lorente", "alorente@alumnat.copernic.cat", "1212", 765432, "VALIDAT", "74827465-H",false);
+            crearUsuariSiNoExisteix(usuarisRepo, "Facundo jaeggi", "fjaeggi@alumnat.copernic.cat", "1212", 54152, "VALIDAT", "74864465-N", false);
+            crearUsuariSiNoExisteix(usuarisRepo, "Denis Navio", "dnavio@alumnat.copernic.cat", "1212", 600000000, "VALIDAT", "74827665-T", false);
 
             System.out.println("\n----------------------------------------------------------");
             System.out.println(" Aplicació iniciada correctament!");
@@ -29,7 +29,7 @@ public class Projecte1Equip4Application {
         };
     }
 
-    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, int telefon, String estat, String dni) {
+    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, int telefon, String estat, String dni, boolean premium) {
         if (!repo.existsByEmail(email)) {
             Usuaris u = new Usuaris();
             u.setNom(nom);
@@ -38,6 +38,7 @@ public class Projecte1Equip4Application {
             u.setTelefon(telefon);
             u.setEstatRegistre(estat);
             u.setDni(dni);
+            u.setPremium(premium);
             repo.save(u);
             System.out.println("Usuari creat: " + email);
         } else {

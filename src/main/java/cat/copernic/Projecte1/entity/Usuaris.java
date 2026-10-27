@@ -46,6 +46,7 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
+    
     private Boolean premium;
 
     public Usuaris() {
