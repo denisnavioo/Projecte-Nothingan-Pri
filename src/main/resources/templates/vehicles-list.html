@@ -28,9 +28,40 @@
                 <header class="top-header">
                     <h2>Gestió de vehicles</h2>
 
-                    <div class="user-dropdown">
-                        <span>(agent) ▾</span>
-                        <div class="user-avatar"></div>
+            <div class="user-dropdown">
+                <span>(agent) ▾</span>
+                <div class="user-avatar"></div>
+            </div>
+        </header>
+
+        <div th:if="${missatge}"
+             class="alert-success"
+             th:text="${missatge}"></div>
+
+        <div th:if="${error}"
+             class="alert-error"
+             th:text="${error}"></div>
+
+        <div class="top-bar">
+            <h3>Llistat de vehicles</h3>
+
+            <a th:href="@{/web/vehicles/new}" class="btn btn-add">
+                + Nou vehicle
+            </a>
+        </div>
+
+        <!-- Filtre per matrícula -->
+        <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
+            <form th:action="@{/web/vehicles/all}" method="get">
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="matricula">Matrícula del vehicle</label>
+                        <input type="text"
+                               id="matricula"
+                               name="matricula"
+                               placeholder="Introdueix la matrícula"
+                               th:value="${matricula}">
                     </div>
                 </header>
 

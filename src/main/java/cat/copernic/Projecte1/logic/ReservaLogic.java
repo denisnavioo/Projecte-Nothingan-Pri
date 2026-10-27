@@ -48,6 +48,31 @@ public class ReservaLogic {
     public boolean existsById(Integer id) {
         return reservaRepo.existsById(id);
     }
+    
+    // Comprova si un vehicle està disponible entre dues dates.
+    public boolean vehicleDisponible(
+            Long vehicleId,
+            LocalDateTime dataInici,
+            LocalDateTime dataFi) {
+
+        // Valida les dates introduïdes.
+        if (vehicleId == null || vehicleId <= 0
+                || dataInici == null
+                || dataFi == null
+                || !dataFi.isAfter(dataInici)) {
+            return false;
+        }
+
+        // Busca les reserves que coincideixen amb aquest període.
+        List<Reserva> reserves = reservaRepo.findReservesSolapades(
+                vehicleId,
+                dataInici,
+                dataFi,
+                EstatReserva.Anulada);
+
+        // Si no hi ha reserves coincidents, el vehicle està lliure.
+        return reserves.isEmpty();
+    }
 
     @Transactional
     public Integer saveReserva(Reserva reserva) {
@@ -131,7 +156,7 @@ public class ReservaLogic {
         // Aplica un descompte proposat del 10 % a la fiança premium.
         BigDecimal fianca = reserva.getImportFianca();
 
-        if (usuari.getPremium()) {
+        if (Boolean.TRUE.equals(usuari.getPremium())) {
             fianca = fianca.multiply(new BigDecimal("0.90"));
         }
 

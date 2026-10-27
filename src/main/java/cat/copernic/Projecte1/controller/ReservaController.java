@@ -126,6 +126,40 @@ public class ReservaController {
 
         return "edit-reserva";
     }
+    
+    // RF31: buscar vehicles disponibles.
+    @GetMapping("/disponibles")
+    public String buscarDisponibles(
+            @RequestParam String dataInici,
+            @RequestParam String dataFi,
+            Model model) {
+
+        var inici = java.time.LocalDateTime.parse(dataInici);
+        var fi = java.time.LocalDateTime.parse(dataFi);
+
+        List<Vehicle> disponibles = vehicleLogic.findAllProducts()
+                .stream()
+                .filter(v -> reservaLogic.vehicleDisponible(
+                        v.getId(), inici, fi))
+                .toList();
+        
+        System.out.println("Vehicles disponibles: " + disponibles.size());
+
+        Reserva reserva = new Reserva();
+        reserva.setVehicle(new Vehicle());
+        reserva.setUsuari(new Usuaris());
+        reserva.setDataInici(inici);
+        reserva.setDataFi(fi);
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("vehicles", disponibles);
+        model.addAttribute("senseDisponibilitat", disponibles.isEmpty());
+        model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
+        model.addAttribute("dataInici", dataInici);
+        model.addAttribute("dataFi", dataFi);
+
+        return "edit-reserva";
+    }
 
     // Crear una reserva
     @PostMapping("/save")
@@ -153,10 +187,7 @@ public class ReservaController {
 
     // RF41: consultar els detalls d'una reserva
     @GetMapping("/detall/{id}")
-    public String details(
-            @PathVariable("id") Integer id, Model model) {
-
-        logger.debug("Getting reserva details: " + id);
+    public String details(@PathVariable("id") Integer id, Model model) {
 
         Reserva reserva = reservaLogic.getReservaById(id);
 
@@ -164,9 +195,10 @@ public class ReservaController {
             return "redirect:/web/reserves/all";
         }
 
-        model.addAttribute("reserva", reserva);
+        model.addAttribute("reserves", reservaLogic.findAllReservas());
+        model.addAttribute("reservaSeleccionada", reserva);
 
-        return "reserva-details";
+        return "reserves-list";
     }
 
     // RF38: anul·lar una reserva
@@ -193,7 +225,7 @@ public class ReservaController {
     }
 
     private void carregarDadesFormulari(Model model) {
-        model.addAttribute("vehicles", vehicleLogic.findAllProducts());
+        model.addAttribute("vehicles", vehicleLogic.findAllVehicles());
         model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
     }
 }

@@ -1,5 +1,6 @@
 package cat.copernic.Projecte1.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,15 +17,19 @@ public class Usuaris {
 
     // Dades bàsiques i accés
     private String nom;
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
+
     private int telefon;
+
     private String adreca;
     private String poblacio;
     private String nacionalitat;
     private String rol;
 
     // Document d'identitat (DNI/Passaport)
+    @Column(nullable = false, unique = true)
     private String dni;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataCaducitatDni;
@@ -41,6 +46,7 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
+    
     private Boolean premium;
 
     public Usuaris() {
