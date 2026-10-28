@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -47,7 +48,7 @@
              class="alert-error"
              th:text="${error}"></div>
 
-        <!-- RF31: cercar vehicles disponibles -->
+        <!-- RF31: consultar vehicles disponibles -->
         <div class="table-card"
              style="padding: 16px 20px; margin-bottom: 20px;">
 
@@ -88,7 +89,6 @@
                     </button>
 
                 </div>
-
             </form>
 
             <div th:if="${senseDisponibilitat}"
@@ -96,7 +96,6 @@
                  style="margin-top: 12px;">
                 No hi ha vehicles disponibles per a les dates seleccionades.
             </div>
-
         </div>
 
         <!-- Formulari per crear una reserva -->
@@ -118,6 +117,7 @@
 
                             <option th:each="v : ${vehicles}"
                                     th:value="${v.id}"
+                                    th:attr="data-preu-dia=${v.preuDia}"
                                     th:text="${v.matricula + ' - ' + v.marca + ' ' + v.model + ' (' + v.estatVehicle + ')'}">
                             </option>
                         </select>
@@ -133,6 +133,7 @@
 
                             <option th:each="u : ${usuaris}"
                                     th:value="${u.id}"
+                                    th:attr="data-premium=${u.premium}"
                                     th:text="${u.nom + ' - ' + u.dni + ' (' + u.estatRegistre + ')'}">
                             </option>
                         </select>
@@ -146,6 +147,7 @@
                         <input type="datetime-local"
                                id="dataIniciReserva"
                                th:field="*{dataInici}"
+                               th:readonly="${dataInici != null}"
                                required>
                     </div>
 
@@ -157,6 +159,7 @@
                         <input type="datetime-local"
                                id="dataFiReserva"
                                th:field="*{dataFi}"
+                               th:readonly="${dataFi != null}"
                                required>
                     </div>
 
@@ -184,6 +187,20 @@
 
                 </div>
 
+                <!-- Vista previa del presupuesto -->
+                <div id="resumPreu"
+                     aria-live="polite"
+                     style="margin-top: 24px; padding: 22px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+
+                    <h3 style="margin: 0 0 12px; font-size: 18px; color: #1e293b;">
+                        Resum del pressupost
+                    </h3>
+
+                    <p style="margin: 0; color: #64748b;">
+                        Selecciona un vehicle, un client i unes dates vàlides.
+                    </p>
+                </div>
+
                 <div class="button-group" style="margin-top: 24px;">
                     <button type="submit" class="btn btn-filter">
                         Desar reserva
@@ -196,11 +213,124 @@
                 </div>
 
             </form>
-
         </div>
-
     </main>
 </div>
+
+<script>
+    const vehicle = document.getElementById('vehicle');
+    const usuari = document.getElementById('usuari');
+    const inici = document.getElementById('dataIniciReserva');
+    const fi = document.getElementById('dataFiReserva');
+    const fianca = document.getElementById('importFianca');
+    const resum = document.getElementById('resumPreu');
+
+    // Converteix la data local a una escala comuna per calcular la durada.
+    function convertirData(valor) {
+        if (!valor) return NaN;
+
+        const [data, hora] = valor.split('T');
+        const [any, mes, dia] = data.split('-').map(Number);
+        const [h, m] = hora.split(':').map(Number);
+
+        return Date.UTC(any, mes - 1, dia, h, m);
+    }
+
+    // Calcula el pressupost sense modificar els imports enviats al servidor.
+    function calcularPreu() {
+        const v = vehicle.selectedOptions[0];
+        const u = usuari.selectedOptions[0];
+        const preuDia = Number(v.dataset.preuDia);
+        const dataInici = convertirData(inici.value);
+        const dataFi = convertirData(fi.value);
+
+        if (!vehicle.value || !usuari.value ||
+            !inici.value || !fi.value ||
+            !Number.isFinite(dataInici) ||
+            !Number.isFinite(dataFi) ||
+            dataFi <= dataInici ||
+            !Number.isFinite(preuDia) || preuDia <= 0) {
+            resum.innerHTML = `
+                <h3 style="margin:0 0 8px;color:#1e293b;">
+                    Resum del pressupost
+                </h3>
+                <p style="margin:0;color:#64748b;">
+                    Selecciona un vehicle, un client i unes dates vàlides.
+                </p>`;
+            return;
+        }
+
+        const dies = Math.ceil((dataFi - dataInici) / 86400000);
+        const preuTotal = dies * preuDia;
+        const premium = u.dataset.premium === 'true';
+
+        const euros = valor => valor.toLocaleString('ca-ES', {
+            style: 'currency',
+            currency: 'EUR'
+        });
+
+        if (fianca.value === '' ||
+            !Number.isFinite(Number(fianca.value)) ||
+            Number(fianca.value) < 0) {
+            resum.innerHTML = `
+                <h3 style="margin:0 0 12px;color:#1e293b;">
+                    Resum del pressupost
+                </h3>
+                <p>Dies de lloguer: <strong>${dies}</strong></p>
+                <p>Preu total: <strong>${euros(preuTotal)}</strong></p>
+                <p style="margin-bottom:0;color:#b91c1c;">
+                    Introdueix una fiança vàlida.
+                </p>`;
+            return;
+        }
+
+        const importFianca = Number(fianca.value);
+        const descompte = premium ? importFianca * 0.1 : 0;
+        const fiancaFinal = importFianca - descompte;
+
+        resum.innerHTML = `
+            <h3 style="margin:0 0 18px;font-size:18px;color:#1e293b;">
+                Resum del pressupost
+            </h3>
+
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;">
+                <span style="color:#64748b;">Durada del lloguer</span>
+                <strong>${dies} dies</strong>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:18px;">
+                <span style="color:#64748b;">Preu total del lloguer</span>
+                <strong style="font-size:18px;">${euros(preuTotal)}</strong>
+            </div>
+
+            <div style="border-top:1px solid #e2e8f0;padding-top:14px;">
+                <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:10px;">
+                    <span style="color:#64748b;">Fiança original</span>
+                    <span>${euros(importFianca)}</span>
+                </div>
+
+                ${premium ? `
+                <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:10px;color:#15803d;">
+                    <span>Descompte premium (10 %)</span>
+                    <span>−${euros(descompte)}</span>
+                </div>` : ''}
+
+                <div style="display:flex;justify-content:space-between;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0;">
+                    <strong>Fiança final</strong>
+                    <strong style="font-size:18px;color:${premium ? '#15803d' : '#1e293b'};">
+                        ${euros(fiancaFinal)}
+                    </strong>
+                </div>
+            </div>`;
+    }
+
+    [vehicle, usuari, inici, fi, fianca].forEach(element => {
+        element.addEventListener('input', calcularPreu);
+        element.addEventListener('change', calcularPreu);
+    });
+
+    calcularPreu();
+</script>
 
 </body>
 </html>

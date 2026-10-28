@@ -6,117 +6,64 @@ import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 import cat.copernic.Projecte1.logic.VehicleLogic;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- *
- * @author Alejandro Lorente
- */
 @Controller
 @RequestMapping("/web/reserves")
-@Scope("request")
+@RequestScope
 public class ReservaController {
 
-    private final Logger logger =
-            LoggerFactory.getLogger(ReservaController.class);
+    private final ReservaLogic reservaLogic;
+    private final VehicleLogic vehicleLogic;
+    private final UsuarisLogic usuarisLogic;
 
-    @Autowired
-    private ReservaLogic reservaLogic;
+    public ReservaController(ReservaLogic reservaLogic,
+            VehicleLogic vehicleLogic, UsuarisLogic usuarisLogic) {
+        this.reservaLogic = reservaLogic;
+        this.vehicleLogic = vehicleLogic;
+        this.usuarisLogic = usuarisLogic;
+    }
 
-    @Autowired
-    private VehicleLogic vehicleLogic;
-
-    @Autowired
-    private UsuarisLogic usuarisLogic;
-
-    // RF40 i RF42: llistar i filtrar reserves
+    // Mostra totes les reserves i aplica els filtres.
     @GetMapping("/all")
     public String findAll(
             @RequestParam(required = false) String dni,
-            @RequestParam(required = false) String codiReserva,
+            @RequestParam(required = false) String codi,
             @RequestParam(required = false) String matricula,
-            @RequestParam(required = false) String dataReserva,
+            @RequestParam(required = false) String data,
             Model model) {
 
-        logger.debug("Getting all reserves...");
+        List<Reserva> reserves = reservaLogic.findAllReservas().stream()
+                .filter(r -> dni == null || dni.isBlank()
+                        || r.getUsuari().getDni().contains(dni))
+                .filter(r -> codi == null || codi.isBlank()
+                        || r.getCodiReserva().contains(codi))
+                .filter(r -> matricula == null || matricula.isBlank()
+                        || r.getVehicle().getMatricula().contains(matricula))
+                .filter(r -> data == null || data.isBlank()
+                        || (r.getDataReserva() != null
+                        && r.getDataReserva().toLocalDate().toString().equals(data)))
+                .toList();
 
-        List<Reserva> llista = reservaLogic.findAllReservas();
-
-        // Filtre per DNI del client
-        if (dni != null && !dni.isBlank()) {
-            String filtreDni = dni.trim().toLowerCase();
-
-            llista = llista.stream()
-                    .filter(r -> r.getUsuari() != null
-                            && r.getUsuari().getDni() != null
-                            && r.getUsuari().getDni()
-                                    .toLowerCase().contains(filtreDni))
-                    .collect(Collectors.toList());
-        }
-
-        // Filtre per codi de reserva
-        if (codiReserva != null && !codiReserva.isBlank()) {
-            String filtreCodi = codiReserva.trim().toLowerCase();
-
-            llista = llista.stream()
-                    .filter(r -> r.getCodiReserva() != null
-                            && r.getCodiReserva()
-                                    .toLowerCase().contains(filtreCodi))
-                    .collect(Collectors.toList());
-        }
-
-        // Filtre per matrícula del vehicle
-        if (matricula != null && !matricula.isBlank()) {
-            String filtreMatricula = matricula.trim().toLowerCase();
-
-            llista = llista.stream()
-                    .filter(r -> r.getVehicle() != null
-                            && r.getVehicle().getMatricula() != null
-                            && r.getVehicle().getMatricula()
-                                    .toLowerCase().contains(filtreMatricula))
-                    .collect(Collectors.toList());
-        }
-
-        // Filtre per data de creació de la reserva
-        if (dataReserva != null && !dataReserva.isBlank()) {
-            LocalDate dataFiltre = LocalDate.parse(dataReserva);
-
-            llista = llista.stream()
-                    .filter(r -> r.getDataReserva() != null
-                            && r.getDataReserva().toLocalDate()
-                                    .equals(dataFiltre))
-                    .collect(Collectors.toList());
-        }
-
-        model.addAttribute("reserves", llista);
+        model.addAttribute("reserves", reserves);
         model.addAttribute("dni", dni);
-        model.addAttribute("codiReserva", codiReserva);
+        model.addAttribute("codi", codi);
         model.addAttribute("matricula", matricula);
-        model.addAttribute("dataReserva", dataReserva);
+        model.addAttribute("data", data);
 
         return "reserves-list";
     }
 
-    // Formulari per crear una reserva
+    // Mostra el formulari per crear una reserva.
     @GetMapping("/new")
     public String getForm(Model model) {
-        logger.debug("Creating new reserva...");
-
         Reserva reserva = new Reserva();
         reserva.setVehicle(new Vehicle());
         reserva.setUsuari(new Usuaris());
@@ -126,24 +73,51 @@ public class ReservaController {
 
         return "edit-reserva";
     }
-    
-    // RF31: buscar vehicles disponibles.
+
+    // Busca els vehicles disponibles entre dues dates.
     @GetMapping("/disponibles")
     public String buscarDisponibles(
             @RequestParam String dataInici,
             @RequestParam String dataFi,
             Model model) {
 
-        var inici = java.time.LocalDateTime.parse(dataInici);
-        var fi = java.time.LocalDateTime.parse(dataFi);
+        LocalDateTime inici;
+        LocalDateTime fi;
 
-        List<Vehicle> disponibles = vehicleLogic.findAllVehicles()
-                .stream()
+        try {
+            inici = LocalDateTime.parse(dataInici);
+            fi = LocalDateTime.parse(dataFi);
+        } catch (DateTimeParseException e) {
+            model.addAttribute("error", "Les dates no són vàlides.");
+            Reserva reserva = new Reserva();
+            reserva.setVehicle(new Vehicle());
+            reserva.setUsuari(new Usuaris());
+            model.addAttribute("reserva", reserva);
+            model.addAttribute("vehicles", List.of());
+            model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
+            model.addAttribute("dataInici", dataInici);
+            model.addAttribute("dataFi", dataFi);
+            return "edit-reserva";
+        }
+
+        if (!fi.isAfter(inici)) {
+            model.addAttribute("error",
+                    "La data final ha de ser posterior a la data inicial.");
+            Reserva reserva = new Reserva();
+            reserva.setVehicle(new Vehicle());
+            reserva.setUsuari(new Usuaris());
+            model.addAttribute("reserva", reserva);
+            model.addAttribute("vehicles", List.of());
+            model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
+            model.addAttribute("dataInici", dataInici);
+            model.addAttribute("dataFi", dataFi);
+            return "edit-reserva";
+        }
+
+        List<Vehicle> disponibles = vehicleLogic.findAllVehicles().stream()
                 .filter(v -> reservaLogic.vehicleDisponible(
                         v.getId(), inici, fi))
                 .toList();
-        
-        System.out.println("Vehicles disponibles: " + disponibles.size());
 
         Reserva reserva = new Reserva();
         reserva.setVehicle(new Vehicle());
@@ -161,34 +135,25 @@ public class ReservaController {
         return "edit-reserva";
     }
 
-    // Crear una reserva
+    // Desa una reserva nova.
     @PostMapping("/save")
-    public String save(
-            @ModelAttribute("reserva") Reserva reserva,
+    public String save(@ModelAttribute Reserva reserva,
             RedirectAttributes redirectAttributes) {
-
-        logger.debug("Saving reserva...");
-
         try {
             reservaLogic.saveReserva(reserva);
-
             redirectAttributes.addFlashAttribute(
                     "missatge", "Reserva creada correctament.");
-
-            return "redirect:/web/reserves/all";
-
-        } catch (IllegalArgumentException ex) {
-            redirectAttributes.addFlashAttribute(
-                    "error", ex.getMessage());
-
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/web/reserves/new";
         }
+
+        return "redirect:/web/reserves/all";
     }
 
-    // RF41: consultar els detalls d'una reserva
+    // Mostra els detalls d'una reserva.
     @GetMapping("/detall/{id}")
-    public String details(@PathVariable("id") Integer id, Model model) {
-
+    public String details(@PathVariable Integer id, Model model) {
         Reserva reserva = reservaLogic.getReservaById(id);
 
         if (reserva == null) {
@@ -201,24 +166,16 @@ public class ReservaController {
         return "reserves-list";
     }
 
-    // RF38: anul·lar una reserva
+    // Anul·la una reserva.
     @PostMapping("/cancelar/{id}")
-    public String cancel(
-            @PathVariable("id") Integer id,
+    public String cancel(@PathVariable Integer id,
             RedirectAttributes redirectAttributes) {
-
-        logger.debug("Canceling reserva: " + id);
-
-        boolean anulada = reservaLogic.anularReserva(id);
-
-        if (anulada) {
+        if (reservaLogic.anularReserva(id)) {
             redirectAttributes.addFlashAttribute(
-                    "missatge",
-                    "Reserva anul·lada correctament.");
+                    "missatge", "Reserva anul·lada correctament.");
         } else {
             redirectAttributes.addFlashAttribute(
-                    "error",
-                    "No s'ha pogut anul·lar la reserva.");
+                    "error", "No s'ha pogut anul·lar la reserva.");
         }
 
         return "redirect:/web/reserves/all";

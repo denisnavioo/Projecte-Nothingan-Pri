@@ -12,11 +12,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 
-/**
- *
- * @author Alejandro Lorente
- */
 @Entity
 public class Reserva {
 
@@ -30,9 +27,11 @@ public class Reserva {
     @Column(nullable = false)
     private LocalDateTime dataReserva;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(nullable = false)
     private LocalDateTime dataInici;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(nullable = false)
     private LocalDateTime dataFi;
 

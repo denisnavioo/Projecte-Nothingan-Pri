@@ -53,10 +53,11 @@
                                placeholder="Introdueix el DNI" th:value="${dni}">
                     </div>
 
+                    <!-- CAMBIO 1: name i th:value ara són "codi" (com al controller) -->
                     <div class="form-group">
-                        <label for="codiReserva">Codi de reserva</label>
-                        <input type="text" id="codiReserva" name="codiReserva"
-                               placeholder="Codi de reserva" th:value="${codiReserva}">
+                        <label for="codi">Codi de reserva</label>
+                        <input type="text" id="codi" name="codi"
+                               placeholder="Codi de reserva" th:value="${codi}">
                     </div>
 
                     <div class="form-group">
@@ -66,9 +67,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="dataReserva">Data de reserva</label>
-                        <input type="date" id="dataReserva" name="dataReserva"
-                               th:value="${dataReserva}">
+                        <label for="data">Data de reserva</label>
+                        <input type="date" id="data" name="data"
+                               th:value="${data}">
                     </div>
 
                 </div>
@@ -154,6 +155,7 @@
 
             <div class="form-grid">
 
+                <!-- CAMBIO 2: tornem a mostrar el codi com a text (no com a input) -->
                 <div class="form-group">
                     <label>Codi de reserva</label>
                     <p th:text="${reservaSeleccionada.codiReserva}"></p>
