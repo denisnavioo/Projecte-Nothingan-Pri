@@ -1,6 +1,8 @@
 package cat.copernic.Projecte1.controller;
 
+import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
+import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -202,6 +204,16 @@ public String mostrarReservesClient(Model model) {
 
     // 2. Por ahora pasamos un título o datos de prueba si lo necesitas
     return "client-reserves"; // Nombre del archivo HTML (client-reserves.html)
+}
+
+@GetMapping("/client/reserves/nova")
+public String mostrarNovaReservaClient(Model model) {
+    Reserva reserva = new Reserva();
+    reserva.setVehicle(new Vehicle());
+    reserva.setUsuari(new Usuaris());
+
+    model.addAttribute("reserva", reserva);
+    return "nova-reserva";
 }
 
 // PAGINAS DE ADMIN
