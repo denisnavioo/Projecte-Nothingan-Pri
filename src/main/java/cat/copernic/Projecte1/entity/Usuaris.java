@@ -20,19 +20,7 @@ public class Usuaris {
     @Column(nullable = false, unique = true)
     private String email;
     private String password;
-<<<<<<< HEAD
-<<<<<<< HEAD
     private int telefon;
-=======
-
-    private int telefon;
-
->>>>>>> develop
-=======
-
-    private int telefon;
-
->>>>>>> develop
     private String adreca;
     private String poblacio;
     private String nacionalitat;
@@ -56,14 +44,6 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    
->>>>>>> develop
-=======
-    
->>>>>>> develop
     private Boolean premium;
 
     public Usuaris() {
@@ -208,11 +188,7 @@ public class Usuaris {
     public void setPremium(Boolean premium) {
         this.premium = premium;
     }   
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> develop
+
 
     public String getPoblacio() {
         return poblacio;
@@ -229,10 +205,5 @@ public class Usuaris {
     public void setRol(String rol) {
         this.rol = rol;
     }
+}    
     
-    
-<<<<<<< HEAD
->>>>>>> develop
-=======
->>>>>>> develop
-}

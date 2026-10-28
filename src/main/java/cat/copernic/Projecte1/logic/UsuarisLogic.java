@@ -5,33 +5,19 @@ import cat.copernic.Projecte1.repository.UsuarisRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 import java.util.stream.Collectors;
-=======
->>>>>>> develop
-=======
->>>>>>> develop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarisLogic {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 
     @Autowired
     private UsuarisRepository usuariRepo;
      
-=======
-    @Autowired
-    private UsuarisRepository usuariRepo;
->>>>>>> develop
-=======
-    @Autowired
-    private UsuarisRepository usuariRepo;
->>>>>>> develop
 
     // --- OPERACIONES BÁSICAS CRUD ---
     public List<Usuaris> findAllUsuaris() {
@@ -185,18 +171,10 @@ public class UsuarisLogic {
 
         usuariRepo.save(usuariExistent);
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     
     // Mètode per filtrar usuaris per DNI de forma Parcial
-=======
 
-    // Mètode per filtrar usuaris per DNI de forma Parcial (RF14)
->>>>>>> develop
-=======
-
-    // Mètode per filtrar usuaris per DNI de forma Parcial (RF14)
->>>>>>> develop
     public List<Usuaris> findByDni(String dni) {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }

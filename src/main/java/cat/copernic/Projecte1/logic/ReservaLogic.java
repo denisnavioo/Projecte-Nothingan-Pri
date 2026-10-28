@@ -156,15 +156,9 @@ public class ReservaLogic {
         // Aplica un descompte proposat del 10 % a la fiança premium.
         BigDecimal fianca = reserva.getImportFianca();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-        if (usuari.getPremium()) {
-=======
+
+
         if (Boolean.TRUE.equals(usuari.getPremium())) {
->>>>>>> develop
-=======
-        if (Boolean.TRUE.equals(usuari.getPremium())) {
->>>>>>> develop
             fianca = fianca.multiply(new BigDecimal("0.90"));
         }
 
