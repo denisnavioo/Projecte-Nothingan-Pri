@@ -1,122 +1,124 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Les meves reserves - Nothingan Pri</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Les meves reserves - Nothingan Pri</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
 
-<div class="layout">
+        <div class="layout">
 
-    <!-- Menú Lateral Client -->
-    <aside class="sidebar">
-        <div class="logo-container">
-            <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
-        </div>
-
-        <nav class="nav-menu">
-            <a th:href="@{/web/client/reserves}" class="active">• Les meves reserves</a>
-            <a th:href="@{/web/client/reserves/nova}">• Nova reserva</a>
-            <a th:href="@{/web/client/perfil}">• El meu perfil</a>
-        </nav>
-    </aside>
-
-    <!-- Contingut Principal -->
-    <main class="content">
-
-        <!-- Capçalera superior -->
-        <header class="top-header" style="justify-content: space-between;">
-            <h2>Les meves reserves</h2>
-
-            <div class="user-dropdown">
-                <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'dnavio'}">dnavio ▾</span>
-                <div class="user-avatar"></div>
-            </div>
-        </header>
-
-        <!-- Taula de Reserves -->
-        <div class="table-card" style="margin-bottom: 32px;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>Codi</th>
-                        <th>Vehicle</th>
-                        <th>Inici</th>
-                        <th>Fi</th>
-                        <th>Estat</th>
-                        <th>Accions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="r : ${reserves}">
-                        <td th:text="${r.codi}">R-1021</td>
-                        <td th:text="${r.vehicleMatricula}">1234 ABC</td>
-                        <td th:text="${#temporals.format(r.dataInici, 'dd/MM')}">10/10</td>
-                        <td th:text="${#temporals.format(r.dataFi, 'dd/MM')}">12/10</td>
-                        
-                        <!-- Badges d'Estat -->
-                        <td>
-                            <span th:if="${r.estat == 'CONFIRMADA'}" class="badge badge-validat">Confirmada</span>
-                            <span th:if="${r.estat == 'LLIURADA'}" class="badge" style="background-color: #00a8e8; color: white;">Lliurada</span>
-                            <span th:if="${r.estat == 'RETORNADA'}" class="badge badge-validat" style="background-color: #00b074;">Retornada</span>
-                            <span th:if="${r.estat == 'ANUL·LADA' or r.estat == 'ANULLADA'}" class="badge badge-baixa">Anul·lada</span>
-                        </td>
-
-                        <!-- Accions segons l'estat -->
-                        <td class="actions-cell">
-                            <a th:if="${r.estat == 'CONFIRMADA'}" 
-                               th:href="@{'/web/client/reserves/anullar/' + ${r.id}}" 
-                               onclick="return confirm('Estàs segur de voler anul·lar aquesta reserva?')" 
-                               style="color: #6c757d;">Anul·lar</a>
-
-                            <a th:if="${r.estat == 'LLIURADA'}" 
-                               th:href="@{'#form-assistencia'}" 
-                               style="color: #0d6efd;">Assistència</a>
-
-                            <a th:if="${r.estat == 'RETORNADA' or r.estat == 'ANUL·LADA' or r.estat == 'ANULLADA'}" 
-                               th:href="@{'/web/client/reserves/view/' + ${r.id}}" 
-                               style="color: #6c757d;">Veure</a>
-                        </td>
-                    </tr>
-
-                    <!-- Estat buit -->
-                    <tr th:if="${#lists.isEmpty(reserves)}">
-                        <td colspan="6" class="empty-state">
-                            No tens cap reserva actualment.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <p style="font-size: 0.85rem; color: #888; margin-top: 12px; margin-left: 16px;">
-                Només es pot anul·lar abans del lliurament.
-            </p>
-        </div>
-
-        <!-- Targeta Sol·licitar Assistència -->
-        <div id="form-assistencia" class="table-card" style="padding: 24px; max-width: 480px;">
-            <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: #1a253c;">Sol·licitar assistència</h3>
-
-            <form th:action="@{/web/client/assistencia/save}" method="post">
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label for="reservaCodi" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Reserva</label>
-                    <input type="text" id="reservaCodi" name="reservaCodi" placeholder="R-1018" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;">
+            <!-- Menú Lateral Client -->
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                    </a>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label for="descripcion" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Descripció del problema</label>
-                    <textarea id="descripcion" name="descripcion" rows="4" placeholder="Descriu la incidència..." style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; resize: none;"></textarea>
+                <nav class="nav-menu">
+                    <a th:href="@{/web/client/reserves}" class="active">• Les meves reserves</a>
+                    <a th:href="@{/web/client/reserves/nova}">• Nova reserva</a>
+                    <a th:href="@{/web/client/perfil}">• El meu perfil</a>
+                </nav>
+            </aside>
+
+            <!-- Contingut Principal -->
+            <main class="content">
+
+                <!-- Capçalera superior -->
+                <header class="top-header" style="justify-content: space-between;">
+                    <h2>Les meves reserves</h2>
+
+                    <div class="user-dropdown">
+                        <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'dnavio'}">dnavio ▾</span>
+                        <div class="user-avatar"></div>
+                    </div>
+                </header>
+
+                <!-- Taula de Reserves -->
+                <div class="table-card" style="margin-bottom: 32px;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Codi</th>
+                                <th>Vehicle</th>
+                                <th>Inici</th>
+                                <th>Fi</th>
+                                <th>Estat</th>
+                                <th>Accions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="r : ${reserves}">
+                                <td th:text="${r.codi}">R-1021</td>
+                                <td th:text="${r.vehicleMatricula}">1234 ABC</td>
+                                <td th:text="${#temporals.format(r.dataInici, 'dd/MM')}">10/10</td>
+                                <td th:text="${#temporals.format(r.dataFi, 'dd/MM')}">12/10</td>
+
+                                <!-- Badges d'Estat -->
+                                <td>
+                                    <span th:if="${r.estat == 'CONFIRMADA'}" class="badge badge-validat">Confirmada</span>
+                                    <span th:if="${r.estat == 'LLIURADA'}" class="badge" style="background-color: #00a8e8; color: white;">Lliurada</span>
+                                    <span th:if="${r.estat == 'RETORNADA'}" class="badge badge-validat" style="background-color: #00b074;">Retornada</span>
+                                    <span th:if="${r.estat == 'ANUL·LADA' or r.estat == 'ANULLADA'}" class="badge badge-baixa">Anul·lada</span>
+                                </td>
+
+                                <!-- Accions segons l'estat -->
+                                <td class="actions-cell">
+                                    <a th:if="${r.estat == 'CONFIRMADA'}" 
+                                       th:href="@{'/web/client/reserves/anullar/' + ${r.id}}" 
+                                       onclick="return confirm('Estàs segur de voler anul·lar aquesta reserva?')" 
+                                       style="color: #6c757d;">Anul·lar</a>
+
+                                    <a th:if="${r.estat == 'LLIURADA'}" 
+                                       th:href="@{'#form-assistencia'}" 
+                                       style="color: #0d6efd;">Assistència</a>
+
+                                    <a th:if="${r.estat == 'RETORNADA' or r.estat == 'ANUL·LADA' or r.estat == 'ANULLADA'}" 
+                                       th:href="@{'/web/client/reserves/view/' + ${r.id}}" 
+                                       style="color: #6c757d;">Veure</a>
+                                </td>
+                            </tr>
+
+                            <!-- Estat buit -->
+                            <tr th:if="${#lists.isEmpty(reserves)}">
+                                <td colspan="6" class="empty-state">
+                                    No tens cap reserva actualment.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style="font-size: 0.85rem; color: #888; margin-top: 12px; margin-left: 16px;">
+                        Només es pot anul·lar abans del lliurament.
+                    </p>
                 </div>
 
-                <button type="submit" class="btn btn-filter" style="width: 100%; text-align: center; justify-content: center; background-color: #3b82f6;">
-                    Enviar sol·licitud
-                </button>
-            </form>
+                <!-- Targeta Sol·licitar Assistència -->
+                <div id="form-assistencia" class="table-card" style="padding: 24px; max-width: 480px;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: #1a253c;">Sol·licitar assistència</h3>
+
+                    <form th:action="@{/web/client/assistencia/save}" method="post">
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label for="reservaCodi" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Reserva</label>
+                            <input type="text" id="reservaCodi" name="reservaCodi" placeholder="R-1018" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 20px;">
+                            <label for="descripcion" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Descripció del problema</label>
+                            <textarea id="descripcion" name="descripcion" rows="4" placeholder="Descriu la incidència..." style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; resize: none;"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-filter" style="width: 100%; text-align: center; justify-content: center; background-color: #3b82f6;">
+                            Enviar sol·licitud
+                        </button>
+                    </form>
+                </div>
+
+            </main>
         </div>
 
-    </main>
-</div>
-
-</body>
+    </body>
 </html>
