@@ -4,11 +4,6 @@ import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
-// import java.io.IOException;
-// import java.nio.file.Files;
-// import java.nio.file.Path;
-// import java.nio.file.Paths;
-// import java.nio.file.StandardCopyOption;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +26,6 @@ public class UsuarisController {
 
     @Autowired
     private UsuarisLogic usuarisService;
-
-    // Directori on es desaran les imatges pujades pels usuaris (DESACTIVAT)
-    // private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
@@ -79,19 +71,24 @@ public class UsuarisController {
     }
 
     @PostMapping("/save")
-    public String save(@ModelAttribute("usuari") Usuaris usuari) {
-        logger.debug("Saving usuari " + usuari);
-        if (usuari.getId() != null) {
-            usuarisService.actualitzarClientPerAgent(usuari);
-        } else {
-            usuarisService.saveUsuari(usuari);
+    public String save(@ModelAttribute("usuari") Usuaris usuari, Model model) {
+        try {
+            if (usuari.getId() != null) {
+                usuarisService.actualitzarClientPerAgent(usuari);
+            } else {
+                usuarisService.saveUsuari(usuari);
+            }
+            return "redirect:/web/usuaris/all";
+        } catch (IllegalArgumentException e) {
+            // Captura l'error de duplicat o validació i el mostra a la plantilla HTML
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("usuari", usuari); // Manté les dades introduïdes al formulari
+            return "edit-usuari";
         }
-        return "redirect:/web/usuaris/all";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteById(@PathVariable("id") Long usuariId) {
-        logger.debug("Deleting usuari " + usuariId);
         usuarisService.deleteUsuariById(usuariId);
         return "redirect:/web/usuaris/all";
     }
@@ -131,35 +128,14 @@ public class UsuarisController {
             @RequestParam("fitxerLlicencia") MultipartFile fitxerLlicencia,
             Model model) {
         try {
-            /* 
-            // Processar la pujada de la imatge del DNI (DESACTIVAT)
-            if (!fitxerDni.isEmpty()) {
-                String nomDni = System.currentTimeMillis() + "_" + fitxerDni.getOriginalFilename();
-                guardarFitxer(fitxerDni, nomDni);
-                usuari.setImatgedni(nomDni);
-            }
-
-            // Processar la pujada de la imatge de la llicència (DESACTIVAT)
-            if (!fitxerLlicencia.isEmpty()) {
-                String nomLlicencia = System.currentTimeMillis() + "_" + fitxerLlicencia.getOriginalFilename();
-                guardarFitxer(fitxerLlicencia, nomLlicencia);
-                usuari.setImatgeLlicencia(nomLlicencia);
-            }
-            */
-
-            // Registra el client assignant estat PENDENT i rol CLIENT
+            // Registra el client assignant estat PENDENT i rol CLIENT (executa la validació)
             usuarisService.registrarClientWeb(usuari);
-
             return "redirect:/web/usuaris/login?registrePendent=true";
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
+            model.addAttribute("usuari", usuari);
             return "registre";
-        /* 
-        } catch (IOException e) {
-            model.addAttribute("error", "Error en desar les imatges adjuntades.");
-            return "registre";
-        */
         }
     }
 
@@ -168,17 +144,17 @@ public class UsuarisController {
     public String llistarPendents(Model model) {
         List<Usuaris> pendents = usuarisService.obtenirRegistresPendents();
         model.addAttribute("usuarisPendents", pendents);
-        return "validar-registres"; // Nova vista Thymeleaf per a l'Admin
+        return "validar-registres";
     }
 
     @PostMapping("/validar/{id}")
     public String validarRegistre(@PathVariable("id") Long id, @RequestParam("estat") String nouEstat) {
-        usuarisService.canviarEstatRegistre(id, nouEstat); // "VALIDAT" o "REBUTJAT"
+        usuarisService.canviarEstatRegistre(id, nouEstat);
         return "redirect:/web/usuaris/pendents";
     }
-    
+
     @GetMapping("/admin")
-    public String admin(Model model){
+    public String admin(Model model) {
         return "admin clients";
     }
 
