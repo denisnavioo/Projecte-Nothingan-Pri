@@ -157,7 +157,11 @@ public class ReservaLogic {
         BigDecimal fianca = reserva.getImportFianca();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         if (usuari.getPremium()) {
+=======
+        if (Boolean.TRUE.equals(usuari.getPremium())) {
+>>>>>>> develop
 =======
         if (Boolean.TRUE.equals(usuari.getPremium())) {
 >>>>>>> develop

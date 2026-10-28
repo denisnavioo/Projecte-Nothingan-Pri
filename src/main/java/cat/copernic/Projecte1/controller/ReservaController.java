@@ -126,6 +126,40 @@ public class ReservaController {
 
         return "edit-reserva";
     }
+    
+    // RF31: buscar vehicles disponibles.
+    @GetMapping("/disponibles")
+    public String buscarDisponibles(
+            @RequestParam String dataInici,
+            @RequestParam String dataFi,
+            Model model) {
+
+        var inici = java.time.LocalDateTime.parse(dataInici);
+        var fi = java.time.LocalDateTime.parse(dataFi);
+
+        List<Vehicle> disponibles = vehicleLogic.findAllVehicles()
+                .stream()
+                .filter(v -> reservaLogic.vehicleDisponible(
+                        v.getId(), inici, fi))
+                .toList();
+        
+        System.out.println("Vehicles disponibles: " + disponibles.size());
+
+        Reserva reserva = new Reserva();
+        reserva.setVehicle(new Vehicle());
+        reserva.setUsuari(new Usuaris());
+        reserva.setDataInici(inici);
+        reserva.setDataFi(fi);
+
+        model.addAttribute("reserva", reserva);
+        model.addAttribute("vehicles", disponibles);
+        model.addAttribute("senseDisponibilitat", disponibles.isEmpty());
+        model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
+        model.addAttribute("dataInici", dataInici);
+        model.addAttribute("dataFi", dataFi);
+
+        return "edit-reserva";
+    }
 
     // Crear una reserva
     @PostMapping("/save")
@@ -191,7 +225,7 @@ public class ReservaController {
     }
 
     private void carregarDadesFormulari(Model model) {
-        model.addAttribute("vehicles", vehicleLogic.findAllProducts());
+        model.addAttribute("vehicles", vehicleLogic.findAllVehicles());
         model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
     }
 }

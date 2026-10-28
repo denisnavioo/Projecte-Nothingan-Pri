@@ -20,7 +20,7 @@ public class VehicleLogic {
         this.vehicleRepo = vehicleRepo;
     }
 
-    public List<Vehicle> findAllProducts(){
+    public List<Vehicle> findAllVehicles(){
 
         List<Vehicle> ret;
 
@@ -44,7 +44,7 @@ public class VehicleLogic {
 
     }
 
-    public Vehicle getProductById(Long id){
+    public Vehicle getVehicleById(Long id){
 
         return vehicleRepo.findById(id).orElse(null);
 

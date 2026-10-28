@@ -21,7 +21,13 @@ public class Usuaris {
     private String email;
     private String password;
 <<<<<<< HEAD
+<<<<<<< HEAD
     private int telefon;
+=======
+
+    private int telefon;
+
+>>>>>>> develop
 =======
 
     private int telefon;
@@ -51,6 +57,10 @@ public class Usuaris {
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    
+>>>>>>> develop
 =======
     
 >>>>>>> develop
@@ -199,7 +209,10 @@ public class Usuaris {
         this.premium = premium;
     }   
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> develop
 
     public String getPoblacio() {
         return poblacio;
@@ -218,5 +231,8 @@ public class Usuaris {
     }
     
     
+<<<<<<< HEAD
+>>>>>>> develop
+=======
 >>>>>>> develop
 }

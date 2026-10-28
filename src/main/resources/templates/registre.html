@@ -17,8 +17,8 @@
                 S'ha produït un error en el registre.
             </div>
 
-            <!-- Formulari connectat amb Spring Boot (sense multipart/form-data) -->
-            <form th:action="@{/web/usuaris/registre}" th:object="${usuari}" method="post">
+            <!-- Formulari amb enctype="multipart/form-data" per permetre pujada de fitxers -->
+            <form th:action="@{/web/usuaris/registre}" th:object="${usuari}" method="post" enctype="multipart/form-data">
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -31,21 +31,33 @@
                         <input type="text" id="dni" th:field="*{dni}" class="form-control" required />
                     </div>
 
-                    <!-- Data de Caducitat DNI amb type="date" -->
+                    <!-- Data de Caducitat DNI -->
                     <div class="col-md-6">
                         <label for="dataCaducitatDni" class="form-label">Caducitat del document</label>
                         <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" class="form-control" required />
                     </div>
 
+                    <!-- Pujada Imatge DNI -->
                     <div class="col-md-6">
-                        <label for="tipusLlicencia" class="form-label">Tipus de llicència</label>
-                        <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" class="form-control" />
+                        <label for="fitxerDni" class="form-label">Imatge DNI/Passaport (JPG/PNG)</label>
+                        <input type="file" id="fitxerDni" name="fitxerDni" accept="image/*" class="form-control" required />
                     </div>
 
-                    <!-- Data de Caducitat Llicència amb type="date" -->
+                    <div class="col-md-6">
+                        <label for="tipusLlicencia" class="form-label">Tipus de llicència</label>
+                        <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" class="form-control" placeholder="Ej. B, A2" />
+                    </div>
+
+                    <!-- Data de Caducitat Llicència -->
                     <div class="col-md-6">
                         <label for="dataCaducitatLlicencia" class="form-label">Caducitat de la llicència</label>
                         <input type="date" id="dataCaducitatLlicencia" th:field="*{dataCaducitatLlicencia}" class="form-control" />
+                    </div>
+
+                    <!-- Pujada Imatge Llicència -->
+                    <div class="col-md-6">
+                        <label for="fitxerLlicencia" class="form-label">Imatge de la Llicència (JPG/PNG)</label>
+                        <input type="file" id="fitxerLlicencia" name="fitxerLlicencia" accept="image/*" class="form-control" required />
                     </div>
 
                     <div class="col-md-6">
@@ -63,13 +75,19 @@
                         <input type="text" id="adreca" th:field="*{adreca}" class="form-control" />
                     </div>
 
+                    <!-- Camp Població afegit per al filtre (RF26) -->
+                    <div class="col-md-6">
+                        <label for="poblacio" class="form-label">Població</label>
+                        <input type="text" id="poblacio" th:field="*{poblacio}" class="form-control" />
+                    </div>
+
                     <div class="col-md-6">
                         <label for="nacionalitat" class="form-label">Nacionalitat</label>
                         <input type="text" id="nacionalitat" th:field="*{nacionalitat}" class="form-control" />
                     </div>
 
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Email (usuari)</label>
+                        <label for="email" class="form-label">Email (nom d'usuari)</label>
                         <input type="email" id="email" th:field="*{email}" class="form-control" required />
                     </div>
 
@@ -82,7 +100,7 @@
                 <hr class="my-4">
 
                 <div class="alert alert-info my-3">
-                    Un cop enviat, el registre quedarà en estat <strong>Pendent d'aprovació</strong> per un agent.
+                    Un cop enviat, el registre quedarà en estat <strong>Pendent d'aprovació</strong> per l'administrador.
                 </div>
 
                 <!-- Botons d'acció -->

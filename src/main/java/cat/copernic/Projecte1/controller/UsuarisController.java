@@ -3,12 +3,18 @@ package cat.copernic.Projecte1.controller;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> develop
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+<<<<<<< HEAD
+>>>>>>> develop
+=======
 >>>>>>> develop
 import java.util.List;
 import org.slf4j.Logger;
@@ -34,7 +40,10 @@ public class UsuarisController {
     private UsuarisLogic usuarisService;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> develop
     // Directori on es desaran les imatges pujades pels usuaris
     private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
