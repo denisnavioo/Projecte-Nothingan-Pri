@@ -205,5 +205,9 @@ public class Usuaris {
     public void setRol(String rol) {
         this.rol = rol;
     }
+
+    public Object getCognoms() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }    
     
