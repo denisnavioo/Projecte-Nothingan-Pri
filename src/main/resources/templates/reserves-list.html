@@ -118,9 +118,21 @@
                                 Filtrar
                             </button>
 
-                            <a th:href="@{/web/reserves/all}"
-                               class="btn btn-cancel">
-                                Netejar filtres
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${r.estat != null and r.estat.name() == 'Confirmada'} ? ' badge-validat' : (${r.estat != null and r.estat.name() == 'Anulada'} ? ' badge-rebutjat' : ' badge-baixa')"
+                                  th:text="${r.estat != null ? r.estat : '-'}"></span>
+                        </td>
+
+                        <td class="actions-cell">
+                            <a th:href="@{/web/reserves/detall/{id}(
+                                id=${r.id},
+                                dni=${dni},
+                                codi=${codi},
+                                matricula=${matricula},
+                                data=${data}
+                            )}">
+                                Veure
                             </a>
                         </div>
 
@@ -195,7 +207,12 @@
 
             <div class="top-bar">
                 <h3>Detalls de la reserva</h3>
-                <a th:href="@{/web/reserves/all}" class="btn btn-cancel">Tancar</a>
+                <a th:href="@{/web/reserves/all(
+                    dni=${dni},
+                    codi=${codi},
+                    matricula=${matricula},
+                    data=${data}
+                )}" class="btn btn-cancel">Tancar</a>
             </div>
 
             <div class="form-grid">
@@ -249,6 +266,14 @@
                 <div class="form-group">
                     <label>Observacions</label>
                     <p th:text="${reservaSeleccionada.observacions != null and !reservaSeleccionada.observacions.isEmpty() ? reservaSeleccionada.observacions : '-'}"></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Total de la reserva</label>
+                    <p th:text="${reservaSeleccionada.preuLloguer != null and reservaSeleccionada.importFianca != null
+                        ? #numbers.formatDecimal(reservaSeleccionada.preuLloguer + reservaSeleccionada.importFianca, 1, 2) + ' €'
+                        : '-'}"
+                       style="font-weight: bold; color: #1d4ed8;"></p>
                 </div>
 
             </div>
