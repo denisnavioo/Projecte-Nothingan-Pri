@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -190,13 +189,13 @@
                 <!-- Vista previa del presupuesto -->
                 <div id="resumPreu"
                      aria-live="polite"
-                     style="margin-top: 24px; padding: 22px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+                     style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
 
-                    <h3 style="margin: 0 0 12px; font-size: 18px; color: #1e293b;">
+                    <h3 style="margin: 0 0 12px; font-size: 16px; color: #1e293b;">
                         Resum del pressupost
                     </h3>
 
-                    <p style="margin: 0; color: #64748b;">
+                    <p style="margin: 0; padding: 10px 12px; background: #eff6ff; border-radius: 6px; color: #64748b; font-size: 13px;">
                         Selecciona un vehicle, un client i unes dates vàlides.
                     </p>
                 </div>
@@ -236,94 +235,119 @@
         return Date.UTC(any, mes - 1, dia, h, m);
     }
 
-    // Calcula el pressupost sense modificar els imports enviats al servidor.
+    // Calcula el pressupost sense modificar els imports del servidor.
     function calcularPreu() {
+        const titol = `
+            <h3 style="margin:0 0 12px;font-size:16px;color:#1e293b;">
+                Resum del pressupost
+            </h3>`;
         const v = vehicle.selectedOptions[0];
         const u = usuari.selectedOptions[0];
-        const preuDia = Number(v.dataset.preuDia);
-        const dataInici = convertirData(inici.value);
-        const dataFi = convertirData(fi.value);
 
-        if (!vehicle.value || !usuari.value ||
-            !inici.value || !fi.value ||
-            !Number.isFinite(dataInici) ||
-            !Number.isFinite(dataFi) ||
-            dataFi <= dataInici ||
-            !Number.isFinite(preuDia) || preuDia <= 0) {
-            resum.innerHTML = `
-                <h3 style="margin:0 0 8px;color:#1e293b;">
-                    Resum del pressupost
-                </h3>
-                <p style="margin:0;color:#64748b;">
-                    Selecciona un vehicle, un client i unes dates vàlides.
-                </p>`;
+        if (!vehicle.value || !usuari.value || !inici.value || !fi.value) {
+            resum.innerHTML = titol + '<p>Selecciona un vehicle, un client i unes dates vàlides.</p>';
             return;
         }
 
-        const dies = Math.ceil((dataFi - dataInici) / 86400000);
-        const preuTotal = dies * preuDia;
-        const premium = u.dataset.premium === 'true';
+        const preuDia = Number(v.dataset.preuDia);
+        const dataInici = convertirData(inici.value);
+        const dataFi = convertirData(fi.value);
 
         const euros = valor => valor.toLocaleString('ca-ES', {
             style: 'currency',
             currency: 'EUR'
         });
 
-        if (fianca.value === '' ||
+        // Comprova que les seleccions i les dates siguin vàlides.
+        if (!Number.isFinite(dataInici) ||
+            !Number.isFinite(dataFi) ||
+            dataFi <= dataInici ||
+            !Number.isFinite(preuDia) || preuDia <= 0) {
+
+            resum.innerHTML = titol + `
+                <p style="margin:0;padding:10px 12px;background:#eff6ff;border-radius:6px;color:#64748b;font-size:13px;">
+                    Selecciona un vehicle, un client i unes dates vàlides.
+                </p>`;
+            return;
+        }
+
+        // Calcula els dies facturables, arrodonint cap amunt.
+        const durada = dataFi - dataInici;
+        const dies = Math.ceil(durada / 86400000);
+        const preuTotal = dies * preuDia;
+
+        // Valida la fiança.
+        if (fianca.value.trim() === '' ||
             !Number.isFinite(Number(fianca.value)) ||
             Number(fianca.value) < 0) {
-            resum.innerHTML = `
-                <h3 style="margin:0 0 12px;color:#1e293b;">
-                    Resum del pressupost
-                </h3>
-                <p>Dies de lloguer: <strong>${dies}</strong></p>
-                <p>Preu total: <strong>${euros(preuTotal)}</strong></p>
-                <p style="margin-bottom:0;color:#b91c1c;">
+
+            resum.innerHTML = titol + `
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-bottom:12px;">
+                    <div>
+                        <span style="color:#64748b;font-size:13px;">Durada del lloguer</span>
+                        <div style="font-weight:600;margin-top:4px;">${dies} dies</div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b;font-size:13px;">Preu total del lloguer</span>
+                        <div style="font-weight:700;margin-top:4px;">${euros(preuTotal)}</div>
+                    </div>
+                </div>
+                <p style="margin:0;padding-top:10px;border-top:1px solid #e2e8f0;color:#b91c1c;font-size:13px;">
                     Introdueix una fiança vàlida.
                 </p>`;
             return;
         }
 
+        // Aplica el descompte premium a la fiança.
         const importFianca = Number(fianca.value);
+        const premium = u.dataset.premium === 'true';
         const descompte = premium ? importFianca * 0.1 : 0;
         const fiancaFinal = importFianca - descompte;
+        const totalReserva = preuTotal + fiancaFinal;
 
-        resum.innerHTML = `
-            <h3 style="margin:0 0 18px;font-size:18px;color:#1e293b;">
-                Resum del pressupost
-            </h3>
-
-            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;">
-                <span style="color:#64748b;">Durada del lloguer</span>
-                <strong>${dies} dies</strong>
+        // Mostra el pressupost en un format més compacte.
+        resum.innerHTML = titol + `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-bottom:12px;">
+                <div>
+                    <span style="color:#64748b;font-size:13px;">Durada del lloguer</span>
+                    <div style="font-weight:600;margin-top:4px;">${dies} dies</div>
+                </div>
+                <div style="padding-left:12px;border-left:1px solid #cbd5e1;">
+                    <span style="color:#64748b;font-size:13px;">Preu total del lloguer</span>
+                    <div style="font-weight:700;margin-top:4px;">${euros(preuTotal)}</div>
+                </div>
             </div>
 
-            <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:18px;">
-                <span style="color:#64748b;">Preu total del lloguer</span>
-                <strong style="font-size:18px;">${euros(preuTotal)}</strong>
-            </div>
-
-            <div style="border-top:1px solid #e2e8f0;padding-top:14px;">
-                <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:10px;">
+            <div style="border-top:1px solid #e2e8f0;padding-top:10px;">
+                <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:13px;">
                     <span style="color:#64748b;">Fiança original</span>
                     <span>${euros(importFianca)}</span>
                 </div>
 
                 ${premium ? `
-                <div style="display:flex;justify-content:space-between;gap:16px;margin-bottom:10px;color:#15803d;">
+                <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:13px;color:#15803d;">
                     <span>Descompte premium (10 %)</span>
                     <span>−${euros(descompte)}</span>
                 </div>` : ''}
 
-                <div style="display:flex;justify-content:space-between;gap:16px;margin-top:14px;padding-top:14px;border-top:1px solid #e2e8f0;">
-                    <strong>Fiança final</strong>
-                    <strong style="font-size:18px;color:${premium ? '#15803d' : '#1e293b'};">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid #e2e8f0;">
+                    <strong style="font-size:14px;">Fiança final</strong>
+                    <strong style="font-size:17px;color:${premium ? '#15803d' : '#1e293b'};">
                         ${euros(fiancaFinal)}
+                    </strong>
+                </div>
+        
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:2px solid #cbd5e1;">
+                    <strong style="font-size:16px;">Total de la reserva</strong>
+                    <strong style="font-size:19px;color:#1d4ed8;">
+                        ${euros(totalReserva)}
                     </strong>
                 </div>
             </div>`;
     }
 
+
+    // Actualitza el resum quan canvia una dada.
     [vehicle, usuari, inici, fi, fianca].forEach(element => {
         element.addEventListener('input', calcularPreu);
         element.addEventListener('change', calcularPreu);
