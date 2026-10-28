@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova reserva - Nothingan Pri</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nova reserva - Nothingan Pri</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
 
 <div class="layout">
 
@@ -184,6 +184,11 @@
                                   maxlength="1000"></textarea>
                     </div>
 
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                    </a>                 alt="Nothingan Pri" class="logo">
                 </div>
 
                 <!-- Vista previa del presupuesto -->
@@ -207,7 +212,7 @@
 
                     <a th:href="@{/web/reserves/all}"
                        class="btn btn-cancel">
-                        Cancel·lar
+                        Tornar al llistat
                     </a>
                 </div>
 

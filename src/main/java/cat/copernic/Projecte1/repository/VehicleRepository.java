@@ -13,10 +13,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface VehicleRepository extends JpaRepository<Vehicle , Long>{
     
-    // Método para coincidencia parcial (ej. buscar "123" encuentra "1234ABC")
     List<Vehicle> findByMatriculaContainingIgnoreCase(String matricula);
-
-    // O si solo quieres coincidencia exacta, usa:
-    // Optional<Vehicle> findByMatricula(String matricula);
+    
+    Optional<Vehicle> findByMatriculaIgnoreCase(String matricula);
+  
     List<Vehicle> findByEstatVehicleAndActiuTrue(EstatVehicle estatVehicle);
 }
