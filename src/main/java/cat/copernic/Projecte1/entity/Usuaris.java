@@ -1,5 +1,6 @@
 package cat.copernic.Projecte1.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,13 +17,23 @@ public class Usuaris {
 
     // Dades bàsiques i accés
     private String nom;
+    @Column(nullable = false, unique = true)
     private String email;
     private String password;
+<<<<<<< HEAD
     private int telefon;
+=======
+
+    private int telefon;
+
+>>>>>>> develop
     private String adreca;
+    private String poblacio;
     private String nacionalitat;
+    private String rol;
 
     // Document d'identitat (DNI/Passaport)
+    @Column(nullable = false, unique = true)
     private String dni;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataCaducitatDni;
@@ -39,18 +50,23 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
+<<<<<<< HEAD
+=======
+    
+>>>>>>> develop
     private Boolean premium;
 
     public Usuaris() {
     }
 
-    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre) {
+    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre, String rol) {
         this.nom = nom;
         this.dni = dni;
         this.email = email;
         this.password = password;
         this.telefon = telefon;
         this.estatRegistre = estatRegistre;
+        this.rol = rol;
     }
 
     // --- GETTERS Y SETTERS ---
@@ -182,4 +198,25 @@ public class Usuaris {
     public void setPremium(Boolean premium) {
         this.premium = premium;
     }   
+<<<<<<< HEAD
+=======
+
+    public String getPoblacio() {
+        return poblacio;
+    }
+
+    public void setPoblacio(String poblacio) {
+        this.poblacio = poblacio;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
+    }
+    
+    
+>>>>>>> develop
 }

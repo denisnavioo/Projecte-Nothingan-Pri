@@ -2,6 +2,14 @@ package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
+<<<<<<< HEAD
+=======
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+>>>>>>> develop
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 @Controller
 @RequestMapping("/web/usuaris")
@@ -24,6 +33,12 @@ public class UsuarisController {
     @Autowired
     private UsuarisLogic usuarisService;
 
+<<<<<<< HEAD
+=======
+    // Directori on es desaran les imatges pujades pels usuaris
+    private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
+
+>>>>>>> develop
     // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
     public String findAll(@RequestParam(value = "dni", required = false) String dni, Model model) {
@@ -37,7 +52,7 @@ public class UsuarisController {
         }
         
         model.addAttribute("usuaris", llista);
-        model.addAttribute("dniFiltre", dni); // Mantiene el DNI escrito en la caja de texto
+        model.addAttribute("dniFiltre", dni);
         return "usuaris-list";
     }
 
@@ -47,8 +62,8 @@ public class UsuarisController {
         logger.debug("Creating new usuari...");
 
         Usuaris u = new Usuaris();
-        u.setEstatRegistre("PENDENT"); // Evita campos nulos en selectores
-        u.setPremium(false);           // Evita errores en checkboxes
+        u.setEstatRegistre("PENDENT");
+        u.setPremium(false);
 
         model.addAttribute("usuari", u);
         return "edit-usuari";
@@ -67,7 +82,6 @@ public class UsuarisController {
         return "edit-usuari";
     }
 
-    // Guarda o actualiza les dades quan l'agente edita des de edit-usuari (RF12, RF13, RF21, RF22)
     @PostMapping("/save")
     public String save(@ModelAttribute("usuari") Usuaris usuari) {
         logger.debug("Saving usuari " + usuari);
@@ -108,7 +122,7 @@ public class UsuarisController {
         }
     }
 
-    // --- REGISTRE WEB (PUBLIC - RF08/RF09) ---
+    // --- REGISTRE WEB (PUBLIC - RF81) ---
     @GetMapping("/registre")
     public String mostrarRegistre(Model model) {
         model.addAttribute("usuari", new Usuaris());
@@ -116,18 +130,148 @@ public class UsuarisController {
     }
 
     @PostMapping("/registre")
-    public String processarRegistre(@ModelAttribute("usuari") Usuaris usuari, Model model) {
+    public String processarRegistre(@ModelAttribute("usuari") Usuaris usuari,
+            @RequestParam("fitxerDni") MultipartFile fitxerDni,
+            @RequestParam("fitxerLlicencia") MultipartFile fitxerLlicencia,
+            Model model) {
         try {
-            // Registra el usuario asignando PENDENT
+            // Processar la pujada de la imatge del DNI
+            if (!fitxerDni.isEmpty()) {
+                String nomDni = System.currentTimeMillis() + "_" + fitxerDni.getOriginalFilename();
+                guardarFitxer(fitxerDni, nomDni);
+                usuari.setImatgedni(nomDni);
+            }
+
+            // Processar la pujada de la imatge de la llicència
+            if (!fitxerLlicencia.isEmpty()) {
+                String nomLlicencia = System.currentTimeMillis() + "_" + fitxerLlicencia.getOriginalFilename();
+                guardarFitxer(fitxerLlicencia, nomLlicencia);
+                usuari.setImatgeLlicencia(nomLlicencia);
+            }
+
+            // Registra el client assignant estat PENDENT i rol CLIENT
             usuarisService.registrarClientWeb(usuari);
 
-            // Redirige al login indicando registro pendiente
             return "redirect:/web/usuaris/login?registrePendent=true";
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "registre";
+        } catch (IOException e) {
+            model.addAttribute("error", "Error en desar les imatges adjuntades.");
+            return "registre";
         }
     }
 
+    // --- VALIDAR REGISTRES (ADMINISTRADOR - RF82) ---
+    @GetMapping("/pendents")
+    public String llistarPendents(Model model) {
+        List<Usuaris> pendents = usuarisService.obtenirRegistresPendents();
+        model.addAttribute("usuarisPendents", pendents);
+        return "validar-registres"; // Nova vista Thymeleaf per a l'Admin
+    }
+
+    @PostMapping("/validar/{id}")
+    public String validarRegistre(@PathVariable("id") Long id, @RequestParam("estat") String nouEstat) {
+        usuarisService.canviarEstatRegistre(id, nouEstat); // "VALIDAT" o "REBUTJAT"
+        return "redirect:/web/usuaris/pendents";
+    }
+
+    // Mètode auxiliar per desar els arxius d'imatge al disc
+    private void guardarFitxer(MultipartFile fitxer, String nomFitxer) throws IOException {
+        Path rutaDirectori = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(rutaDirectori)) {
+            Files.createDirectories(rutaDirectori);
+        }
+        Path rutaCompleta = rutaDirectori.resolve(nomFitxer);
+        Files.copy(fitxer.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
+    }
+    
+    @GetMapping("/view/{id}")
+public String viewById(@PathVariable("id") Long usuariId, Model model) {
+    Usuaris usuari = usuarisService.getUsuariById(usuariId);
+
+    if (usuari == null) {
+        return "redirect:/web/usuaris/all";
+    }
+
+    model.addAttribute("usuari", usuari);
+    model.addAttribute("modoLectura", true); // Indica que es solo lectura
+    return "edit-usuari";
+}
+
+@GetMapping("/client/reserves")
+public String mostrarReservesClient(Model model) {
+    // 1. Aquí recuperaremos las reservas del usuario cuando conectéis el módulo de reservas
+    // List<Reserva> reserves = reservaService.getReservesPerUsuari(usuariLoguejat.getId());
+    // model.addAttribute("reserves", reserves);
+
+    // 2. Por ahora pasamos un título o datos de prueba si lo necesitas
+    return "client-reserves"; // Nombre del archivo HTML (client-reserves.html)
+}
+
+// PAGINAS DE ADMIN
+@GetMapping("/admin")
+public String admin(@RequestParam(value = "dni", required = false) String dni, Model model) {
+    
+    List<Usuaris> llista;
+    if (dni != null && !dni.trim().isEmpty()) {
+        llista = usuarisService.findByDni(dni.trim());
+    } else {
+        llista = usuarisService.findAllUsuaris();
+    }
+    
+    model.addAttribute("usuaris", llista);
+    model.addAttribute("dniFiltre", dni);
+    
+    return "admin-clients";
+    }
+
+@GetMapping("/admin/view/{id}")
+public String viewClientAdmin(@PathVariable("id") Long id, Model model) {
+    Usuaris usuari = usuarisService.getUsuariById(id);
+    model.addAttribute("usuari", usuari);
+    model.addAttribute("modoLectura", true);
+    return "admin-edit-clients";
+}
+
+// Mode d'edició per a Administrador
+@GetMapping("/admin/edit/{id}")
+public String editClientAdmin(@PathVariable("id") Long id, Model model) {
+    Usuaris usuari = usuarisService.getUsuariById(id);
+    model.addAttribute("usuari", usuari);
+    model.addAttribute("modoLectura", false);
+    return "admin-edit-clients";
+}
+
+// Donar de baixa per a Administrador i redreçar al panell admin
+@GetMapping("/admin/delete/{id}")
+public String deleteClientAdmin(@PathVariable("id") Long id) {
+    usuarisService.deleteUsuariById(id); // o canviar estat a 'BAIXA'
+    return "redirect:/web/usuaris/admin";
+}
+// 1. Mostrar el formulario para crear un NUEVO cliente como Admin
+@GetMapping("/admin/new")
+public String newClientAdmin(Model model) {
+    model.addAttribute("usuari", new Usuaris());
+    model.addAttribute("modoLectura", false);
+    return "admin-edit-clients";
+}
+
+// 2. Procesar el guardado desde el formulario de Admin
+@PostMapping("/admin/save")
+public String saveClientAdmin(@ModelAttribute("usuari") Usuaris usuari) {
+    // Si la contraseña viene vacía al editar, mantenemos la contraseña guardada
+    if (usuari.getId() != null && (usuari.getPassword() == null || usuari.getPassword().isBlank())) {
+        Usuaris usuariExistente = usuarisService.getUsuariById(usuari.getId());
+        if (usuariExistente != null) {
+            usuari.setPassword(usuariExistente.getPassword());
+        }
+    }
+    
+    usuarisService.saveUsuari(usuari);
+    
+    // Redirige directamente al listado de clientes de Admin
+    return "redirect:/web/usuaris/admin";
+}
 }

@@ -5,20 +5,27 @@ import cat.copernic.Projecte1.repository.UsuarisRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+<<<<<<< HEAD
 import java.util.stream.Collectors;
+=======
+>>>>>>> develop
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UsuarisLogic {
 
+<<<<<<< HEAD
 
     @Autowired
     private UsuarisRepository usuariRepo;
      
+=======
+    @Autowired
+    private UsuarisRepository usuariRepo;
+>>>>>>> develop
 
     // --- OPERACIONES BÁSICAS CRUD ---
-
     public List<Usuaris> findAllUsuaris() {
         return usuariRepo.findAll();
     }
@@ -26,6 +33,9 @@ public class UsuarisLogic {
     public Long saveUsuari(Usuaris usuari) {
         if (usuari.getEstatRegistre() == null || usuari.getEstatRegistre().isBlank()) {
             usuari.setEstatRegistre("PENDENT");
+        }
+        if (usuari.getRol() == null || usuari.getRol().isBlank()) {
+            usuari.setRol("CLIENT"); // Rol per defecte si no s'especifica
         }
         if (usuari.getPremium() == null) {
             usuari.setPremium(false);
@@ -47,36 +57,36 @@ public class UsuarisLogic {
     }
 
     // --- LÓGICA DE NEGOCIO (REQUISITOS FUNCIONALES) ---
-
     /**
-     * RF08 i RF09: Registrar client des de la web pública amb validacions.
+     * RF81: Registrar client des de la web pública amb validacions.
      */
     public Long registrarClientWeb(Usuaris client) throws IllegalArgumentException {
 
         // 1. Validar camps obligatoris
-        if (client.getEmail() == null || client.getEmail().isBlank() ||
-            client.getNom() == null || client.getNom().isBlank() ||
-            client.getDni() == null || client.getDni().isBlank()) {
+        if (client.getEmail() == null || client.getEmail().isBlank()
+                || client.getNom() == null || client.getNom().isBlank()
+                || client.getDni() == null || client.getDni().isBlank()) {
             throw new IllegalArgumentException("Tots els camps obligatoris s'han d'omplir.");
         }
 
-        // 2. Validar correu duplicat (RF09)
+        // 2. Validar correu duplicat (RF25)
         if (usuariRepo.findByEmail(client.getEmail()).isPresent()) {
             throw new IllegalArgumentException("El correu electrònic ja està registrat.");
         }
 
-        // 3. Validar data de caducitat del DNI (RF09)
+        // 3. Validar data de caducitat del DNI
         if (client.getDataCaducitatDni() != null && client.getDataCaducitatDni().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("El document d'identificació (DNI/NIE) està caducat.");
         }
 
-        // 4. Validar data de caducitat de la llicència (RF09)
+        // 4. Validar data de caducitat de la llicència
         if (client.getDataCaducitatLlicencia() != null && client.getDataCaducitatLlicencia().isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("La llicència de conduir està caducada.");
         }
 
-        // Estat inicial per al registre web (RF08)
+        // Estat inicial i rol per defecte per al registre web (RF81)
         client.setEstatRegistre("PENDENT");
+        client.setRol("CLIENT");
         client.setPremium(false);
 
         Usuaris nouClient = usuariRepo.save(client);
@@ -96,7 +106,7 @@ public class UsuarisLogic {
         Usuaris usuari = usuariOpt.get();
 
         if ("PENDENT".equalsIgnoreCase(usuari.getEstatRegistre())) {
-            throw new IllegalStateException("El teu registre encara està pendent de revisió per un agent.");
+            throw new IllegalStateException("El teu registre encara està pendent de revisió per un administrador.");
         }
 
         if ("REBUTJAT".equalsIgnoreCase(usuari.getEstatRegistre())) {
@@ -107,16 +117,14 @@ public class UsuarisLogic {
     }
 
     /**
-     * RF11: Llistar registres pendents de validació.
+     * RF82: Llistar registres pendents de validació.
      */
     public List<Usuaris> obtenirRegistresPendents() {
-        return usuariRepo.findAll().stream()
-                .filter(u -> "PENDENT".equalsIgnoreCase(u.getEstatRegistre()))
-                .collect(Collectors.toList());
+        return usuariRepo.findByEstatRegistre("PENDENT");
     }
 
     /**
-     * RF12 i RF13: Aprovar o Rebutjar un registre per l'agent.
+     * RF82: Aprovar o Rebutjar un registre per l'administrador/agent.
      */
     public void canviarEstatRegistre(Long idUsuari, String nouEstat) {
         Usuaris usuari = usuariRepo.findById(idUsuari)
@@ -127,17 +135,24 @@ public class UsuarisLogic {
     }
 
     /**
-     * Actualitzar dades del client per l'agent des del formulari d'edició (RF12, RF13, RF19, RF21, RF22).
+     * Actualitzar dades del client per l'agent/admin des del formulari
+     * d'edició.
      */
     public void actualitzarClientPerAgent(Usuaris usuariEditat) {
         Usuaris usuariExistent = usuariRepo.findById(usuariEditat.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuari no trobat amb ID: " + usuariEditat.getId()));
+
+        // Mantener la contraseña existente si no se proporciona una nueva
+        if (!usuariEditat.getPassword().isBlank()) {
+            usuariExistent.setPassword(usuariEditat.getPassword());
+        }
 
         // Actualització de dades personals
         usuariExistent.setNom(usuariEditat.getNom());
         usuariExistent.setEmail(usuariEditat.getEmail());
         usuariExistent.setTelefon(usuariEditat.getTelefon());
         usuariExistent.setAdreca(usuariEditat.getAdreca());
+        usuariExistent.setPoblacio(usuariEditat.getPoblacio());
         usuariExistent.setNacionalitat(usuariEditat.getNacionalitat());
         usuariExistent.setDni(usuariEditat.getDni());
         usuariExistent.setDataCaducitatDni(usuariEditat.getDataCaducitatDni());
@@ -145,15 +160,30 @@ public class UsuarisLogic {
         usuariExistent.setDataCaducitatLlicencia(usuariEditat.getDataCaducitatLlicencia());
         usuariExistent.setTargetaCredit(usuariEditat.getTargetaCredit());
 
-        // Estat i Premium
+        // Imàtges
+        if (usuariEditat.getImatgedni() != null) {
+            usuariExistent.setImatgedni(usuariEditat.getImatgedni());
+        }
+        if (usuariEditat.getImatgeLlicencia() != null) {
+            usuariExistent.setImatgeLlicencia(usuariEditat.getImatgeLlicencia());
+        }
+
+        // Estat, Rol i Premium
+        if (usuariEditat.getRol() != null) {
+            usuariExistent.setRol(usuariEditat.getRol());
+        }
         usuariExistent.setEstatRegistre(usuariEditat.getEstatRegistre());
         usuariExistent.setPremium(usuariEditat.getPremium() != null ? usuariEditat.getPremium() : false);
 
         usuariRepo.save(usuariExistent);
-        
     }
+<<<<<<< HEAD
     
     // Mètode per filtrar usuaris per DNI de forma Parcial
+=======
+
+    // Mètode per filtrar usuaris per DNI de forma Parcial (RF14)
+>>>>>>> develop
     public List<Usuaris> findByDni(String dni) {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
