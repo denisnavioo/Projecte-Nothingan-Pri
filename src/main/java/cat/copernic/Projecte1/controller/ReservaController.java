@@ -137,7 +137,7 @@ public class ReservaController {
         var inici = java.time.LocalDateTime.parse(dataInici);
         var fi = java.time.LocalDateTime.parse(dataFi);
 
-        List<Vehicle> disponibles = vehicleLogic.findAllProducts()
+        List<Vehicle> disponibles = vehicleLogic.findAllVehicles()
                 .stream()
                 .filter(v -> reservaLogic.vehicleDisponible(
                         v.getId(), inici, fi))
