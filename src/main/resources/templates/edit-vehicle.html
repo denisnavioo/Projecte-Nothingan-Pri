@@ -14,7 +14,7 @@
                 <div class="logo-container">
                     <a th:href="@{/web/usuaris/login}">
                         <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
-                    </a>                 alt="Nothingan Pri" class="logo">
+                    </a>
                 </div>
 
                 <nav class="nav-menu">
@@ -43,10 +43,9 @@
                         Tornar al llistat
                     </a>
                 </div>
+                
+                <div th:if="${error}" class="alert-error" th:text="${error}"></div>
 
-                <div th:if="${error}"
-                     class="alert-error"
-                     th:text="${error}"></div>
 
                 <div class="table-card" style="padding: 24px;">
 
