@@ -1,6 +1,8 @@
 package cat.copernic.Projecte1.controller;
 
+import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
+import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 // import java.io.IOException;
 // import java.nio.file.Files;
@@ -179,7 +181,89 @@ public class UsuarisController {
     public String admin(Model model){
         return "admin clients";
     }
+
+@GetMapping("/client/reserves")
+public String mostrarReservesClient(Model model) {
+    // 1. Aquí recuperaremos las reservas del usuario cuando conectéis el módulo de reservas
+    // List<Reserva> reserves = reservaService.getReservesPerUsuari(usuariLoguejat.getId());
+    // model.addAttribute("reserves", reserves);
+
+    // 2. Por ahora pasamos un título o datos de prueba si lo necesitas
+    return "client-reserves"; // Nombre del archivo HTML (client-reserves.html)
 }
 
-    //
-    // Mètode auxiliar per desar els arxius d'imatge al disc (DESACTIVAT PER ERRORS)
+@GetMapping("/client/reserves/nova")
+public String mostrarNovaReservaClient(Model model) {
+    Reserva reserva = new Reserva();
+    reserva.setVehicle(new Vehicle());
+    reserva.setUsuari(new Usuaris());
+
+    model.addAttribute("reserva", reserva);
+    return "nova-reserva";
+}
+
+// PAGINAS DE ADMIN
+@GetMapping("/admin")
+public String admin(@RequestParam(value = "dni", required = false) String dni, Model model) {
+    
+    List<Usuaris> llista;
+    if (dni != null && !dni.trim().isEmpty()) {
+        llista = usuarisService.findByDni(dni.trim());
+    } else {
+        llista = usuarisService.findAllUsuaris();
+    }
+    
+    model.addAttribute("usuaris", llista);
+    model.addAttribute("dniFiltre", dni);
+    
+    return "admin-clients";
+    }
+
+@GetMapping("/admin/view/{id}")
+public String viewClientAdmin(@PathVariable("id") Long id, Model model) {
+    Usuaris usuari = usuarisService.getUsuariById(id);
+    model.addAttribute("usuari", usuari);
+    model.addAttribute("modoLectura", true);
+    return "admin-edit-clients";
+}
+
+// Mode d'edició per a Administrador
+@GetMapping("/admin/edit/{id}")
+public String editClientAdmin(@PathVariable("id") Long id, Model model) {
+    Usuaris usuari = usuarisService.getUsuariById(id);
+    model.addAttribute("usuari", usuari);
+    model.addAttribute("modoLectura", false);
+    return "admin-edit-clients";
+}
+
+// Donar de baixa per a Administrador i redreçar al panell admin
+@GetMapping("/admin/delete/{id}")
+public String deleteClientAdmin(@PathVariable("id") Long id) {
+    usuarisService.deleteUsuariById(id); // o canviar estat a 'BAIXA'
+    return "redirect:/web/usuaris/admin";
+}
+// 1. Mostrar el formulario para crear un NUEVO cliente como Admin
+@GetMapping("/admin/new")
+public String newClientAdmin(Model model) {
+    model.addAttribute("usuari", new Usuaris());
+    model.addAttribute("modoLectura", false);
+    return "admin-edit-clients";
+}
+
+// 2. Procesar el guardado desde el formulario de Admin
+@PostMapping("/admin/save")
+public String saveClientAdmin(@ModelAttribute("usuari") Usuaris usuari) {
+    // Si la contraseña viene vacía al editar, mantenemos la contraseña guardada
+    if (usuari.getId() != null && (usuari.getPassword() == null || usuari.getPassword().isBlank())) {
+        Usuaris usuariExistente = usuarisService.getUsuariById(usuari.getId());
+        if (usuariExistente != null) {
+            usuari.setPassword(usuariExistente.getPassword());
+        }
+    }
+    
+    usuarisService.saveUsuari(usuari);
+    
+    // Redirige directamente al listado de clientes de Admin
+    return "redirect:/web/usuaris/admin";
+}
+}
