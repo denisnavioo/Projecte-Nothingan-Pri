@@ -4,11 +4,11 @@ import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+// import java.io.IOException;
+// import java.nio.file.Files;
+// import java.nio.file.Path;
+// import java.nio.file.Paths;
+// import java.nio.file.StandardCopyOption;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +32,8 @@ public class UsuarisController {
     @Autowired
     private UsuarisLogic usuarisService;
 
-    // Directori on es desaran les imatges pujades pels usuaris
-    private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
+    // Directori on es desaran les imatges pujades pels usuaris (DESACTIVAT)
+    // private final String UPLOAD_DIR = "src/main/resources/static/uploads/";
 
     // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
@@ -131,19 +131,21 @@ public class UsuarisController {
             @RequestParam("fitxerLlicencia") MultipartFile fitxerLlicencia,
             Model model) {
         try {
-            // Processar la pujada de la imatge del DNI
+            /* 
+            // Processar la pujada de la imatge del DNI (DESACTIVAT)
             if (!fitxerDni.isEmpty()) {
                 String nomDni = System.currentTimeMillis() + "_" + fitxerDni.getOriginalFilename();
                 guardarFitxer(fitxerDni, nomDni);
                 usuari.setImatgedni(nomDni);
             }
 
-            // Processar la pujada de la imatge de la llicència
+            // Processar la pujada de la imatge de la llicència (DESACTIVAT)
             if (!fitxerLlicencia.isEmpty()) {
                 String nomLlicencia = System.currentTimeMillis() + "_" + fitxerLlicencia.getOriginalFilename();
                 guardarFitxer(fitxerLlicencia, nomLlicencia);
                 usuari.setImatgeLlicencia(nomLlicencia);
             }
+            */
 
             // Registra el client assignant estat PENDENT i rol CLIENT
             usuarisService.registrarClientWeb(usuari);
@@ -153,9 +155,11 @@ public class UsuarisController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "registre";
+        /* 
         } catch (IOException e) {
             model.addAttribute("error", "Error en desar les imatges adjuntades.");
             return "registre";
+        */
         }
     }
 
@@ -172,29 +176,11 @@ public class UsuarisController {
         usuarisService.canviarEstatRegistre(id, nouEstat); // "VALIDAT" o "REBUTJAT"
         return "redirect:/web/usuaris/pendents";
     }
-
-    // Mètode auxiliar per desar els arxius d'imatge al disc
-    private void guardarFitxer(MultipartFile fitxer, String nomFitxer) throws IOException {
-        Path rutaDirectori = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(rutaDirectori)) {
-            Files.createDirectories(rutaDirectori);
-        }
-        Path rutaCompleta = rutaDirectori.resolve(nomFitxer);
-        Files.copy(fitxer.getInputStream(), rutaCompleta, StandardCopyOption.REPLACE_EXISTING);
-    }
     
-    @GetMapping("/view/{id}")
-public String viewById(@PathVariable("id") Long usuariId, Model model) {
-    Usuaris usuari = usuarisService.getUsuariById(usuariId);
-
-    if (usuari == null) {
-        return "redirect:/web/usuaris/all";
+    @GetMapping("/admin")
+    public String admin(Model model){
+        return "admin clients";
     }
-
-    model.addAttribute("usuari", usuari);
-    model.addAttribute("modoLectura", true); // Indica que es solo lectura
-    return "edit-usuari";
-}
 
 @GetMapping("/client/reserves")
 public String mostrarReservesClient(Model model) {
