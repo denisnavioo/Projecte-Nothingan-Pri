@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestió de reserves - Nothingan Pri</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestió de reserves - Nothingan Pri</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
 
 <div class="layout">
 
@@ -72,6 +72,11 @@
                                th:value="${data}">
                     </div>
 
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                    </a>                
                 </div>
 
                 <div class="button-group" style="margin-top: 15px;">
@@ -108,22 +113,16 @@
                         <td th:text="${r.dataInici != null ? #temporals.format(r.dataInici, 'dd/MM/yyyy HH:mm') : '-'}"></td>
                         <td th:text="${r.dataFi != null ? #temporals.format(r.dataFi, 'dd/MM/yyyy HH:mm') : '-'}"></td>
 
-                        <td>
-                            <span th:if="${r.preuLloguer != null}"
-                                  th:text="${#numbers.formatDecimal(r.preuLloguer, 1, 2) + ' €'}"></span>
-                            <span th:unless="${r.preuLloguer != null}">-</span>
-                        </td>
+                        <div class="button-group" style="margin-top: 15px;">
+                            <button type="submit" class="btn btn-filter">
+                                Filtrar
+                            </button>
 
-                        <td>
-                            <span class="badge"
-                                  th:classappend="${r.estat != null and r.estat.name() == 'Confirmada'} ? ' badge-validat' : (${r.estat != null and r.estat.name() == 'Anulada'} ? ' badge-rebutjat' : ' badge-baixa')"
-                                  th:text="${r.estat != null ? r.estat : '-'}"></span>
-                        </td>
-
-                        <td class="actions-cell">
-                            <a th:href="@{/web/reserves/detall/{id}(id=${r.id})}">
-                                Veure
+                            <a th:href="@{/web/reserves/all}"
+                               class="btn btn-cancel">
+                                Netejar filtres
                             </a>
+                        </div>
 
                             <form th:if="${r.estat != null and r.estat.name() != 'Anulada' and r.estat.name() != 'Lliurada'}"
                                   th:action="@{/web/reserves/cancelar/{id}(id=${r.id})}"
@@ -135,13 +134,59 @@
                         </td>
                     </tr>
 
-                    <tr th:if="${#lists.isEmpty(reserves)}">
-                        <td colspan="8" class="empty-state">
-                            No s'han trobat reserves.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                        <tbody>
+                            <tr th:each="r : ${reserves}">
+
+                                <td th:text="${r.codiReserva != null ? r.codiReserva : '-'}"></td>
+
+                                <td th:text="${r.usuari != null ? r.usuari.nom : '-'}"></td>
+
+                                <td th:text="${r.vehicle != null ? r.vehicle.matricula : '-'}"></td>
+
+                                <td th:text="${r.dataInici != null ? #temporals.format(r.dataInici, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+                                <td th:text="${r.dataFi != null ? #temporals.format(r.dataFi, 'dd/MM/yyyy HH:mm') : '-'}"></td>
+
+                                <td>
+                                    <span th:if="${r.preuLloguer != null}"
+                                          th:text="${#numbers.formatDecimal(r.preuLloguer, 1, 2) + ' €'}"></span>
+                                    <span th:unless="${r.preuLloguer != null}">-</span>
+                                </td>
+
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${r.estat != null and r.estat.name() == 'Confirmada'} ? ' badge-validat' : (${r.estat != null and r.estat.name() == 'Anulada'} ? ' badge-rebutjat' : ' badge-baixa')"
+                                          th:text="${r.estat != null ? r.estat : '-'}"></span>
+                                </td>
+
+                                <td class="actions-cell">
+                                    <a th:href="@{/web/reserves/detall/{id}(id=${r.id})}">
+                                        Veure
+                                    </a>
+
+                                    <form th:if="${r.estat != null and r.estat.name() != 'Anulada' and r.estat.name() != 'Lliurada'}"
+                                          th:action="@{/web/reserves/cancelar/{id}(id=${r.id})}"
+                                          method="post"
+                                          style="display: inline;"
+                                          onsubmit="return confirm('Segur que vols anul·lar aquesta reserva?');">
+
+                                        <button type="submit" class="action-link">
+                                            Anul·lar
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                            <tr th:if="${#lists.isEmpty(reserves)}">
+                                <td colspan="8" class="empty-state">
+                                    No s'han trobat reserves.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
         </div>
 
         <!-- RF41: detalls de la reserva seleccionada -->
