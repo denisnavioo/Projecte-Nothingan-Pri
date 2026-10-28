@@ -10,17 +10,13 @@ import cat.copernic.Projecte1.repository.UsuarisRepository;
 import cat.copernic.Projecte1.repository.VehicleRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- *
- * @author Alejandro Lorente
- */
 @Service
 public class ReservaLogic {
 
@@ -48,30 +44,27 @@ public class ReservaLogic {
     public boolean existsById(Integer id) {
         return reservaRepo.existsById(id);
     }
-    
-    // Comprova si un vehicle està disponible entre dues dates.
-    public boolean vehicleDisponible(
-            Long vehicleId,
-            LocalDateTime dataInici,
-            LocalDateTime dataFi) {
 
-        // Valida les dates introduïdes.
+    // RF31: comprova la disponibilitat del vehicle.
+    public boolean vehicleDisponible(
+            Long vehicleId, LocalDateTime dataInici, LocalDateTime dataFi) {
+
         if (vehicleId == null || vehicleId <= 0
-                || dataInici == null
-                || dataFi == null
+                || dataInici == null || dataFi == null
                 || !dataFi.isAfter(dataInici)) {
             return false;
         }
 
-        // Busca les reserves que coincideixen amb aquest període.
-        List<Reserva> reserves = reservaRepo.findReservesSolapades(
-                vehicleId,
-                dataInici,
-                dataFi,
-                EstatReserva.Anulada);
+        Vehicle vehicle = vehicleRepo.findById(vehicleId).orElse(null);
 
-        // Si no hi ha reserves coincidents, el vehicle està lliure.
-        return reserves.isEmpty();
+        if (vehicle == null
+                || !Boolean.TRUE.equals(vehicle.getActiu())
+                || vehicle.getEstatVehicle() != EstatVehicle.Disponible) {
+            return false;
+        }
+
+        return reservaRepo.findReservesSolapades(
+                vehicleId, dataInici, dataFi, EstatReserva.Anulada).isEmpty();
     }
 
     @Transactional
@@ -82,6 +75,7 @@ public class ReservaLogic {
                     "La reserva no pot ser nul·la.");
         }
 
+        // Impedeix modificar una reserva existent.
         if (reserva.getId() != null) {
             throw new IllegalArgumentException(
                     "No es poden modificar reserves existents.");
@@ -102,6 +96,7 @@ public class ReservaLogic {
                     "Cal seleccionar un vehicle i un usuari vàlids.");
         }
 
+        // Recupera les entitats reals de la base de dades.
         Vehicle vehicle = vehicleRepo.findById(
                 reserva.getVehicle().getId()).orElse(null);
 
@@ -136,17 +131,17 @@ public class ReservaLogic {
                     "La fiança ha de ser igual o superior a zero.");
         }
 
-        // Calcula els dies o fraccions iniciades.
-        long minuts = ChronoUnit.MINUTES.between(
+        // Calcula els dies, arrodonint cap amunt les fraccions.
+        Duration durada = Duration.between(
                 reserva.getDataInici(), reserva.getDataFi());
 
-        long dies = (minuts + 1439) / 1440;
+        long dies = durada.toDays();
 
-        if (dies < 1) {
-            dies = 1;
+        if (!durada.minusDays(dies).isZero()) {
+            dies++;
         }
 
-        // Calcula automàticament el preu del lloguer.
+        // Calcula el preu total del lloguer.
         BigDecimal preuTotal = vehicle.getPreuDia()
                 .multiply(BigDecimal.valueOf(dies))
                 .setScale(2, RoundingMode.HALF_UP);
@@ -165,7 +160,7 @@ public class ReservaLogic {
         reserva.setImportFianca(
                 fianca.setScale(2, RoundingMode.HALF_UP));
 
-        // Genera un codi únic de reserva.
+        // Genera un codi de reserva únic.
         if (reserva.getCodiReserva() == null
                 || reserva.getCodiReserva().isBlank()) {
 
@@ -184,7 +179,7 @@ public class ReservaLogic {
                     "Aquest codi de reserva ja existeix.");
         }
 
-        // Comprova que no hi hagi reserves amb dates solapades.
+        // Evita solapaments amb reserves no anul·lades.
         List<Reserva> reserves =
                 reservaRepo.findByVehicle_Id(vehicle.getId());
 
