@@ -33,8 +33,10 @@
                     <h2>Les meves reserves</h2>
 
                     <div class="user-dropdown">
-                        <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'dnavio'}">dnavio ▾</span>
-                        <div class="user-avatar"></div>
+                        <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+                            <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">UsuariLoguejat ▾</span>
+                            <div class="user-avatar"></div>
+                        </a>
                     </div>
                 </header>
 

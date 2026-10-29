@@ -33,9 +33,12 @@
             <header class="top-header">
                 <h2>El meu perfil</h2>
 
+                <!-- Reemplazar en la cabecera de perfil.html -->
                 <div class="user-dropdown">
-                    <span th:text="${usuari != null ? usuari.nom : 'dnavio'}">dnavio ▾</span>
-                    <div class="user-avatar"></div>
+                    <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
+                        <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">Nom Cognoms</span>
+                        <div class="user-avatar"></div>
+                    </a>
                 </div>
             </header>
 

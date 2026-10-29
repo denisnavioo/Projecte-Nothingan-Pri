@@ -184,8 +184,10 @@
                 <h2>Nova reserva</h2>
 
                 <div class="user-dropdown">
-                    <span>dnavio ▾</span>
-                    <div class="user-avatar"></div>
+                    <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+                        <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">UsuariLoguejat ▾</span>
+                        <div class="user-avatar"></div>
+                    </a>
                 </div>
             </header>
 
@@ -231,46 +233,50 @@
                 
                 <!-- LISTADO DE TARJETAS DE VEHÍCULOS -->
                 <div>
-                    <div class="vehicles-grid">
+                                    <!-- GRID PRINCIPAL DE VEHICLES DINÀMIC -->
+                <div class="vehicles-grid">
 
-                        <!-- Vehículo 1 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Kia Sportage · SUV</div>
-                                <div class="vehicle-price">65 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
+                    <!-- Tarja de vehicle iterada amb Thymeleaf -->
+                    <div class="vehicle-card" th:each="v : ${vehicles}">
+                        <div>
+                            <!-- Imatge del vehicle o placeholder si no en té -->
+                            <div class="vehicle-image-placeholder">
+                                <img th:if="${v.imatgeUrl != null}" th:src="@{${v.imatgeUrl}}" th:alt="${v.marca + ' ' + v.model}" style="width:100%; height:100%; object-fit:cover; border-radius:8px;" />
+                                <span th:if="${v.imatgeUrl == null}">Sense imatge</span>
                             </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
+
+                            <!-- Títol i Categoria -->
+                            <div class="vehicle-title" th:text="${v.marca + ' ' + v.model + ' · ' + v.categoria}">
+                                Kia Sportage · SUV
+                            </div>
+
+                            <!-- Preu per dia -->
+                            <div class="vehicle-price" th:text="${v.preuDiari + ' €/dia'}">
+                                65 €/dia
+                            </div>
+
+                            <!-- Badge d'Estat -->
+                            <span class="badge badge-disponible" 
+                                  th:classappend="${v.disponible} ? 'badge-disponible' : 'badge-rebutjat'"
+                                  th:text="${v.disponible ? 'Disponible' : 'No disponible'}">
+                                Disponible
+                            </span>
                         </div>
 
-                        <!-- Vehículo 2 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Seat Ateca · SUV</div>
-                                <div class="vehicle-price">60 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
-                            </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
-                        </div>
+                        <!-- Botó per seleccionar el vehicle -->
+                        <button type="button" 
+                                class="btn-select" 
+                                th:onclick="'seleccionarVehicle(' + ${v.id} + ', \'' + ${v.marca + ' ' + v.model} + '\', ' + ${v.preuDiari} + ')'">
+                            Seleccionar
+                        </button>
+                    </div>
 
-                        <!-- Vehículo 3 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Dacia Duster · SUV</div>
-                                <div class="vehicle-price">48 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
-                            </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
-                        </div>
+                    <!-- Estat buit quan no hi ha cap vehicle a la BDD -->
+                    <div th:if="${#lists.isEmpty(vehicles)}" style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #64748b;">
+                        No s'han trobat vehicles disponibles amb els criteris seleccionats.
+                    </div>
+
+                </div>
 
                     </div>
 
