@@ -154,11 +154,6 @@ public class UsuarisController {
         return "redirect:/web/usuaris/pendents";
     }
 
-    @GetMapping("/admin")
-    public String admin(Model model) {
-        return "admin clients";
-    }
-
 @GetMapping("/client/reserves")
 public String mostrarReservesClient(Model model) {
     // 1. Aquí recuperaremos las reservas del usuario cuando conectéis el módulo de reservas

@@ -30,7 +30,7 @@ public interface UsuarisRepository extends JpaRepository<Usuaris, Long> {
 
     List<Usuaris> findByRol(String rol);
 
-    List<Usuaris> findByTelefon(int telefon);
+    Optional<Usuaris> findByTelefon(String telefon);
 
     Optional<Usuaris> findByDni(String dni);
 
