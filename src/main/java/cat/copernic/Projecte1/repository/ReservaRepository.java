@@ -8,15 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+// Gestiona las consultas de reservas en la base de datos.
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
-    // Comprova si el codi de reserva ja existeix.
+    // Comprueba si el código de reserva ya existe.
     boolean existsByCodiReserva(String codiReserva);
 
-    // Busca les reserves d'un vehicle.
+    // Busca las reservas de un vehículo.
     List<Reserva> findByVehicle_Id(long vehicleId);
     
-    // Busca les reserves d'un vehicle que coincideixen amb unes dates.
+    // Busca las reservas de un vehículo que coinciden con unas fechas.
     @Query("SELECT r FROM Reserva r WHERE r.vehicle.id = :vehicleId "
             + "AND r.estat <> :anulada "
             + "AND r.dataInici < :dataFi "

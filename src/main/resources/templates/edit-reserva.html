@@ -8,8 +8,10 @@
 </head>
 <body>
 
+<!-- Estructura principal de la página. -->
 <div class="layout">
 
+    <!-- Menú lateral de navegación. -->
     <aside class="sidebar">
         <div class="logo-container">
             <img th:src="@{/img/logo.png}"
@@ -23,8 +25,10 @@
         </nav>
     </aside>
 
+    <!-- Contenido principal de la página. -->
     <main class="content">
 
+        <!-- Cabecera con el título y el usuario. -->
         <header class="top-header">
             <h2>Gestió de reserves</h2>
 
@@ -34,6 +38,7 @@
             </div>
         </header>
 
+        <!-- Título de la página y botón para volver. -->
         <div class="top-bar">
             <h3>Nova reserva</h3>
 
@@ -43,11 +48,12 @@
             </a>
         </div>
 
+        <!-- Muestra los errores recibidos del servidor. -->
         <div th:if="${error}"
              class="alert-error"
              th:text="${error}"></div>
 
-        <!-- RF31: consultar vehicles disponibles -->
+        <!-- RF31: consultar vehículos disponibles. -->
         <div class="table-card"
              style="padding: 16px 20px; margin-bottom: 20px;">
 
@@ -55,6 +61,7 @@
                 Consultar disponibilitat
             </h3>
 
+            <!-- Formulario para consultar la disponibilidad por fechas. -->
             <form th:action="@{/web/reserves/disponibles}"
                   method="get">
 
@@ -90,6 +97,7 @@
                 </div>
             </form>
 
+            <!-- Informa si no hay vehículos disponibles. -->
             <div th:if="${senseDisponibilitat}"
                  class="alert-error"
                  style="margin-top: 12px;">
@@ -97,7 +105,7 @@
             </div>
         </div>
 
-        <!-- Formulari per crear una reserva -->
+        <!-- Formulario para crear una reserva. -->
         <div class="table-card" style="padding: 24px;">
 
             <form th:action="@{/web/reserves/save}"
@@ -106,6 +114,7 @@
 
                 <div class="form-grid">
 
+                    <!-- Selección del vehículo y su precio diario. -->
                     <div class="form-group">
                         <label for="vehicle">Vehicle</label>
 
@@ -122,6 +131,7 @@
                         </select>
                     </div>
 
+                    <!-- Selección del cliente y su condición premium. -->
                     <div class="form-group">
                         <label for="usuari">Client</label>
 
@@ -138,6 +148,7 @@
                         </select>
                     </div>
 
+                    <!-- Fecha de inicio del alquiler. -->
                     <div class="form-group">
                         <label for="dataIniciReserva">
                             Data i hora d'inici
@@ -150,6 +161,7 @@
                                required>
                     </div>
 
+                    <!-- Fecha de finalización del alquiler. -->
                     <div class="form-group">
                         <label for="dataFiReserva">
                             Data i hora de finalització
@@ -162,6 +174,7 @@
                                required>
                     </div>
 
+                    <!-- Importe de la fianza. -->
                     <div class="form-group">
                         <label for="importFianca">
                             Import de la fiança (€)
@@ -175,6 +188,7 @@
                                required>
                     </div>
 
+                    <!-- Observaciones adicionales de la reserva. -->
                     <div class="form-group">
                         <label for="observacions">Observacions</label>
 
@@ -186,7 +200,7 @@
 
                 </div>
 
-                <!-- Vista previa del presupuesto -->
+                <!-- Vista previa del presupuesto. -->
                 <div id="resumPreu"
                      aria-live="polite"
                      style="margin-top: 20px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;">
@@ -200,6 +214,7 @@
                     </p>
                 </div>
 
+                <!-- Botones para guardar o cancelar la reserva. -->
                 <div class="button-group" style="margin-top: 24px;">
                     <button type="submit" class="btn btn-filter">
                         Desar reserva
@@ -216,7 +231,9 @@
     </main>
 </div>
 
+<!-- Lógica JavaScript para calcular y mostrar el presupuesto. -->
 <script>
+    // Obtiene los elementos del formulario.
     const vehicle = document.getElementById('vehicle');
     const usuari = document.getElementById('usuari');
     const inici = document.getElementById('dataIniciReserva');
@@ -224,7 +241,7 @@
     const fianca = document.getElementById('importFianca');
     const resum = document.getElementById('resumPreu');
 
-    // Converteix la data local a una escala comuna per calcular la durada.
+    // Convierte la fecha local a una escala común para calcular la duración.
     function convertirData(valor) {
         if (!valor) return NaN;
 
@@ -235,7 +252,7 @@
         return Date.UTC(any, mes - 1, dia, h, m);
     }
 
-    // Calcula el pressupost sense modificar els imports del servidor.
+    // Calcula el presupuesto sin modificar los importes del servidor.
     function calcularPreu() {
         const titol = `
             <h3 style="margin:0 0 12px;font-size:16px;color:#1e293b;">
@@ -244,6 +261,7 @@
         const v = vehicle.selectedOptions[0];
         const u = usuari.selectedOptions[0];
 
+        // Comprueba que se hayan seleccionado todos los datos necesarios.
         if (!vehicle.value || !usuari.value || !inici.value || !fi.value) {
             resum.innerHTML = titol + '<p>Selecciona un vehicle, un client i unes dates vàlides.</p>';
             return;
@@ -253,12 +271,13 @@
         const dataInici = convertirData(inici.value);
         const dataFi = convertirData(fi.value);
 
+        // Formatea los importes en euros.
         const euros = valor => valor.toLocaleString('ca-ES', {
             style: 'currency',
             currency: 'EUR'
         });
 
-        // Comprova que les seleccions i les dates siguin vàlides.
+        // Comprueba que las fechas y el precio sean válidos.
         if (!Number.isFinite(dataInici) ||
             !Number.isFinite(dataFi) ||
             dataFi <= dataInici ||
@@ -271,12 +290,12 @@
             return;
         }
 
-        // Calcula els dies facturables, arrodonint cap amunt.
+        // Calcula los días facturables, redondeando hacia arriba.
         const durada = dataFi - dataInici;
         const dies = Math.ceil(durada / 86400000);
         const preuTotal = dies * preuDia;
 
-        // Valida la fiança.
+        // Valida el importe de la fianza.
         if (fianca.value.trim() === '' ||
             !Number.isFinite(Number(fianca.value)) ||
             Number(fianca.value) < 0) {
@@ -298,14 +317,14 @@
             return;
         }
 
-        // Aplica el descompte premium a la fiança.
+        // Aplica el descuento premium a la fianza.
         const importFianca = Number(fianca.value);
         const premium = u.dataset.premium === 'true';
         const descompte = premium ? importFianca * 0.1 : 0;
         const fiancaFinal = importFianca - descompte;
         const totalReserva = preuTotal + fiancaFinal;
 
-        // Mostra el pressupost en un format més compacte.
+        // Muestra el presupuesto con los importes calculados.
         resum.innerHTML = titol + `
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;margin-bottom:12px;">
                 <div>
@@ -347,12 +366,13 @@
     }
 
 
-    // Actualitza el resum quan canvia una dada.
+    // Actualiza el presupuesto cuando cambia algún dato.
     [vehicle, usuari, inici, fi, fianca].forEach(element => {
         element.addEventListener('input', calcularPreu);
         element.addEventListener('change', calcularPreu);
     });
 
+    // Calcula el presupuesto inicial al cargar la página.
     calcularPreu();
 </script>
 
