@@ -20,9 +20,7 @@ public class Usuaris {
     @Column(nullable = false, unique = true)
     private String email;
     private String password;
-
     private int telefon;
-
     private String adreca;
     private String poblacio;
     private String nacionalitat;
@@ -46,7 +44,6 @@ public class Usuaris {
 
     // Estats i perfil
     private String estatRegistre; // "PENDENT", "VALIDAT", "REBUTJAT", "BAIXA"
-    
     private Boolean premium;
 
     public Usuaris() {
@@ -192,6 +189,7 @@ public class Usuaris {
         this.premium = premium;
     }   
 
+
     public String getPoblacio() {
         return poblacio;
     }
@@ -207,6 +205,9 @@ public class Usuaris {
     public void setRol(String rol) {
         this.rol = rol;
     }
+
+    public Object getCognoms() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+}    
     
-    
-}

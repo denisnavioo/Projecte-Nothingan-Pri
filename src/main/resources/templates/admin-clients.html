@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Gestió de Clients (Admin) - Nothingan Pri</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
+
+        <div class="layout">
+
+            <!-- Menú Lateral Administrador -->
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}" style="text-decoration: none; display: inline-block;">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo" style="cursor: pointer;">
+                    </a>
+                </div>
+
+                <nav class="nav-menu">
+                    <a th:href="@{/web/usuaris/admin}" class="active">• Clients</a>
+                    <a th:href="@{/web/vehicles/all}">• Vehicles</a>
+                    <a th:href="@{/web/reserves/all}">• Reserves</a>
+                    <a th:href="@{/web/admin/informes}">• Informes</a>
+                    <a th:href="@{/web/admin/agents}">• Agents</a>
+                </nav>
+            </aside>
+
+            <!-- Contingut Principal -->
+            <main class="content">
+
+                <!-- Capçalera superior -->
+                <header class="top-header">
+                    <h2>Gestió de clients</h2>
+
+                    <div class="user-dropdown">
+                        <span>Administrador ▾</span>
+                        <div class="user-avatar"></div>
+                    </div>
+                </header>
+
+                <!-- Barra de Filtre per DNI i Botó Alta -->
+                <div class="top-bar">
+                    <form th:action="@{/web/usuaris/all}" method="get" class="filter-group">
+                        <div class="input-wrapper">
+                            <label for="filterDni">Filtrar per DNI</label>
+                            <input type="text" id="filterDni" name="dni" th:value="${dniFiltre != null ? dniFiltre : param.dni}" placeholder="12345678A" />
+                        </div>
+                        <button class="btn btn-filter" type="submit">Filtrar</button>
+
+                        <a th:if="${(dniFiltre != null and !dniFiltre.empty) or (param.dni != null and !#strings.isEmpty(param.dni))}" 
+                           th:href="@{/web/usuaris/all}" 
+                           class="btn btn-cancel" 
+                           style="padding: 10px 14px; text-decoration: none;">Netejar</a>
+                    </form>
+
+                    <a th:href="@{/web/usuaris/admin/new}" class="btn btn-add">+ Alta de client</a>
+                </div>
+
+                <!-- Taula d'usuaris per a l'Administrador -->
+                <div class="table-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>DNI</th>
+                                <th>Telèfon</th>
+                                <th>Email</th>
+                                <th>Registre</th>
+                                <th>Accions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${usuaris}">
+                                <td>
+                                    <span th:text="${u.nom}">Denis Navio</span>
+                                    <span th:if="${u.premium}" class="badge badge-validat" style="margin-left: 6px; font-size: 0.75rem;">★ Premium</span>
+                                </td>
+                                <td th:text="${u.dni}">12345678A</td>
+                                <td th:text="${u.telefon}">600000000</td>
+                                <td th:text="${u.email}">dnavio@alumnat.copernic.cat</td>
+
+                                <!-- Columna Registre -->
+                                <td>
+                                    <span th:if="${u.estatRegistre == 'VALIDAT' or u.estatRegistre == 'ACCEPTAT'}" class="badge badge-validat">Validat</span>
+                                    <span th:if="${u.estatRegistre == 'PENDENT' or u.estatRegistre == null}" class="badge badge-pendent">Pendent</span>
+                                    <span th:if="${u.estatRegistre == 'REBUTJAT'}" class="badge badge-rebutjat">Rebutjat</span>
+                                    <span th:if="${u.estatRegistre == 'BAIXA'}" class="badge badge-baixa">Baixa</span>
+                                </td>
+
+                                <!-- Columna Accions -->
+                                <td class="actions-cell">
+                                    <a th:href="@{/web/usuaris/admin/view/{id}(id=${u.id})}">Veure</a> · 
+                                    <a th:href="@{/web/usuaris/admin/edit/{id}(id=${u.id})}">Editar</a> · 
+                                    <a th:href="@{/web/usuaris/admin/delete/{id}(id=${u.id})}" onclick="return confirm('Estàs segur de donar de baixa aquest client?')">Baixa</a>
+                                </td>
+                            </tr>
+
+                            <!-- Estat buit -->
+                            <tr th:if="${#lists.isEmpty(usuaris)}">
+                                <td colspan="6" class="empty-state">
+                                    No s'han trobat clients registrats.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </main>
+        </div>
+
+    </body>
+</html>

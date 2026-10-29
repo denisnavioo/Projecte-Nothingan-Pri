@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Reserva - Nothingan Pri</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .vehicles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .vehicle-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .vehicle-image-placeholder {
+            background: #f1f5f9;
+            border: 1px dashed #cbd5e1;
+            border-radius: 8px;
+            height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 0.82rem;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .vehicle-image-placeholder::before, .vehicle-image-placeholder::after {
+            content: '';
+            position: absolute;
+            background-color: #cbd5e1;
+        }
+        .vehicle-image-placeholder::before { width: 100%; height: 1px; }
+        .vehicle-image-placeholder::after { height: 100%; width: 1px; }
+        .vehicle-image-placeholder span {
+            position: relative;
+            z-index: 1;
+            background: #f1f5f9;
+            padding: 2px 8px;
+        }
+
+        .vehicle-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .vehicle-price {
+            font-size: 0.82rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .badge-disponible {
+            background-color: #10b981;
+            margin-top: 8px;
+        }
+
+        .btn-select {
+            background: transparent;
+            border: 1.5px solid #2563eb;
+            color: #2563eb;
+            width: 100%;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-select:hover {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        .booking-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .summary-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 16px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
+            color: #475569;
+        }
+
+        .summary-row.total {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+            margin-top: 12px;
+        }
+
+        .notice-text {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+
+        .select-input {
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+            background: #ffffff;
+            color: #1e293b;
+        }
+
+        @media (max-width: 1024px) {
+            .booking-layout { grid-template-columns: 1fr; }
+            .vehicles-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 640px) {
+            .vehicles-grid { grid-template-columns: 1fr; }
+            .filter-group { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="layout">
+        <!-- SIDEBAR DARK -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <a th:href="@{/web/usuaris/login}">
+                    <img th:src="@{/img/logo.png}" alt="NOTHINGAN PRI" class="logo" />
+                </a>
+            </div>
+
+            <!-- ENLACES DEL MENÚ LATERAL CORREGIDOS -->
+            <nav class="nav-menu">
+                <a th:href="@{/web/usuaris/client/reserves}">
+                    • Les meves reserves
+                </a>
+                <a th:href="@{/web/usuaris/client/reserves/nova}" class="active">
+                    • Nova reserva
+                </a>
+                <a th:href="@{/web/usuaris/client/perfil}">
+                    • El meu perfil
+                </a>
+            </nav>
+        </aside>
+
+        <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+        <main class="content">
+
+            <!-- HEADER SUPERIOR -->
+            <header class="top-header">
+                <h2>Nova reserva</h2>
+
+                <div class="user-dropdown">
+                    <span>dnavio ▾</span>
+                    <div class="user-avatar"></div>
+                </div>
+            </header>
+
+            <!-- FILTRO SUPERIOR DE BÚSQUEDA -->
+            <form th:action="@{/web/usuaris/client/reserves/nova}" method="get" class="top-bar">
+                <div class="filter-group" style="flex-wrap: wrap;">
+                    
+                    <div class="input-wrapper" style="min-width: 130px;">
+                        <label for="dataInici">Data inici</label>
+                        <input type="date" id="dataInici" name="dataInici" value="2026-10-10" style="min-width: auto;">
+                    </div>
+
+                    <div class="input-wrapper" style="min-width: 100px;">
+                        <label for="hora">Hora</label>
+                        <input type="time" id="hora" name="hora" value="09:00" style="min-width: auto;">
+                    </div>
+
+                    <div class="input-wrapper" style="min-width: 130px;">
+                        <label for="dataFi">Data fi</label>
+                        <input type="date" id="dataFi" name="dataFi" value="2026-10-12" style="min-width: auto;">
+                    </div>
+
+                    <div class="input-wrapper" style="min-width: 130px;">
+                        <label for="categoria">Categoria</label>
+                        <select id="categoria" name="categoria" class="select-input">
+                            <option value="SUV">SUV</option>
+                            <option value="Turisme">Turisme</option>
+                            <option value="Furgoneta">Furgoneta</option>
+                        </select>
+                    </div>
+
+                    <div class="input-wrapper" style="min-width: 140px;">
+                        <label for="marcaModel">Marca / model</label>
+                        <input type="text" id="marcaModel" name="marcaModel" placeholder="Kia" value="Kia" style="min-width: auto;">
+                    </div>
+
+                    <button type="submit" class="btn btn-filter">Cercar</button>
+                </div>
+            </form>
+
+            <!-- GRID PRINCIPAL (VEHÍCULOS Y RESUMEN) -->
+            <div class="booking-layout">
+                
+                <!-- LISTADO DE TARJETAS DE VEHÍCULOS -->
+                <div>
+                    <div class="vehicles-grid">
+
+                        <!-- Vehículo 1 -->
+                        <div class="vehicle-card">
+                            <div>
+                                <div class="vehicle-image-placeholder">
+                                    <span>Foto vehicle</span>
+                                </div>
+                                <div class="vehicle-title">Kia Sportage · SUV</div>
+                                <div class="vehicle-price">65 €/dia</div>
+                                <span class="badge badge-disponible">Disponible</span>
+                            </div>
+                            <button type="button" class="btn-select">Seleccionar</button>
+                        </div>
+
+                        <!-- Vehículo 2 -->
+                        <div class="vehicle-card">
+                            <div>
+                                <div class="vehicle-image-placeholder">
+                                    <span>Foto vehicle</span>
+                                </div>
+                                <div class="vehicle-title">Seat Ateca · SUV</div>
+                                <div class="vehicle-price">60 €/dia</div>
+                                <span class="badge badge-disponible">Disponible</span>
+                            </div>
+                            <button type="button" class="btn-select">Seleccionar</button>
+                        </div>
+
+                        <!-- Vehículo 3 -->
+                        <div class="vehicle-card">
+                            <div>
+                                <div class="vehicle-image-placeholder">
+                                    <span>Foto vehicle</span>
+                                </div>
+                                <div class="vehicle-title">Dacia Duster · SUV</div>
+                                <div class="vehicle-price">48 €/dia</div>
+                                <span class="badge badge-disponible">Disponible</span>
+                            </div>
+                            <button type="button" class="btn-select">Seleccionar</button>
+                        </div>
+
+                    </div>
+
+                    <p class="notice-text">
+                        En confirmar, el vehicle queda bloquejat per al període seleccionat.
+                    </p>
+                </div>
+
+                <!-- RESUMEN DE LA RESERVA -->
+                <aside class="summary-card">
+                    <h3>Resum de la reserva</h3>
+
+                    <div class="summary-row">
+                        <span>Vehicle</span>
+                        <strong>Kia Sportage</strong>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Període</span>
+                        <span>10/10 – 12/10 (2 dies)</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Lloguer</span>
+                        <span>130 €</span>
+                    </div>
+
+                    <div class="summary-row">
+                        <span>Fiança</span>
+                        <span>300 €</span>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>430 €</span>
+                    </div>
+
+                    <form th:action="@{/web/usuaris/client/reserves/save}" method="post" style="margin-top: 20px;">
+                        <!-- Campos ocultos para enviar la reserva -->
+                        <input type="hidden" name="vehicleId" value="1" />
+                        <input type="hidden" name="dataInici" value="2026-10-10" />
+                        <input type="hidden" name="dataFi" value="2026-10-12" />
+
+                        <button type="submit" class="btn btn-filter" style="width: 100%; text-align: center;">
+                            Confirmar reserva
+                        </button>
+                    </form>
+                </aside>
+
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>
