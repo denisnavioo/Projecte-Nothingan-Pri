@@ -54,16 +54,13 @@ public class UsuarisLogic {
      */
     public Long registrarClientWeb(Usuaris client) throws IllegalArgumentException {
 
+        validarCamposUnicos(client);
+
         // 1. Validar camps obligatoris
         if (client.getEmail() == null || client.getEmail().isBlank()
                 || client.getNom() == null || client.getNom().isBlank()
                 || client.getDni() == null || client.getDni().isBlank()) {
             throw new IllegalArgumentException("Tots els camps obligatoris s'han d'omplir.");
-        }
-
-        // 2. Validar correu duplicat (RF25)
-        if (usuariRepo.findByEmail(client.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("El correu electrònic ja està registrat.");
         }
 
         // 3. Validar data de caducitat del DNI
@@ -131,6 +128,7 @@ public class UsuarisLogic {
      * d'edició.
      */
     public void actualitzarClientPerAgent(Usuaris usuariEditat) {
+        validarCamposUnicos(usuariEditat);
         Usuaris usuariExistent = usuariRepo.findById(usuariEditat.getId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuari no trobat amb ID: " + usuariEditat.getId()));
 
@@ -175,23 +173,21 @@ public class UsuarisLogic {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
 
-    //METODO BIEN DOCUMENTADO
     
-    // Usuaris usuaris trae el objeto de usuaris de la entity usuaris
-    //throw illegalargumentexception indica que este metodo puede devolver excepciones osea lo de los errores
+        //METODO BIEN DOCUMENTADO
+        // Usuaris usuaris trae el objeto de usuaris de la entity usuaris
+        //throw illegalargumentexception indica que este metodo puede devolver excepciones osea lo de los errores
     public void validarCamposUnicos(Usuaris usuari) throws IllegalArgumentException {
 
         // 1. Validar si l'Email ja existeix
-        
         //primero comprueba que lo que mete el usuario en email no este vacio ni en blanco, después hace la misma comprobación en la bbdd,
         if (usuari.getEmail() != null && !usuari.getEmail().isBlank()) {
             //dentro del if envia una petición a la bbdd comprobanco si el email ya existe
             Optional<Usuaris> existent = usuariRepo.findByEmail(usuari.getEmail());
             // si encuentra un usuario con ese mimso mail devuelve solo ese usuario
-            
+
             //si el mail ya existe verifica por la id para saber si es de otro usuario y salta el error dato ya existe 
             //si dice que nadie esta con ese email ya esta todo verificado y permite guardar 
-
             if (existent.isPresent() && (usuari.getId() == null || !existent.get().getId().equals(usuari.getId()))) {
                 //si el email ya existe salta el siguiente error
                 throw new IllegalArgumentException("El correu electrònic '" + usuari.getEmail() + "' ja està registrat.");
@@ -201,6 +197,20 @@ public class UsuarisLogic {
 
         // 2. Validar si el DNI ja existeix
         if (usuari.getDni() != null && !usuari.getDni().isBlank()) {
+            if (usuari.getDni().length() != 9) {
+                throw new IllegalArgumentException("El dni '" + usuari.getDni() + "' ha de tenir 9 digits.");
+            }
+
+            for (int i = 0; i < 8; i++) {
+                if (!Character.isDigit(usuari.getDni().charAt(i))) {
+                    throw new IllegalArgumentException("Els primers 8 caràcters del DNI han de ser números.");
+                }
+            }
+
+            if (Character.isDigit(usuari.getDni().charAt(8))) {
+                throw new IllegalArgumentException("L'últim caràcter del DNI ha de ser una lletra, no un número.");
+            }
+
             Optional<Usuaris> existent = usuariRepo.findByDni(usuari.getDni());
             if (existent.isPresent() && (usuari.getId() == null || !existent.get().getId().equals(usuari.getId()))) {
                 throw new IllegalArgumentException("El DNI '" + usuari.getDni() + "' ja està registrat.");
@@ -208,41 +218,32 @@ public class UsuarisLogic {
         }
 
         // 3. Validar si el Telèfon ja existeix
-        // en el priemr if valida si es cero ya que es un entero y no tiene el isblank, entonces solo  
         // comprueba si ha ingresado algo y no lo ha dejado en blanco 
-        if (usuari.getTelefon() > 0) {
+        if (usuari.getTelefon() == null || usuari.getTelefon().isBlank()) {
+            throw new IllegalArgumentException("El número de telèfon és obligatori.");
+        }
 
-            // crea un string y le pasa el entero para saber la mida de el telefono
-            String telefonStr = String.valueOf(usuari.getTelefon());
-            // ja con la mida comprueba si es de 9 digitos osea logica != 9 (si no es de 9 digitos salta error)
-            if (telefonStr.length() != 9) {
-                throw new IllegalArgumentException("El número de telèfon ha de tenir exactament 9 dígits.");
-            }
+        // ja con la mida comprueba si es de 9 digitos osea logica != 9 (si no es de 9 digitos salta error)
+        if (usuari.getTelefon().length() != 9) {
+            throw new IllegalArgumentException("El número de telèfon ha de tenir exactament 9 dígits.");
+        }
 
-            //dentro del if envia una petición a la bbdd comprobanco si el numero ya existe
-            List<Usuaris> existent = usuariRepo.findByTelefon(usuari.getTelefon());
-            // devuelve una lista de usuarios con el mismo telefono 
-            // si no hay usuarios con el mismo telefono lo devuelve vacio
-
-            // crea una variable para saber si esta duplicado
-            boolean duplicat = false;
-            
-            // el bucle pasa por los usuarios que tienen el mismo numero de tel
-            for (int i = 0; i < existent.size(); i++) {                
-                Usuaris u = existent.get(i);
-                
-                // comprueba si esta duplicado y si es asi duplicat se vuelve true y hace un break para no comprobar mas
-                //si no false
-                if (usuari.getId() == null || !u.getId().equals(usuari.getId())) {
-                    duplicat = true;
-                    break;
-                }
-            }
-            // si el duplicado es true salta el error si no todas las comprobaciones estan bien echas 
-            if (duplicat) {
-                throw new IllegalArgumentException("El telèfon '" + usuari.getTelefon() + "' ja està registrat.");
+        for (int i = 0; i < usuari.getTelefon().length(); i++) {
+            if (!Character.isDigit(usuari.getTelefon().charAt(i))) {
+                throw new IllegalArgumentException("El telèfon només pot contenir números.");
             }
         }
 
+        //dentro del if envia una petición a la bbdd comprobanco si el numero ya existe
+        Optional<Usuaris> existente = usuariRepo.findByTelefon(usuari.getTelefon());
+        // si encuentra un usuario con ese mismo telefono devuelve solo ese usuario
+
+        //si el telefono ya existe verifica por la id para saber si es de otro usuario y salta el error dato ya existe 
+        //si dice que nadie esta con ese telefono ya esta todo verificado y permite guardar 
+        if (existente.isPresent() && (usuari.getId() == null || !existente.get().getId().equals(usuari.getId()))) {
+            //si el telefono ya existe salta el siguiente error
+            throw new IllegalArgumentException("El número de telèfon '" + usuari.getTelefon() + "' ja està registrat.");
+        }
+        // si todas las comprobaciones estan guays actualiza o crea un usuario 
     }
 }

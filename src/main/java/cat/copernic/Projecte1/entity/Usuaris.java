@@ -20,7 +20,7 @@ public class Usuaris {
     @Column(nullable = false, unique = true)
     private String email;
     private String password;
-    private int telefon;
+    private String telefon;
     private String adreca;
     private String poblacio;
     private String nacionalitat;
@@ -49,7 +49,7 @@ public class Usuaris {
     public Usuaris() {
     }
 
-    public Usuaris(String nom, String dni, String email, String password, int telefon, String estatRegistre, String rol) {
+    public Usuaris(String nom, String dni, String email, String password, String telefon, String estatRegistre, String rol) {
         this.nom = nom;
         this.dni = dni;
         this.email = email;
@@ -93,11 +93,11 @@ public class Usuaris {
         this.password = password;
     }
 
-    public int getTelefon() {
+    public String getTelefon() {
         return telefon;
     }
 
-    public void setTelefon(int telefon) {
+    public void setTelefon(String telefon) {
         this.telefon = telefon;
     }
 
