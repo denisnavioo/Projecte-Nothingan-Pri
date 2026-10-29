@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El meu perfil - Nothingan Pri</title>
+    <!-- CSS enlazado de forma relativa y por Thymeleaf -->
+    <link rel="stylesheet" href="styles.css" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+    <div class="layout">
+
+        <!-- MENÚ LATERAL CLIENTE -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <a th:href="@{/web/usuaris/login}">
+                    <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                </a>
+            </div>
+
+            <nav class="nav-menu">
+                <a th:href="@{/web/usuaris/client/reserves}">• Les meves reserves</a>
+                <a th:href="@{/web/usuaris/client/reserves/nova}">• Nova reserva</a>
+                <a th:href="@{/web/usuaris/client/perfil}" class="active">• El meu perfil</a>
+            </nav>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="content">
+
+            <!-- CABECERA SUPERIOR -->
+            <header class="top-header">
+                <h2>El meu perfil</h2>
+
+                <div class="user-dropdown">
+                    <span th:text="${usuari != null ? usuari.nom : 'dnavio'}">dnavio ▾</span>
+                    <div class="user-avatar"></div>
+                </div>
+            </header>
+
+            <!-- MENSAJES DE REALIMENTACIÓN -->
+            <div th:if="${missatge}" class="alert-success" th:text="${missatge}">
+                Dades actualitzades correctament.
+            </div>
+            <div th:if="${error}" class="alert-error" th:text="${error}">
+                S'ha produït un error en desar les dades.
+            </div>
+
+            <!-- TARJETA DEL PERFIL / FORMULARIO -->
+            <div class="table-card" style="padding: 32px; max-width: 900px;">
+                <form th:action="@{/web/usuaris/client/perfil/save}" th:object="${usuari}" method="post">
+                    
+                    <!-- ID OCULTO -->
+                    <input type="hidden" th:field="*{id}" />
+
+                    <!-- SECCIÓN 1: DADES PERSONALS I D'ACCÉS -->
+                    <div class="top-bar" style="margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3>Dades personals i d'accés</h3>
+                        <div>
+                            <span class="badge" 
+                                  th:classappend="*{estatRegistre == 'VALIDAT'} ? 'badge-validat' : (*{estatRegistre == 'PENDENT'} ? 'badge-pendent' : 'badge-rebutjat')"
+                                  th:text="*{estatRegistre != null ? estatRegistre : 'VALIDAT'}">
+                                VALIDAT
+                            </span>
+                            <span th:if="*{premium}" class="badge" style="background-color: #8b5cf6; margin-left: 6px;">
+                                PREMIUM
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 28px;">
+                        <div class="form-group">
+                            <label for="nom">Nom complet</label>
+                            <input type="text" id="nom" th:field="*{nom}" placeholder="Nom i cognoms" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Correu electrònic</label>
+                            <input type="email" id="email" th:field="*{email}" placeholder="nom@exemple.com" required readonly style="background-color: #f8fafc;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefon">Telèfon de contacte</label>
+                            <input type="number" id="telefon" th:field="*{telefon}" placeholder="600112233" required />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nacionalitat">Nacionalitat</label>
+                            <input type="text" id="nacionalitat" th:field="*{nacionalitat}" placeholder="Espanyola" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="adreca">Adreça habitual</label>
+                            <input type="text" id="adreca" th:field="*{adreca}" placeholder="Carrer Major, 12" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="poblacio">Població</label>
+                            <input type="text" id="poblacio" th:field="*{poblacio}" placeholder="Barcelona" />
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 2: DOCUMENT D'IDENTITAT I LLICÈNCIA -->
+                    <div class="top-bar" style="margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3>Documentació oficial</h3>
+                    </div>
+
+                    <div class="form-grid" style="margin-bottom: 28px;">
+                        <div class="form-group">
+                            <label for="dni">DNI / Passaport</label>
+                            <input type="text" id="dni" th:field="*{dni}" placeholder="12345678X" required readonly style="background-color: #f8fafc;" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dataCaducitatDni">Data de caducitat DNI</label>
+                            <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tipusLlicencia">Tipus de llicència de conduir</label>
+                            <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" placeholder="B" />
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dataCaducitatLlicencia">Data de caducitat llicència</label>
+                            <input type="date" id="dataCaducitatLlicencia" th:field="*{dataCaducitatLlicencia}" />
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 3: DADES DE PAGAMENT -->
+                    <div class="top-bar" style="margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">
+                        <h3>Mètode de pagament</h3>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group form-group-full">
+                            <label for="targetaCredit">Targeta de crèdit / dèbit</label>
+                            <input type="text" id="targetaCredit" th:field="*{targetaCredit}" placeholder="**** **** **** 1234" />
+                        </div>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="button-group" style="margin-top: 32px;">
+                        <button type="submit" class="btn btn-filter" style="max-width: 220px;">
+                            Desar canvis
+                        </button>
+                        <a th:href="@{/web/usuaris/client/reserves}" class="btn btn-cancel" style="max-width: 150px;">
+                            Cancel·lar
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+</body>
+</html>

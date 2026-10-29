@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/web/usuaris")
@@ -168,6 +169,7 @@ public String mostrarReservesClient(Model model) {
     return "client-reserves"; // Nombre del archivo HTML (client-reserves.html)
 }
 
+// FORMULARIO CREACIÓN RESERVA CLIENTE
 @GetMapping("/client/reserves/nova")
 public String mostrarNovaReservaClient(Model model) {
     Reserva reserva = new Reserva();
@@ -176,6 +178,24 @@ public String mostrarNovaReservaClient(Model model) {
 
     model.addAttribute("reserva", reserva);
     return "nova-reserva";
+}
+
+// MOSTRAR PERFIL DEL CLIENTE
+@GetMapping("/client/perfil")
+public String mostrarPerfilClient(Model model) {
+    // Recuperar el usuario autenticado (ejemplo mock o desde servicio)
+    Usuaris usuari = usuarisService.getUsuariById(1L); // Sustituir por el ID del usuario logueado
+    
+    model.addAttribute("usuari", usuari);
+    return "perfil"; // Nombre de la plantilla: perfil.html
+}
+
+// GUARDAR CAMBIOS DEL PERFIL
+@PostMapping("/client/perfil/save")
+public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariActualitzat, RedirectAttributes redirectAttributes) {
+    usuarisService.saveUsuari(usuariActualitzat);
+    redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
+    return "redirect:/web/usuaris/client/perfil";
 }
 
 // PAGINAS DE ADMIN

@@ -61,7 +61,7 @@
             <button type="submit" class="btn btn-primary btn-custom w-100 mb-3">Entrar</button>
 
             <!-- ACCÉS RÀPID (PER A PROVES) -->
-            <div class="text-center mt-3 mb-3">
+            <div class="text-center mt-3">
                 <p class="text-muted small mb-2"><strong>Accés ràpid (Mode Desenvolupament)</strong></p>
                 <div class="d-grid gap-2">
                     <a th:href="@{/web/usuaris/client/reserves}" class="btn btn-outline-secondary btn-sm">
@@ -76,7 +76,7 @@
                 </div>
             </div>
 
-            <div class="text-center mb-2">
+            <div class="text-center mt-3 mb-2">
                 <a th:href="@{/web/usuaris/registre}" class="text-decoration-none small text-primary fw-medium">No tens compte? Registra't</a>
             </div>
 
@@ -85,11 +85,12 @@
             </div>
         </form>
 
-        <!-- Missatges d'Error / Estat -->
+        <!-- Missatges d'Error (alerta si credencials incorrectes) -->
         <div th:if="${error}" class="alert alert-danger mt-3 mb-0 text-center small" role="alert" th:text="${error}">
             Credencials incorrectes.
         </div>
 
+        <!-- Missatges d'Avís (Quan ve de enviar el registre) -->
         <div th:if="${param.registrePendent}" class="alert alert-info mt-3 mb-0 text-center small" role="alert">
             La teva sol·licitud s'ha enviat correctament! Està pendent de revisió per un agent.
         </div>
@@ -97,7 +98,6 @@
         <div th:if="${alertaPendent}" class="alert alert-warning mt-3 mb-0 text-center small" role="alert" th:text="${alertaPendent}">
             El teu usuari encara no està validat per un agent.
         </div>
-
     </div>
 
 </body>
