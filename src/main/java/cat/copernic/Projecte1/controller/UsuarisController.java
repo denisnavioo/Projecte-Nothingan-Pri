@@ -3,6 +3,7 @@ package cat.copernic.Projecte1.controller;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
+import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 import java.util.List;
 import org.slf4j.Logger;
@@ -27,6 +28,9 @@ public class UsuarisController {
 
     @Autowired
     private UsuarisLogic usuarisService;
+    
+    @Autowired
+    private ReservaLogic reservaLogic;
 
     // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
     @GetMapping("/all")
@@ -175,6 +179,12 @@ public String mostrarNovaReservaClient(Model model) {
     return "nova-reserva";
 }
 
+@PostMapping("/client/reserves/save")
+    public String guardarReservaClient(@ModelAttribute("reserva") Reserva reserva) {
+        reservaLogic.saveReserva(reserva); // Invocació sobre la instància 'reservaLogic'
+        return "redirect:/web/usuaris/client/reserves";
+    }
+    
 // MOSTRAR PERFIL DEL CLIENTE
 @GetMapping("/client/perfil")
 public String mostrarPerfilClient(Model model) {
