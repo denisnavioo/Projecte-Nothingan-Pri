@@ -13,18 +13,25 @@ import org.springframework.data.jpa.repository.JpaRepository;
  *
  * @author Maxna
  */
-public interface UsuarisRepository extends JpaRepository<Usuaris, Long>{
-    
-    //Optional ESTRIVTO List PARCIAL
-    
+public interface UsuarisRepository extends JpaRepository<Usuaris, Long> {
+
+    //Optional ESTRICTO List PARCIAL
     // Método necesario para comprobar correos duplicados (RF09)
+    // hace una llamada a la bbdd donde le pasa el atributo entre parentesis y busca las coincidencias
+    //con los usuarios y devuelve una lista de usuarios con sus atributos y todo lo que contengan  
     Optional<Usuaris> findByEmail(String email);
-    
+
     // Busqueda Dni parcial (sale dni exacto o equivalentes)
+    // hace una llamada a la bbdd donde le pasa el atributo entre parentesis y busca las coincidencias
+    //con los usuarios y devuelve un usuario con sus atributos y todo lo que contengan  
     List<Usuaris> findByDniContainingIgnoreCase(String dni);
-    
-    List<Usuaris>findByEstatRegistre(String estatRegistre);
-    
-    List<Usuaris>findByRol(String rol);
-    
+
+    List<Usuaris> findByEstatRegistre(String estatRegistre);
+
+    List<Usuaris> findByRol(String rol);
+
+    List<Usuaris> findByTelefon(int telefon);
+
+    Optional<Usuaris> findByDni(String dni);
+
 }
