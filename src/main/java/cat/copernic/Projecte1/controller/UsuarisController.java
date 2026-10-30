@@ -240,15 +240,6 @@ public String mostrarPerfilClient(HttpSession session, Model model) {
     return "perfil"; // Nombre de la plantilla: perfil.html
 }
 
-    @GetMapping("/client/perfil")
-    public String mostrarPerfilClient(Model model) {
-        // Recuperar el usuario autenticado (ejemplo mock o desde servicio)
-        Usuaris usuari = usuarisService.getUsuariById(1L); // Sustituir por el ID del usuario logueado
-
-        model.addAttribute("usuari", usuari);
-        return "perfil"; // Nombre de la plantilla: perfil.html
-    }
-
 // GUARDAR CAMBIOS DEL PERFIL
     @PostMapping("/client/perfil/save")
     public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariActualitzat, RedirectAttributes redirectAttributes) {
