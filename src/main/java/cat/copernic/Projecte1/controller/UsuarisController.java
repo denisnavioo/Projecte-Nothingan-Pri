@@ -5,6 +5,7 @@ import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,12 +106,23 @@ public class UsuarisController {
     }
 
     @PostMapping("/login")
-    public String processarLogin(@RequestParam("email") String email,
+    public String processarLogin(@RequestParam("email") String email, HttpSession session,
             @RequestParam("password") String password,
             Model model) {
         try {
-            Usuaris client = usuarisService.autenticarIValidarEstat(email, password);
-            return "redirect:/web/usuaris/all";
+            Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
+            session.setAttribute("usuariLoguejat", usuari);
+            
+            String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
+            
+            if ("CLIENT".equals(rol)) {
+                return "redirect:/web/usuaris/client/reserves";
+            } else if ("ADMIN".equals(rol)) {
+                return "redirect:/web/usuaris/admin";
+            } else {
+                return "redirect:/web/usuaris/all";
+            }
+           
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -118,6 +130,13 @@ public class UsuarisController {
             model.addAttribute("alertaPendent", e.getMessage());
             return "login";
         }
+    }
+    
+    // Tancar sessió
+    @GetMapping("/logout")
+    public String tancarSession(HttpSession session) {
+        session.invalidate(); //Destrueix la sessió
+        return "redirect:/web/usuaris/login?logout=true";
     }
 
     // --- REGISTRE WEB (PUBLIC - RF81) ---
@@ -159,22 +178,40 @@ public class UsuarisController {
     }
 
 @GetMapping("/client/reserves")
-public String mostrarReservesClient(Model model) {
-    // 1. Aquí recuperaremos las reservas del usuario cuando conectéis el módulo de reservas
-    // List<Reserva> reserves = reservaService.getReservesPerUsuari(usuariLoguejat.getId());
-    // model.addAttribute("reserves", reserves);
-
-    // 2. Por ahora pasamos un título o datos de prueba si lo necesitas
-    return "client-reserves"; // Nombre del archivo HTML (client-reserves.html)
+public String mostrarReservesClient(HttpSession session, Model model) {
+    //Obtenir usuari autenticat desde la sessió http
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    
+    // si no hi ha sessió, redirigir al login.
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
+    }
+    
+    //passar l'usuari al model per mostrar el nom en el header
+    model.addAttribute("usuariLoguejat", usuariLoguejat);
+    
+    List<Reserva> reserves = reservaLogic.getReservesPerUsuari(usuariLoguejat.getId());
+    if (reserves == null) {
+        reserves = List.of();
+    }
+    model.addAttribute("reserves", reserves);
+    return "client-reserves";
 }
 
 // FORMULARIO CREACIÓN RESERVA CLIENTE
 @GetMapping("/client/reserves/nova")
-public String mostrarNovaReservaClient(Model model) {
+public String mostrarNovaReservaClient(HttpSession session, Model model) {
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
+    }
+    
     Reserva reserva = new Reserva();
     reserva.setVehicle(new Vehicle());
-    reserva.setUsuari(new Usuaris());
+    reserva.setUsuari(usuariLoguejat);
 
+    model.addAttribute("usuariLoguejat", usuariLoguejat);
     model.addAttribute("reserva", reserva);
     return "nova-reserva";
 }
@@ -187,11 +224,15 @@ public String mostrarNovaReservaClient(Model model) {
     
 // MOSTRAR PERFIL DEL CLIENTE
 @GetMapping("/client/perfil")
-public String mostrarPerfilClient(Model model) {
-    // Recuperar el usuario autenticado (ejemplo mock o desde servicio)
-    Usuaris usuari = usuarisService.getUsuariById(1L); // Sustituir por el ID del usuario logueado
+public String mostrarPerfilClient(HttpSession session, Model model) {
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
+    }
     
-    model.addAttribute("usuari", usuari);
+    Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+    model.addAttribute("usuariLoguejat", usuariBD);
+    model.addAttribute("usuari", usuariBD); // Necesario para th:object="${usuari}" en perfil.html
     return "perfil"; // Nombre de la plantilla: perfil.html
 }
 
