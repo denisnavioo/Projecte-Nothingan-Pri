@@ -580,3 +580,43 @@ body {
     font-weight: 600;
     color: #475569;
 }
+
+/* --- Desplegable de características del vehículo --- */
+.vehicle-details {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.vehicle-details summary {
+    padding: 10px 14px;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.vehicle-details summary:hover {
+    background: #f1f5f9;
+}
+
+.vehicle-details-content {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 20px;
+    padding: 12px 14px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.85rem;
+    color: #475569;
+}
+
+.vehicle-details-content p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+.vehicle-details-content span {
+    font-weight: 400;
+    color: #334155;
+}

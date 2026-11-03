@@ -181,6 +181,11 @@ public class UsuarisController {
         return "redirect:/web/usuaris/pendents";
     }
 
+    /*@GetMapping("/admin")
+    public String admin(Model model) {
+        return "admin clients";
+    }*/
+
 @GetMapping("/client/reserves")
 public String mostrarReservesClient(HttpSession session, Model model) {
     //Obtenir usuari autenticat desde la sessió http
