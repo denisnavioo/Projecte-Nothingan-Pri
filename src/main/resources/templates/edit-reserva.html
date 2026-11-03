@@ -129,7 +129,7 @@
 
                 <div class="form-grid">
 
-                    <!-- Selección del vehículo y su precio diario. -->
+                    <!-- Selección del vehículo. -->
                     <div class="form-group">
                         <label for="vehicle">Vehicle</label>
 
@@ -138,9 +138,16 @@
                                 Selecciona un vehicle...
                             </option>
 
+                            <!-- Guarda las características del vehículo para mostrarlas al seleccionarlo. -->
                             <option th:each="v : ${vehicles}"
                                     th:value="${v.id}"
-                                    th:attr="data-preu-dia=${v.preuDia}"
+                                    th:attr="data-matricula=${v.matricula},
+                                             data-marca=${v.marca},
+                                             data-model=${v.model},
+                                             data-any=${v.anyFabricacio},
+                                             data-categoria=${v.categoria},
+                                             data-preu-dia=${v.preuDia},
+                                             data-estat=${v.estatVehicle}"
                                     th:text="${v.matricula + ' - ' + v.marca + ' ' + v.model + ' (' + v.estatVehicle + ')'}">
                             </option>
                         </select>
@@ -162,6 +169,23 @@
                             </option>
                         </select>
                     </div>
+
+                    <!-- Desplegable con las características del vehículo seleccionado. -->
+                    <details id="detallsVehicle" class="vehicle-details"
+                             style="display:none; grid-column:1 / -1;">
+
+                        <summary>Característiques del vehicle</summary>
+
+                        <div class="vehicle-details-content">
+                            <p>Matrícula: <span id="detallMatricula"></span></p>
+                            <p>Marca: <span id="detallMarca"></span></p>
+                            <p>Model: <span id="detallModel"></span></p>
+                            <p>Any de fabricació: <span id="detallAny"></span></p>
+                            <p>Categoria: <span id="detallCategoria"></span></p>
+                            <p>Preu per dia: <span id="detallPreu"></span> €</p>
+                            <p>Estat: <span id="detallEstat"></span></p>
+                        </div>
+                    </details>
 
                     <!-- Fecha de inicio del alquiler. -->
                     <div class="form-group">
@@ -255,6 +279,36 @@
     const fi = document.getElementById('dataFiReserva');
     const fianca = document.getElementById('importFianca');
     const resum = document.getElementById('resumPreu');
+    
+    // Obtiene el contenedor de los detalles del vehículo.
+    const detallsVehicle = document.getElementById('detallsVehicle');
+    
+    // Muestra las características del vehículo seleccionado.
+    function mostrarDetallsVehicle() {
+        const v = vehicle.selectedOptions[0];
+
+        // Oculta la ficha si no hay ningún vehículo seleccionado.
+        if (!vehicle.value) {
+            detallsVehicle.style.display = 'none';
+            detallsVehicle.open = false;
+            return;
+        }
+
+        // Rellena la ficha con los datos guardados en el desplegable.
+        document.getElementById('detallMatricula').textContent = v.dataset.matricula;
+        document.getElementById('detallMarca').textContent = v.dataset.marca;
+        document.getElementById('detallModel').textContent = v.dataset.model;
+        document.getElementById('detallAny').textContent = v.dataset.any;
+        document.getElementById('detallCategoria').textContent = v.dataset.categoria;
+        document.getElementById('detallPreu').textContent = v.dataset.preuDia;
+        document.getElementById('detallEstat').textContent = v.dataset.estat;
+
+        // Muestra el desplegable cerrado.
+        detallsVehicle.style.display = 'block';
+    }
+
+    // Actualiza los detalles cuando cambia el vehículo seleccionado.
+    vehicle.addEventListener('change', mostrarDetallsVehicle);
 
     // Convierte la fecha local a una escala común para calcular la duración.
     function convertirData(valor) {
