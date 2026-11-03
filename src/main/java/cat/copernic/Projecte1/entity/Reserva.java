@@ -14,19 +14,24 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
+// Entidad que representa una reserva en la base de datos.
 @Entity
 public class Reserva {
 
+    // Identificador único de la reserva.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // Código único que identifica la reserva.
     @Column(name = "codi_reserva", nullable = false, unique = true)
     private String codiReserva;
 
+    // Fecha en la que se crea la reserva.
     @Column(nullable = false)
     private LocalDateTime dataReserva;
 
+    // Fechas y horas de inicio y finalización del alquiler.
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(nullable = false)
     private LocalDateTime dataInici;
@@ -35,6 +40,7 @@ public class Reserva {
     @Column(nullable = false)
     private LocalDateTime dataFi;
 
+    // Importes económicos relacionados con la reserva.
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal preuLloguer;
 
@@ -53,13 +59,16 @@ public class Reserva {
     @Column(precision = 10, scale = 2)
     private BigDecimal costFinal;
 
+    // Estado actual de la reserva.
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstatReserva estat;
 
+    // Observaciones adicionales de la reserva.
     @Column(length = 1000)
     private String observacions;
 
+    // Vehículo y usuario asociados a la reserva.
     @ManyToOne
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
@@ -68,9 +77,11 @@ public class Reserva {
     @JoinColumn(name = "usuari_id", nullable = false)
     private Usuaris usuari;
 
+    // Constructor vacío necesario para JPA.
     public Reserva() {
     }
 
+    // Métodos para consultar y modificar los atributos de la reserva.
     public Integer getId() {
         return id;
     }
