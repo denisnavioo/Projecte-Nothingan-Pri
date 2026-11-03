@@ -1,6 +1,7 @@
 package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Enum.Categoria;
+import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.VehicleLogic;
 import jakarta.annotation.PostConstruct;
@@ -35,14 +36,23 @@ public class VehicleController {
     @Autowired
     private VehicleLogic vehicleLogic;
 
-    @GetMapping("/all")
-    public String findAll(@RequestParam(name = "matricula", required = false) String matricula, Model model) {
-        logger.debug("Getting all vehicles with filter: " + matricula);
+   @GetMapping("/all")
+    public String findAll(
+            @RequestParam(name = "matricula", required = false) String matricula,
+            @RequestParam(name = "marca", required = false) String marca,
+            @RequestParam(name = "categoria", required = false) Categoria categoria,
+            @RequestParam(name = "estatVehicle", required = false) EstatVehicle estatVehicle,
+            Model model) {
 
-        List<Vehicle> llista = vehicleLogic.findByMatricula(matricula);
+        logger.debug("Getting all vehicles with filters - Matrícula: " + matricula + ", Marca: " + marca + ", Categoria: " + categoria + ", Estat: " + estatVehicle);
+
+        List<Vehicle> llista = vehicleLogic.findByFiltres(matricula, marca, categoria, estatVehicle);
 
         model.addAttribute("vehicle", llista);
         model.addAttribute("matricula", matricula);
+        model.addAttribute("marca", marca);
+        model.addAttribute("categoriaSel", categoria);
+        model.addAttribute("estatSel", estatVehicle);
 
         return "vehicles-list";
     }

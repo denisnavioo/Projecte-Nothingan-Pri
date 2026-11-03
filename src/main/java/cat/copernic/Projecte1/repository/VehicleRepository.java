@@ -1,6 +1,7 @@
 package cat.copernic.Projecte1.repository;
 
 
+import cat.copernic.Projecte1.entity.Enum.Categoria;
 import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 import cat.copernic.Projecte1.entity.Vehicle;
 import java.util.List;
@@ -18,4 +19,11 @@ public interface VehicleRepository extends JpaRepository<Vehicle , Long>{
     Optional<Vehicle> findByMatriculaIgnoreCase(String matricula);
   
     List<Vehicle> findByEstatVehicleAndActiuTrue(EstatVehicle estatVehicle);
+    
+    List<Vehicle> findByMatriculaContainingIgnoreCaseAndMarcaContainingIgnoreCaseAndCategoriaAndEstatVehicle(
+            String matricula, 
+            String marca, 
+            Categoria categoria, 
+            EstatVehicle estatVehicle
+    );
 }
