@@ -66,7 +66,7 @@
                   method="get">
 
                 <div style="display: grid;
-                            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+                            grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
                             gap: 16px;
                             align-items: end;">
 
@@ -89,6 +89,21 @@
                                th:value="${dataFi}"
                                required>
                     </div>
+                    
+                    <!-- Filtro por categoría del vehículo. -->
+                    <div class="form-group">
+                        <label for="categoria">Categoria del vehicle</label>
+
+                        <select id="categoria" name="categoria">
+                            <option value="">Totes les categories</option>
+                            <option value="Utilitari" th:selected="${categoria == 'Utilitari'}">Utilitari</option>
+                            <option value="Compacte" th:selected="${categoria == 'Compacte'}">Compacte</option>
+                            <option value="SUV" th:selected="${categoria == 'SUV'}">SUV</option>
+                            <option value="Berlina" th:selected="${categoria == 'Berlina'}">Berlina</option>
+                            <option value="Furgoneta" th:selected="${categoria == 'Furgoneta'}">Furgoneta</option>
+                            <option value="Monovolum" th:selected="${categoria == 'Monovolum'}">Monovolum</option>
+                        </select>
+                    </div>
 
                     <button type="submit" class="btn btn-filter">
                         Cercar
@@ -101,7 +116,7 @@
             <div th:if="${senseDisponibilitat}"
                  class="alert-error"
                  style="margin-top: 12px;">
-                No hi ha vehicles disponibles per a les dates seleccionades.
+                No hi ha vehicles disponibles amb els criteris seleccionats.
             </div>
         </div>
 
