@@ -30,8 +30,8 @@ public class Projecte1Equip4Application {
         };
     }
 
-    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, String telefon, String estat, String dni, boolean premium, String rol) {
-        if (repo.findByEmail(email).isEmpty()) {
+    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, String telefon, String estat, String dni, boolean premium) {
+        if (repo.findByEmail(email).isEmpty() && repo.findByDni(dni).isEmpty()) {
             Usuaris u = new Usuaris();
             u.setNom(nom);
             u.setEmail(email);

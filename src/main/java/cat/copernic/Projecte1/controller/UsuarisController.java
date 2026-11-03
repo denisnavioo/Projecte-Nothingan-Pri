@@ -26,8 +26,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/web/usuaris")
 public class UsuarisController {
 
-    private final Logger logger = LoggerFactory.getLogger(UsuarisController.class);
-
     @Autowired
     private UsuarisLogic usuarisService;
     
@@ -39,7 +37,6 @@ public class UsuarisController {
     // requestParam se usa para recivir/capturar un parametro y que te lo devuelva, entonces le pide a el logic que busque 
     // ese parametro  con sus metodos i el logic le pide al repositori que busque eso en la bbdd.
     public String findAll(@RequestParam(value = "dni", required = false) String dni, Model model) {
-        logger.debug("Getting usuaris with filter DNI: " + dni);
 
         List<Usuaris> llista;
         if (dni != null && !dni.trim().isEmpty()) {
@@ -48,7 +45,12 @@ public class UsuarisController {
             llista = usuarisService.findAllUsuaris();
         }
 
-        model.addAttribute("usuaris", llista);
+        // Filtra directamente en el controller para dejar solo los del rol CLIENT
+        List<Usuaris> nomesClients = llista.stream()
+                .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
+                .toList();
+
+        model.addAttribute("usuaris", nomesClients);
         model.addAttribute("dniFiltre", dni);
         return "usuaris-list";
     }
@@ -56,7 +58,6 @@ public class UsuarisController {
     // --- CREAR Y EDITAR USUARIO (ADMIN/AGENT) ---
     @GetMapping("/new")
     public String getForm(Model model) {
-        logger.debug("Creating new usuari...");
 
         Usuaris u = new Usuaris();
         u.setEstatRegistre("PENDENT");
@@ -253,84 +254,4 @@ public String mostrarPerfilClient(HttpSession session, Model model) {
         return "redirect:/web/usuaris/client/perfil";
     }
 
-// PAGINAS DE ADMIN
-    @GetMapping("/admin")
-    public String admin(@RequestParam(value = "dni", required = false) String dni, Model model) {
-
-        List<Usuaris> llista;
-        if (dni != null && !dni.trim().isEmpty()) {
-            llista = usuarisService.findByDni(dni.trim());
-        } else {
-            llista = usuarisService.findAllUsuaris();
-        }
-
-        model.addAttribute("usuaris", llista);
-        model.addAttribute("dniFiltre", dni);
-
-        return "admin-clients";
-    }
-
-    @GetMapping("/admin/view/{id}")
-    public String viewClientAdmin(@PathVariable("id") Long id, Model model) {
-        Usuaris usuari = usuarisService.getUsuariById(id);
-        model.addAttribute("usuari", usuari);
-        model.addAttribute("modoLectura", true);
-        return "admin-edit-clients";
-    }
-
-
-    
-// Mode d'edició per a Administrador
-    @GetMapping("/admin/edit/{id}")
-    public String editClientAdmin(@PathVariable("id") Long id, Model model) {
-        Usuaris usuari = usuarisService.getUsuariById(id);
-        model.addAttribute("usuari", usuari);
-        model.addAttribute("modoLectura", false);
-        return "admin-edit-clients";
-    }
-    
-        /**
-     * REUTILIZACIÓN DE PLANTILLAS EN THYMELEAF (Principio DRY - Don't Repeat Yourself):
-     * Ambos métodos devuelven la misma vista HTML ("admin-edit-clients").
-     * 
-     * Pasamos la variable 'modoLectura' al Model:
-     * - En viewClientAdmin es TRUE  -> En Thymeleaf se usa (th:readonly="${modoLectura}") para bloquear los campos.
-     * - En editClientAdmin es FALSE -> Los campos del formulario se pueden editar normalmente.
-     * 
-     * De esta forma reutilizamos el mismo archivo HTML sin duplicar código.
-     */
-
-        @GetMapping("/admin/new")
-    public String newClientAdmin(Model model) {
-        model.addAttribute("usuari", new Usuaris());
-        model.addAttribute("modoLectura", false);
-        return "admin-edit-clients";
-    }
-    
-// Donar de baixa per a Administrador i redreçar al panell admin
-    @GetMapping("/admin/delete/{id}")
-    public String deleteClientAdmin(@PathVariable("id") Long id) {
-        usuarisService.deleteUsuariById(id); // o canviar estat a 'BAIXA'
-        return "redirect:/web/usuaris/admin";
-    }
-// 1. Mostrar el formulario para crear un NUEVO cliente como Admin
-
-
-
-// 2. Procesar el guardado desde el formulario de Admin
-    @PostMapping("/admin/save")
-    public String saveClientAdmin(@ModelAttribute("usuari") Usuaris usuari) {
-        // Si la contraseña viene vacía al editar, mantenemos la contraseña guardada
-        if (usuari.getId() != null && (usuari.getPassword() == null || usuari.getPassword().isBlank())) {
-            Usuaris usuariExistente = usuarisService.getUsuariById(usuari.getId());
-            if (usuariExistente != null) {
-                usuari.setPassword(usuariExistente.getPassword());
-            }
-        }
-
-        usuarisService.saveUsuari(usuari);
-
-        // Redirige directamente al listado de clientes de Admin
-        return "redirect:/web/usuaris/admin";
-    }
 }
