@@ -17,6 +17,9 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
     // Busca las reservas de un vehículo.
     List<Reserva> findByVehicle_Id(long vehicleId);
     
+    // Busca las reservas de un usuario.
+    List<Reserva> findByUsuariId(Long id);
+    
     // Busca las reservas de un vehículo que coinciden con unas fechas.
     @Query("SELECT r FROM Reserva r WHERE r.vehicle.id = :vehicleId "
             + "AND r.estat <> :anulada "
