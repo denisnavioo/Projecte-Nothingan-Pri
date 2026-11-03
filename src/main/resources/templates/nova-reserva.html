@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- VISTA DE NOVA RESERVA PER A CLIENT! -->
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -184,8 +185,10 @@
                 <h2>Nova reserva</h2>
 
                 <div class="user-dropdown">
-                    <span>dnavio ▾</span>
-                    <div class="user-avatar"></div>
+                    <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
+                        <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">UsuariLoguejat ▾</span>
+                        <div class="user-avatar"></div>
+                    </a>
                 </div>
             </header>
 
@@ -231,46 +234,53 @@
                 
                 <!-- LISTADO DE TARJETAS DE VEHÍCULOS -->
                 <div>
-                    <div class="vehicles-grid">
+                                    <!-- GRID PRINCIPAL DE VEHICLES DINÀMIC -->
+                <div class="vehicles-grid">
 
-                        <!-- Vehículo 1 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Kia Sportage · SUV</div>
-                                <div class="vehicle-price">65 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
+                    <!-- Tarja de vehicle iterada amb Thymeleaf -->
+                    <div class="vehicle-card" th:each="v : ${vehicles}">
+                        <div>
+                            <!-- Imatge del vehicle o placeholder si no en té -->
+                            <div class="vehicle-image-placeholder">
+                                <img th:if="${v.imatgeUrl != null}" 
+                                        th:src="@{${v.imatgeUrl}}" 
+                                        th:alt="${v.marca + ' ' + v.model}" 
+                                        style="width:100%; height:100%; object-fit:cover; border-radius:8px;" />
+                                <span th:unless="${v.imatgeUrl != null and !v.imatgeUrl.isEmpty()}">Foto vehicle</span>
                             </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
+
+                            <!-- Títol i Categoria -->
+                            <div class="vehicle-title" th:text="${v.marca + ' ' + v.model + ' · ' + v.categoria}">
+                                Kia Sportage · SUV
+                            </div>
+
+                            <!-- Preu per dia -->
+                            <div class="vehicle-price" th:text="${v.preuDiari + ' €/dia'}">
+                                65 €/dia
+                            </div>
+
+                            <!-- Badge d'Estat -->
+                            <span class="badge badge-disponible" 
+                                  th:classappend="${v.disponible} ? 'badge-disponible' : 'badge-rebutjat'"
+                                  th:text="${v.disponible ? 'Disponible' : 'No disponible'}">
+                                Disponible
+                            </span>
                         </div>
 
-                        <!-- Vehículo 2 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Seat Ateca · SUV</div>
-                                <div class="vehicle-price">60 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
-                            </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
-                        </div>
+                        <!-- Botó per seleccionar el vehicle -->
+                        <button type="button" 
+                                class="btn-select" 
+                                th:onclick="'seleccionarVehicle(' + ${v.id} + ', \'' + ${v.marca + ' ' + v.model} + '\', ' + ${v.preuDiari} + ')'">
+                            Seleccionar
+                        </button>
+                    </div>
 
-                        <!-- Vehículo 3 -->
-                        <div class="vehicle-card">
-                            <div>
-                                <div class="vehicle-image-placeholder">
-                                    <span>Foto vehicle</span>
-                                </div>
-                                <div class="vehicle-title">Dacia Duster · SUV</div>
-                                <div class="vehicle-price">48 €/dia</div>
-                                <span class="badge badge-disponible">Disponible</span>
-                            </div>
-                            <button type="button" class="btn-select">Seleccionar</button>
-                        </div>
+                    <!-- Estat buit quan no hi ha cap vehicle a la BDD -->
+                    <div th:if="${#lists.isEmpty(vehicles)}" style="grid-column: 1 / -1; padding: 24px; text-align: center; color: #64748b;">
+                        No s'han trobat vehicles disponibles amb els criteris seleccionats.
+                    </div>
+
+                </div>
 
                     </div>
 
@@ -280,50 +290,75 @@
                 </div>
 
                 <!-- RESUMEN DE LA RESERVA -->
+                <!-- RESUM DE LA RESERVA (100% SERVIDOR / SENSE JAVASCRIPT) -->
                 <aside class="summary-card">
                     <h3>Resum de la reserva</h3>
 
+                    <!-- Vehicle seleccionat -->
                     <div class="summary-row">
                         <span>Vehicle</span>
-                        <strong>Kia Sportage</strong>
+                        <strong th:text="${vehicleSeleccionat != null ? vehicleSeleccionat.marca + ' ' + vehicleSeleccionat.model : 'Cap seleccionat'}">
+                            Kia Sportage
+                        </strong>
                     </div>
 
+                    <!-- Període i dies calculats -->
                     <div class="summary-row">
                         <span>Període</span>
-                        <span>10/10 – 12/10 (2 dies)</span>
+                        <span th:if="${dataInici != null and dataFi != null}" 
+                              th:text="${#temporals.format(dataInici, 'dd/MM') + ' – ' + #temporals.format(dataFi, 'dd/MM') + ' (' + dies + ' ' + (dies == 1 ? 'dia' : 'dies') + ')'}">
+                            10/10 – 12/10 (2 dies)
+                        </span>
+                        <span th:unless="${dataInici != null and dataFi != null}">-- / --</span>
                     </div>
 
+                    <!-- Preu Lloguer (Preu diari * dies) -->
                     <div class="summary-row">
                         <span>Lloguer</span>
-                        <span>130 €</span>
+                        <span th:text="${preuLloguer != null ? #numbers.formatDecimal(preuLloguer, 1, 'POINT', 2, 'COMMA') + ' €' : '0,00 €'}">
+                            130,00 €
+                        </span>
                     </div>
 
+                    <!-- Fança (Amb descompte del 25% si l'usuari és Premium) -->
                     <div class="summary-row">
-                        <span>Fiança</span>
-                        <span>300 €</span>
+                        <span>
+                            Fiança 
+                            <small th:if="${usuariLoguejat != null and usuariLoguejat.premium}" style="color: #10b981; font-weight: 600;">(-25% Premium)</small>
+                        </span>
+                        <span th:text="${importFianca != null ? #numbers.formatDecimal(importFianca, 1, 'POINT', 2, 'COMMA') + ' €' : '0,00 €'}">
+                            225,00 €
+                        </span>
                     </div>
 
+                    <!-- Import Total (Lloguer + Fança) -->
                     <div class="summary-row total">
                         <span>Total</span>
-                        <span>430 €</span>
+                        <span th:text="${preuTotal != null ? #numbers.formatDecimal(preuTotal, 1, 'POINT', 2, 'COMMA') + ' €' : '0,00 €'}">
+                            355,00 €
+                        </span>
                     </div>
 
+                    <!-- FORMULARI D'ENVIAMENT -->
                     <form th:action="@{/web/usuaris/client/reserves/save}" method="post" style="margin-top: 20px;">
-                        <!-- Campos ocultos para enviar la reserva -->
-                        <input type="hidden" name="vehicleId" value="1" />
-                        <input type="hidden" name="dataInici" value="2026-10-10" />
-                        <input type="hidden" name="dataFi" value="2026-10-12" />
+                        <!-- Camps ocults per enviar la reserva -->
+                        <input type="hidden" name="vehicle.id" th:value="${vehicleSeleccionat != null ? vehicleSeleccionat.id : ''}" />
+                        <input type="hidden" name="dataInici" th:value="${dataInici}" />
+                        <input type="hidden" name="dataFi" th:value="${dataFi}" />
+                        <input type="hidden" name="preuLloguer" th:value="${preuLloguer}" />
+                        <input type="hidden" name="importFianca" th:value="${importFianca}" />
 
-                        <button type="submit" class="btn btn-filter" style="width: 100%; text-align: center;">
+                        <button type="submit" 
+                                class="btn btn-filter" 
+                                style="width: 100%; text-align: center;" 
+                                th:disabled="${vehicleSeleccionat == null}">
                             Confirmar reserva
                         </button>
                     </form>
                 </aside>
 
             </div>
-
         </main>
     </div>
-
 </body>
 </html>

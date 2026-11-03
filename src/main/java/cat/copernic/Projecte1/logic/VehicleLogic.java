@@ -1,5 +1,7 @@
 package cat.copernic.Projecte1.logic;
 
+import cat.copernic.Projecte1.entity.Enum.Categoria;
+import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.repository.VehicleRepository;
 import java.util.List;
@@ -74,5 +76,58 @@ public class VehicleLogic {
             return id == 0 || existing.get().getId() != id;
         }
         return false;
+    }
+
+    /**
+     * Método 1: Filtra la lista por Marca
+     */
+    public List<Vehicle> filtrarPerMarca(List<Vehicle> llista, String marca) {
+        if (marca == null || marca.trim().isEmpty()) {
+            return llista;
+        }
+        String marcaClean = marca.trim().toLowerCase();
+        return llista.stream()
+                .filter(v -> v.getMarca() != null && v.getMarca().toLowerCase().contains(marcaClean))
+                .toList();
+    }
+
+    /**
+     * Método 2: Filtra la lista por Categoria (comparación segura por nombre)
+     */
+    public List<Vehicle> filtrarPerCategoria(List<Vehicle> llista, Categoria categoria) {
+        if (categoria == null) {
+            return llista;
+        }
+        return llista.stream()
+                .filter(v -> v.getCategoria() != null && v.getCategoria().name().equalsIgnoreCase(categoria.name()))
+                .toList();
+    }
+
+    /**
+     * Método 3: Filtra la lista por Estat del Vehicle (comparación segura por
+     * nombre)
+     */
+    public List<Vehicle> filtrarPerEstat(List<Vehicle> llista, EstatVehicle estat) {
+        if (estat == null) {
+            return llista;
+        }
+        return llista.stream()
+                .filter(v -> v.getEstatVehicle() != null && v.getEstatVehicle().name().equalsIgnoreCase(estat.name()))
+                .toList();
+    }
+
+    /**
+     * Método principal de filtrado
+     */
+    public List<Vehicle> findByFiltres(String matricula, String marca, Categoria categoria, EstatVehicle estat) {
+        // 1. Obtenemos la lista base (por matrícula o todos)
+        List<Vehicle> llista = findByMatricula(matricula);
+
+        // 2. Aplicamos secuencialmente los 3 filtros
+        llista = filtrarPerMarca(llista, marca);
+        llista = filtrarPerCategoria(llista, categoria);
+        llista = filtrarPerEstat(llista, estat);
+
+        return llista;
     }
 }
