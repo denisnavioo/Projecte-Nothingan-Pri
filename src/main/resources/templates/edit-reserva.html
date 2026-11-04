@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova reserva - Nothingan Pri</title>
+    
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    
+    <!-- Librería de iconos Font Awesome. -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 </head>
 <body>
 
@@ -170,20 +175,72 @@
                         </select>
                     </div>
 
-                    <!-- Desplegable con las características del vehículo seleccionado. -->
+                    <!-- Características del vehículo seleccionado. -->
                     <details id="detallsVehicle" class="vehicle-details"
                              style="display:none; grid-column:1 / -1;">
 
-                        <summary>Característiques del vehicle</summary>
+                        <!-- Cabecera del desplegable. -->
+                        <summary>
+                            <i class="fa-solid fa-car"></i>
+                            Característiques del vehicle
+                        </summary>
 
                         <div class="vehicle-details-content">
-                            <p>Matrícula: <span id="detallMatricula"></span></p>
-                            <p>Marca: <span id="detallMarca"></span></p>
-                            <p>Model: <span id="detallModel"></span></p>
-                            <p>Any de fabricació: <span id="detallAny"></span></p>
-                            <p>Categoria: <span id="detallCategoria"></span></p>
-                            <p>Preu per dia: <span id="detallPreu"></span> €</p>
-                            <p>Estat: <span id="detallEstat"></span></p>
+
+                            <!-- Matrícula. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-id-card detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Matrícula</span>
+                                    <strong id="detallMatricula"></strong>
+                                </div>
+                            </div>
+
+                            <!-- Marca y modelo. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-car-side detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Marca i model</span>
+                                    <strong><span id="detallMarca"></span> <span id="detallModel"></span></strong>
+                                </div>
+                            </div>
+
+                            <!-- Año de fabricación. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-calendar-days detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Any de fabricació</span>
+                                    <strong id="detallAny"></strong>
+                                </div>
+                            </div>
+
+                            <!-- Categoría. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-tag detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Categoria</span>
+                                    <strong id="detallCategoria"></strong>
+                                </div>
+                            </div>
+
+                            <!-- Precio por día. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-euro-sign detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Preu per dia</span>
+                                    <strong><span id="detallPreu"></span> €</strong>
+                                </div>
+                            </div>
+
+                            <!-- Estado del vehículo. -->
+                            <div class="vehicle-detail">
+                                <i class="fa-solid fa-circle-check detail-icon detail-status"></i>
+                                <div>
+                                    <span class="detail-label">Estat</span>
+                                    <strong id="detallEstat"></strong>
+                                </div>
+                            </div>
+
                         </div>
                     </details>
 
@@ -303,8 +360,9 @@
         document.getElementById('detallPreu').textContent = v.dataset.preuDia;
         document.getElementById('detallEstat').textContent = v.dataset.estat;
 
-        // Muestra el desplegable cerrado.
+        // Muestra el desplegable abierto.
         detallsVehicle.style.display = 'block';
+        detallsVehicle.open = true;
     }
 
     // Actualiza los detalles cuando cambia el vehículo seleccionado.
