@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nothingan Pri - Lloguer de vehicles</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="home-page">
+
+    <!-- Cabecera principal de la página. -->
+    <header class="home-header">
+        <a th:href="@{/}" class="home-logo">
+            <img th:src="@{/img/logo.png}" alt="Nothingan Pri">
+        </a>
+
+        <nav class="home-nav">
+            <a th:href="@{/web/usuaris/login}">Identifica't</a>
+            <a th:href="@{/web/usuaris/registre}" class="home-register">Registra't</a>
+        </nav>
+    </header>
+
+    <main>
+
+        <!-- Presentación principal y acceso al catálogo. -->
+        <section class="home-hero">
+            <div class="hero-content">
+                <span class="hero-label">NOTHINGAN PRI · LLOGUER DE VEHICLES</span>
+
+                <h1>El teu proper viatge comença aquí</h1>
+
+                <p>Troba el vehicle que necessites i gaudeix del camí.</p>
+
+                <!-- Buscador de vehículos. -->
+                <div class="home-search">
+                    <h2>Troba el teu vehicle ideal</h2>
+
+                    <div class="search-option">
+                        <span>🚗</span>
+                        <div>
+                            <strong>Lloguer de cotxes</strong>
+                            <small>Descobreix la nostra flota de vehicles</small>
+                        </div>
+                    </div>
+
+                    <a th:href="@{/web/usuaris/client/reserves/nova}" class="home-search-btn">
+                        Buscar vehicles
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ventajas de la empresa. -->
+        <section class="home-benefits">
+            <div class="benefit">
+                <span>🚘</span>
+                <h3>Varietat de vehicles</h3>
+                <p>Troba el cotxe que millor s'adapta a les teves necessitats.</p>
+            </div>
+
+            <div class="benefit">
+                <span>🔑</span>
+                <h3>Reserva senzilla</h3>
+                <p>Consulta els nostres vehicles i fes la teva reserva fàcilment.</p>
+            </div>
+
+            <div class="benefit">
+                <span>🤝</span>
+                <h3>Atenció personalitzada</h3>
+                <p>Som aquí per ajudar-te durant tota la teva experiència.</p>
+            </div>
+        </section>
+
+        <!-- Invitación para crear una cuenta. -->
+        <section class="home-promo">
+            <div>
+                <h2>Encara no tens un compte?</h2>
+                <p>Registra't i comença a gaudir dels nostres vehicles.</p>
+            </div>
+
+            <a th:href="@{/web/usuaris/registre}" class="home-promo-btn">
+                Crear un compte
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Pie de página. -->
+    <footer class="home-footer">
+        <p>© 2026 Nothingan Pri · Lloguer de vehicles</p>
+    </footer>
+
+</body>
+</html>

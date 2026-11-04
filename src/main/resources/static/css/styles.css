@@ -666,3 +666,208 @@ body {
     margin-right: 8px;
     font-size: 22px;
 }
+
+/* --- Página principal pública --- */
+
+.home-page {
+    background: #ffffff;
+    color: #1e293b;
+}
+
+.home-header {
+    min-height: 95px;
+    padding: 12px 6%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.home-logo img {
+    width: 230px;
+    height: auto;
+    display: block;
+}
+
+.home-nav {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.home-nav a {
+    text-decoration: none;
+    color: #0b2246;
+    font-weight: 600;
+}
+
+.home-register,
+.home-search-btn,
+.home-promo-btn {
+    background: #2563eb;
+    color: #ffffff !important;
+    padding: 12px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.home-register:hover,
+.home-search-btn:hover,
+.home-promo-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Presentación principal. */
+.home-hero {
+    min-height: 510px;
+    padding: 65px 8%;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(120deg, #0b2246, #174b91);
+    color: #ffffff;
+}
+
+.hero-content {
+    width: 100%;
+    max-width: 650px;
+}
+
+.hero-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #93c5fd;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin: 18px 0;
+}
+
+.hero-content > p {
+    font-size: 1.1rem;
+    color: #dbeafe;
+    margin-bottom: 30px;
+}
+
+/* Buscador. */
+.home-search {
+    max-width: 500px;
+    padding: 25px;
+    background: #ffffff;
+    color: #1e293b;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.home-search h2 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.search-option {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid #dbe4f0;
+    border-radius: 9px;
+}
+
+.search-option > span {
+    font-size: 2rem;
+}
+
+.search-option strong,
+.search-option small {
+    display: block;
+}
+
+.search-option small {
+    margin-top: 5px;
+    color: #64748b;
+}
+
+.home-search-btn {
+    display: block;
+    text-align: center;
+}
+
+/* Ventajas. */
+.home-benefits {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 35px;
+    padding: 65px 8%;
+    text-align: center;
+}
+
+.benefit span {
+    font-size: 2.2rem;
+}
+
+.benefit h3 {
+    margin: 15px 0 10px;
+    color: #0b2246;
+}
+
+.benefit p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+/* Registro. */
+.home-promo {
+    margin: 0 8% 60px;
+    padding: 35px;
+    background: #eef4fc;
+    border-radius: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.home-promo h2 {
+    color: #0b2246;
+    margin-bottom: 8px;
+}
+
+.home-promo p {
+    color: #64748b;
+}
+
+.home-footer {
+    padding: 25px;
+    text-align: center;
+    background: #0b2246;
+    color: #ffffff;
+}
+
+/* Adaptación a móviles. */
+@media (max-width: 650px) {
+    .home-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .home-logo img {
+        width: 190px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .home-benefits {
+        grid-template-columns: 1fr;
+    }
+
+    .home-promo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
