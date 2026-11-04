@@ -16,7 +16,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     // Busca las reservas de un vehículo.
     List<Reserva> findByVehicle_Id(long vehicleId);
-    
+
     // Busca las reservas de un vehículo que coinciden con unas fechas.
     @Query("SELECT r FROM Reserva r WHERE r.vehicle.id = :vehicleId "
             + "AND r.estat <> :anulada "
@@ -27,4 +27,10 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             @Param("dataInici") LocalDateTime dataInici,
             @Param("dataFi") LocalDateTime dataFi,
             @Param("anulada") EstatReserva anulada);
+
+    // BUSQUEDA PER INFORMES    
+    @Query("SELECT r FROM Reserva r WHERE "
+            + "(:clientId IS NULL OR r.usuari.id = :clientId) "
+            + "ORDER BY r.usuari.nom ASC, r.dataInici DESC")
+    List<Reserva> findReservesPerInforme(@Param("clientId") Integer clientId);
 }

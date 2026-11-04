@@ -164,8 +164,6 @@ public class ReservaLogic {
         // Aplica un descuento del 10 % a la fianza de usuarios premium.
         BigDecimal fianca = reserva.getImportFianca();
 
-
-
         if (Boolean.TRUE.equals(usuari.getPremium())) {
             fianca = fianca.multiply(new BigDecimal("0.90"));
         }
@@ -193,16 +191,16 @@ public class ReservaLogic {
         }
 
         // Evita reservas que coincidan en fechas para el mismo vehículo.
-        List<Reserva> reserves =
-                reservaRepo.findByVehicle_Id(vehicle.getId());
+        List<Reserva> reserves
+                = reservaRepo.findByVehicle_Id(vehicle.getId());
 
         for (Reserva existent : reserves) {
             if (existent.getEstat() == EstatReserva.Anulada) {
                 continue;
             }
 
-            boolean solapades =
-                    reserva.getDataInici().isBefore(existent.getDataFi())
+            boolean solapades
+                    = reserva.getDataInici().isBefore(existent.getDataFi())
                     && reserva.getDataFi().isAfter(existent.getDataInici());
 
             if (solapades) {
@@ -235,5 +233,9 @@ public class ReservaLogic {
         reservaRepo.save(reserva);
 
         return true;
+    }
+
+    public List<Reserva> obtenirInformeReserves(Integer clientId) {
+        return reservaRepo.findReservesPerInforme(clientId);
     }
 }
