@@ -45,6 +45,11 @@ public class ReservaLogic {
     public Reserva getReservaById(Integer id) {
         return reservaRepo.findById(id).orElse(null);
     }
+    
+    // Devolver todas las reservas de un usuario en concreto (Vista "Les meves reserves" client)
+    public List<Reserva> getReservesPerUsuari(Long id) {
+        return reservaRepo.findByUsuariId(id);
+    }
 
     // Comprueba si existe una reserva con ese identificador.
     public boolean existsById(Integer id) {

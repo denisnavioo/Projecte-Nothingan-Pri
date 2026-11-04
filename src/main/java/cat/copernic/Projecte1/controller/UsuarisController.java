@@ -3,7 +3,9 @@ package cat.copernic.Projecte1.controller;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
+import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -23,6 +25,9 @@ public class UsuarisController {
 
     @Autowired
     private UsuarisLogic usuarisService;
+    
+    @Autowired
+    private ReservaLogic reservaLogic;
 
     // --- LLISTAT GENERAL I FILTRATGE MÚLTIPLE (RF26 / CERCA EMAIL) ---
     @GetMapping("/all")
@@ -109,12 +114,23 @@ public class UsuarisController {
     }
 
     @PostMapping("/login")
-    public String processarLogin(@RequestParam("email") String email,
+    public String processarLogin(@RequestParam("email") String email, HttpSession session,
             @RequestParam("password") String password,
             Model model) {
         try {
-            Usuaris client = usuarisService.autenticarIValidarEstat(email, password);
-            return "redirect:/web/usuaris/all";
+            Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
+            session.setAttribute("usuariLoguejat", usuari);
+            
+            String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
+            
+            if ("CLIENT".equals(rol)) {
+                return "redirect:/web/usuaris/client/reserves";
+            } else if ("ADMIN".equals(rol)) {
+                return "redirect:/web/usuaris/admin";
+            } else {
+                return "redirect:/web/usuaris/all";
+            }
+           
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -122,6 +138,13 @@ public class UsuarisController {
             model.addAttribute("alertaPendent", e.getMessage());
             return "login";
         }
+    }
+    
+    // Tancar sessió
+    @GetMapping("/logout")
+    public String tancarSession(HttpSession session) {
+        session.invalidate(); //Destrueix la sessió
+        return "redirect:/web/usuaris/login?logout=true";
     }
 
     // --- REGISTRE WEB (PUBLIC - RF81) ---
@@ -161,10 +184,31 @@ public class UsuarisController {
         return "redirect:/web/usuaris/pendents";
     }
 
-    @GetMapping("/client/reserves")
-    public String mostrarReservesClient(Model model) {
-        return "client-reserves";
+    /*@GetMapping("/admin")
+    public String admin(Model model) {
+        return "admin clients";
+    }*/
+
+@GetMapping("/client/reserves")
+public String mostrarReservesClient(HttpSession session, Model model) {
+    //Obtenir usuari autenticat desde la sessió http
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    
+    // si no hi ha sessió, redirigir al login.
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
     }
+    
+    //passar l'usuari al model per mostrar el nom en el header
+    model.addAttribute("usuariLoguejat", usuariLoguejat);
+    
+    List<Reserva> reserves = reservaLogic.getReservesPerUsuari(usuariLoguejat.getId());
+    if (reserves == null) {
+        reserves = List.of();
+    }
+    model.addAttribute("reserves", reserves);
+    return "client-reserves";
+}
 
     // FORMULARIO CREACIÓN RESERVA CLIENTE
     @GetMapping("/client/reserves/nova")
@@ -176,6 +220,10 @@ public class UsuarisController {
         model.addAttribute("reserva", reserva);
         return "nova-reserva";
     }
+    
+    Reserva reserva = new Reserva();
+    reserva.setVehicle(new Vehicle());
+    reserva.setUsuari(usuariLoguejat);
 
     // MOSTRAR PERFIL DEL CLIENTE
     @GetMapping("/client/perfil")
@@ -184,6 +232,12 @@ public class UsuarisController {
         model.addAttribute("usuari", usuari);
         return "perfil";
     }
+    
+    Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+    model.addAttribute("usuariLoguejat", usuariBD);
+    model.addAttribute("usuari", usuariBD); // Necesario para th:object="${usuari}" en perfil.html
+    return "perfil"; // Nombre de la plantilla: perfil.html
+}
 
     // GUARDAR CAMBIOS DEL PERFIL
     @PostMapping("/client/perfil/save")

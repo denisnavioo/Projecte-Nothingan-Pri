@@ -89,11 +89,12 @@ public class ReservaController {
         return "edit-reserva";
     }
 
-    // Busca los vehículos disponibles entre las fechas indicadas.
+    // Busca vehículos disponibles por fechas y categoría.
     @GetMapping("/disponibles")
     public String buscarDisponibles(
             @RequestParam String dataInici,
             @RequestParam String dataFi,
+            @RequestParam(required = false) String categoria,
             Model model) {
 
         LocalDateTime inici;
@@ -117,6 +118,7 @@ public class ReservaController {
             model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
             model.addAttribute("dataInici", dataInici);
             model.addAttribute("dataFi", dataFi);
+            model.addAttribute("categoria", categoria);
             
             return "edit-reserva";
         }
@@ -135,14 +137,17 @@ public class ReservaController {
             model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
             model.addAttribute("dataInici", dataInici);
             model.addAttribute("dataFi", dataFi);
+            model.addAttribute("categoria", categoria);
             
             return "edit-reserva";
         }
         
-        // Dejamos únicamente los vehículos disponibles en ese intervalo.
+        // Filtra los vehículos disponibles por fechas y categoría.
         List<Vehicle> disponibles = vehicleLogic.findAllVehicles().stream()
                 .filter(v -> reservaLogic.vehicleDisponible(
                         v.getId(), inici, fi))
+                .filter(v -> categoria == null || categoria.isBlank()
+                        || v.getCategoria().name().equals(categoria))
                 .toList();
         
         // Preparamos la reserva con las fechas seleccionadas.
@@ -159,6 +164,7 @@ public class ReservaController {
         model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
         model.addAttribute("dataInici", dataInici);
         model.addAttribute("dataFi", dataFi);
+        model.addAttribute("categoria", categoria);
 
         return "edit-reserva";
     }
