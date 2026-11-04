@@ -210,34 +210,36 @@ public String mostrarReservesClient(HttpSession session, Model model) {
     return "client-reserves";
 }
 
-    // FORMULARIO CREACIÓN RESERVA CLIENTE
+// FORMULARIO CREACIÓN RESERVA CLIENTE
     @GetMapping("/client/reserves/nova")
-    public String mostrarNovaReservaClient(Model model) {
+    public String mostrarNovaReservaClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
         Reserva reserva = new Reserva();
         reserva.setVehicle(new Vehicle());
-        reserva.setUsuari(new Usuaris());
+        reserva.setUsuari(usuariLoguejat);
 
         model.addAttribute("reserva", reserva);
         return "nova-reserva";
     }
-    
-    Reserva reserva = new Reserva();
-    reserva.setVehicle(new Vehicle());
-    reserva.setUsuari(usuariLoguejat);
 
     // MOSTRAR PERFIL DEL CLIENTE
     @GetMapping("/client/perfil")
-    public String mostrarPerfilClient(Model model) {
-        Usuaris usuari = usuarisService.getUsuariById(1L);
-        model.addAttribute("usuari", usuari);
+    public String mostrarPerfilClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
+        // Recuperem les dades actualitzades de la base de dades
+        Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+        model.addAttribute("usuariLoguejat", usuariBD);
+        model.addAttribute("usuari", usuariBD); // Necessari per a th:object="${usuari}" a perfil.html
         return "perfil";
     }
-    
-    Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
-    model.addAttribute("usuariLoguejat", usuariBD);
-    model.addAttribute("usuari", usuariBD); // Necesario para th:object="${usuari}" en perfil.html
-    return "perfil"; // Nombre de la plantilla: perfil.html
-}
 
     // GUARDAR CAMBIOS DEL PERFIL
     @PostMapping("/client/perfil/save")
@@ -246,4 +248,5 @@ public String mostrarReservesClient(HttpSession session, Model model) {
         redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
         return "redirect:/web/usuaris/client/perfil";
     }
-}
+
+} 
