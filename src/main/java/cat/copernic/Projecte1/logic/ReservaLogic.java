@@ -147,7 +147,10 @@ public class ReservaLogic {
             throw new IllegalArgumentException("Aquest codi de reserva ja existeix.");
         }
 
-        List<Reserva> reserves = reservaRepo.findByVehicle_Id(vehicle.getId());
+        // Evita reservas que coincidan en fechas para el mismo vehículo.
+        List<Reserva> reserves
+                = reservaRepo.findByVehicle_Id(vehicle.getId());
+
         for (Reserva existent : reserves) {
             if (existent.getEstat() == EstatReserva.Anulada) {
                 continue;
@@ -179,5 +182,9 @@ public class ReservaLogic {
         reserva.setEstat(EstatReserva.Anulada);
         reservaRepo.save(reserva);
         return true;
+    }
+
+    public List<Reserva> obtenirInformeReserves(Integer clientId) {
+        return reservaRepo.findReservesPerInforme(clientId);
     }
 }
