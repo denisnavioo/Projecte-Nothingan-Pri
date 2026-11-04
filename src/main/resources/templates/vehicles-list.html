@@ -75,8 +75,24 @@
                                        placeholder="Introdueix la marca"
                                        th:value="${marca}">
                             </div>
+                            <!-- Filtro 3: Texto por Model  -->
+                            <div class="form-group">
+                                <label for="model">Model del vehicle</label>
+                                <input type="text" id="model" name="model" placeholder="Introdueix el model" th:value="${modelParam}">
+                            </div>
+                            <!-- Filtro 4: Número por Año de Fabricación (NOU) -->
+                            <div class="form-group">
+                                <label for="anyFabricacio">Any de Fabricació</label>
+                                <input type="number" 
+                                       id="anyFabricacio" 
+                                       name="anyFabricacio" 
+                                       placeholder="Ex: 2022" 
+                                       min="1900" 
+                                       max="2099"
+                                       th:value="${anyFabricacio}">
+                            </div>
 
-                            <!-- Filtro 3: Desplegable por Categoría -->
+                            <!-- Filtro 5: Desplegable por Categoría -->
                             <div class="form-group">
                                 <label for="categoria">Categoria</label>
                                 <select id="categoria" name="categoria">
@@ -87,18 +103,24 @@
                                             th:selected="${categoriaSel != null and cat == categoriaSel}">SUV</option>
                                 </select>
                             </div>
-
-                            <!-- Filtro 4: Desplegable por Estado -->
+                            <!-- Filtro: Data/Hora Inici -->
                             <div class="form-group">
-                                <label for="estatVehicle">Estat del vehicle</label>
-                                <select id="estatVehicle" name="estatVehicle">
-                                    <option value="">-- Tots els estats --</option>
-                                    <option th:each="estat : ${T(cat.copernic.Projecte1.entity.Enum.EstatVehicle).values()}" 
-                                            th:value="${estat.name()}" 
-                                            th:text="${estat}"
-                                            th:selected="${estatSel != null and estat == estatSel}">Disponible</option>
-                                </select>
+                                <label for="dataInici">Disponible des de</label>
+                                <input type="datetime-local" 
+                                       id="dataInici" 
+                                       name="dataInici" 
+                                       th:value="${dataInici}">
                             </div>
+
+                            <!-- Filtro: Data/Hora Fi -->
+                            <div class="form-group">
+                                <label for="dataFi">Disponible fins a</label>
+                                <input type="datetime-local" 
+                                       id="dataFi" 
+                                       name="dataFi" 
+                                       th:value="${dataFi}">
+                            </div>
+
 
                         </div>
 
