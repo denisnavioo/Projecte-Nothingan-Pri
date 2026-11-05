@@ -43,7 +43,7 @@
                 <div class="top-bar">
                     <h3>Formulari Vehicle</h3>
 
-                    <!-- CORREGIDO: Enllaç de retorn al llistat d'Admin -->
+                    <!-- Enllaç de retorn al llistat d'Admin -->
                     <a th:href="@{/web/admin/vehicles}" class="btn btn-cancel">
                         Tornar al llistat
                     </a>
@@ -53,7 +53,6 @@
 
                 <div class="table-card" style="padding: 24px;">
 
-                    <!-- CORREGIDO: th:action apunta a /web/admin/vehicles/save -->
                     <form th:action="@{/web/admin/vehicles/save}" th:object="${vehicle}" method="post">
 
                         <!-- Camp ocult per a l'ID -->
@@ -62,7 +61,7 @@
                         <div class="form-grid">
 
                             <div class="form-group">
-                                <label for="matricula">Matrícula</label>
+                                <label for="matricula">Matrícula <span style="color: red;">*</span></label>
                                 <input type="text"
                                        id="matricula"
                                        th:field="*{matricula}"
@@ -71,7 +70,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="marca">Marca</label>
+                                <label for="marca">Marca <span style="color: red;">*</span></label>
                                 <input type="text"
                                        id="marca"
                                        th:field="*{marca}"
@@ -80,7 +79,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="model">Model</label>
+                                <label for="model">Model <span style="color: red;">*</span></label>
                                 <input type="text"
                                        id="model"
                                        th:field="*{model}"
@@ -89,7 +88,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="anyFabricacio">Any de Fabricació</label>
+                                <label for="anyFabricacio">Any de Fabricació <span style="color: red;">*</span></label>
                                 <input type="number"
                                        id="anyFabricacio"
                                        th:field="*{anyFabricacio}"
@@ -99,7 +98,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="categoria">Categoria</label>
+                                <label for="categoria">Categoria <span style="color: red;">*</span></label>
                                 <select id="categoria" th:field="*{categoria}" required>
                                     <option value="" selected disabled>Selecciona una categoria...</option>
                                     <option th:each="cat : ${T(cat.copernic.Projecte1.entity.Enum.Categoria).values()}" 
@@ -109,7 +108,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="preuDia">Preu per Dia (€)</label>
+                                <label for="preuDia">Preu per Dia (€) <span style="color: red;">*</span></label>
                                 <input type="number"
                                        id="preuDia"
                                        th:field="*{preuDia}"
@@ -120,7 +119,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="estatVehicle">Estat del Vehicle</label>
+                                <label for="estatVehicle">Estat del Vehicle <span style="color: red;">*</span></label>
                                 <select id="estatVehicle" th:field="*{estatVehicle}" required>
                                     <option th:each="estat : ${T(cat.copernic.Projecte1.entity.Enum.EstatVehicle).values()}" 
                                             th:value="${estat}" 
@@ -128,6 +127,7 @@
                                 </select>
                             </div>
 
+                            <!-- Opcional: Sense asterisc -->
                             <div class="form-group">
                                 <label for="fotoVehicle">Ruta / Nom de la Foto</label>
                                 <input type="text"
@@ -154,7 +154,6 @@
                                 Desar vehicle
                             </button>
 
-                            <!-- CORREGIDO: Ruta del botó cancel·lar -->
                             <a th:href="@{/web/admin/vehicles}" class="btn btn-cancel">
                                 Cancel·lar
                             </a>
