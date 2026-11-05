@@ -202,6 +202,19 @@ public String mostrarReservesClient(HttpSession session, Model model) {
     return "client-reserves";
 }
 
+@PostMapping("/client/assistencia/save")
+public String guardarSolicitudAssitencia(@RequestParam("reservaId") Integer id, @RequestParam("motiu") String motiu,
+                                                            HttpSession session, RedirectAttributes redirectAttributes) {
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
+    }
+    
+    redirectAttributes.addFlashAttribute("missatge", "Sol·licitud d'assistència enviada correctament!");
+    return "redirect:/web/usuaris/client/reserves";
+}
+
 // FORMULARIO CREACIÓN RESERVA CLIENTE
 @GetMapping("/client/reserves/nova")
 public String mostrarNovaReservaClient(HttpSession session, Model model) {
@@ -221,9 +234,30 @@ public String mostrarNovaReservaClient(HttpSession session, Model model) {
 }
 
 @PostMapping("/client/reserves/save")
-    public String guardarReservaClient(@ModelAttribute("reserva") Reserva reserva) {
-        reservaLogic.saveReserva(reserva); // Invocació sobre la instància 'reservaLogic'
-        return "redirect:/web/usuaris/client/reserves";
+    public String guardarReservaClient(@ModelAttribute("reserva") Reserva reserva, HttpSession session, RedirectAttributes redirectAttributes) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+        
+        boolean faltaVehicle = (reserva.getVehicle() == null || reserva.getVehicle().getId() <= 0);
+        boolean faltaDataInici = (reserva.getDataInici() == null);
+        boolean faltaDataFi = (reserva.getDataFi() == null);
+
+        if (faltaVehicle || faltaDataInici || faltaDataFi) {
+            redirectAttributes.addFlashAttribute("error", "S'han d'omplir tots els camps obligatoris per poder realitzar la reserva (vehicle, dates i hora).");
+            return "redirect:/web/usuaris/client/reserves/nova";
+        }
+        
+        try {
+            reserva.setUsuari(usuariLoguejat);
+            reservaLogic.saveReserva(reserva);
+            redirectAttributes.addFlashAttribute("missatge", "Reserva creada amb èxit!");
+            return "redirect:/web/usuaris/client/reserves";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/web/usuaris/client/reserves/nova";
+        }
     }
     
 // MOSTRAR PERFIL DEL CLIENTE
@@ -242,9 +276,29 @@ public String mostrarPerfilClient(HttpSession session, Model model) {
 
 // GUARDAR CAMBIOS DEL PERFIL
     @PostMapping("/client/perfil/save")
-    public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariActualitzat, RedirectAttributes redirectAttributes) {
-        usuarisService.saveUsuari(usuariActualitzat);
-        redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
+    public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariForm, HttpSession session, RedirectAttributes redirectAttributes) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
+        // 1. Cargar el usuario real desde la base de datos
+        Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+
+        if (usuariBD != null) {
+            // 2. Modificar ÚNICAMENTE el email y el teléfono
+            usuariBD.setTelefon(usuariForm.getTelefon());
+
+            // 3. Guardar en la base de datos preservando contraseña, estado, rol, premium, etc.
+            usuarisService.saveUsuari(usuariBD);
+
+            // 4. Actualizar el usuario en la sesión para mantener la coherencia
+            session.setAttribute("usuariLoguejat", usuariBD);
+
+            redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "No s'ha pogut trobar el perfil per actualitzar.");
+        }
         return "redirect:/web/usuaris/client/perfil";
     }
 

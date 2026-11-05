@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<!-- VISTA DE PERFIL PER A CLIENT! -->
+<!-- VISTA DE PERFIL PER A CLIENT -->
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>El meu perfil - Nothingan Pri</title>
-    <!-- CSS enlazado de forma relativa y por Thymeleaf -->
     <link rel="stylesheet" href="styles.css" th:href="@{/css/styles.css}">
 </head>
 <body>
@@ -34,7 +33,6 @@
             <header class="top-header">
                 <h2>El meu perfil</h2>
 
-                <!-- Reemplazar en la cabecera de perfil.html -->
                 <div class="user-dropdown">
                     <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit;">
                         <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">Nom Cognoms</span>
@@ -76,32 +74,38 @@
                     <div class="form-grid" style="margin-bottom: 28px;">
                         <div class="form-group">
                             <label for="nom">Nom complet</label>
-                            <input type="text" id="nom" th:field="*{nom}" placeholder="Nom i cognoms" required />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="nom" th:field="*{nom}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="email">Correu electrònic</label>
-                            <input type="email" id="email" th:field="*{email}" placeholder="nom@exemple.com" required readonly style="background-color: #f8fafc;" />
+                            <!-- MODIFICABLE -->
+                            <input type="email" id="email" th:field="*{email}" readonly placeholder="nom@exemple.com" required />
                         </div>
 
                         <div class="form-group">
                             <label for="telefon">Telèfon de contacte</label>
-                            <input type="number" id="telefon" th:field="*{telefon}" placeholder="600112233" required />
+                            <!-- MODIFICABLE -->
+                            <input type="text" id="telefon" th:field="*{telefon}" placeholder="600112233" required />
                         </div>
 
                         <div class="form-group">
                             <label for="nacionalitat">Nacionalitat</label>
-                            <input type="text" id="nacionalitat" th:field="*{nacionalitat}" placeholder="Espanyola" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="nacionalitat" th:field="*{nacionalitat}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="adreca">Adreça habitual</label>
-                            <input type="text" id="adreca" th:field="*{adreca}" placeholder="Carrer Major, 12" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="adreca" th:field="*{adreca}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="poblacio">Població</label>
-                            <input type="text" id="poblacio" th:field="*{poblacio}" placeholder="Barcelona" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="poblacio" th:field="*{poblacio}" readonly style="background-color: #f8fafc;" />
                         </div>
                     </div>
 
@@ -113,22 +117,26 @@
                     <div class="form-grid" style="margin-bottom: 28px;">
                         <div class="form-group">
                             <label for="dni">DNI / Passaport</label>
-                            <input type="text" id="dni" th:field="*{dni}" placeholder="12345678X" required readonly style="background-color: #f8fafc;" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="dni" th:field="*{dni}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="dataCaducitatDni">Data de caducitat DNI</label>
-                            <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="tipusLlicencia">Tipus de llicència de conduir</label>
-                            <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" placeholder="B" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="tipusLlicencia" th:field="*{tipusLlicencia}" readonly style="background-color: #f8fafc;" />
                         </div>
 
                         <div class="form-group">
                             <label for="dataCaducitatLlicencia">Data de caducitat llicència</label>
-                            <input type="date" id="dataCaducitatLlicencia" th:field="*{dataCaducitatLlicencia}" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="date" id="dataCaducitatLlicencia" th:field="*{dataCaducitatLlicencia}" readonly style="background-color: #f8fafc;" />
                         </div>
                     </div>
 
@@ -140,7 +148,8 @@
                     <div class="form-grid">
                         <div class="form-group form-group-full">
                             <label for="targetaCredit">Targeta de crèdit / dèbit</label>
-                            <input type="text" id="targetaCredit" th:field="*{targetaCredit}" placeholder="**** **** **** 1234" />
+                            <!-- VISIBLE I BLOQUEJAT -->
+                            <input type="text" id="targetaCredit" th:field="*{targetaCredit}" readonly style="background-color: #f8fafc;" />
                         </div>
                     </div>
 

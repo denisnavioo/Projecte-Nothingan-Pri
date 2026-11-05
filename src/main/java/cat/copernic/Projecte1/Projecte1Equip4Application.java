@@ -22,7 +22,7 @@ public class Projecte1Equip4Application {
             crearUsuariSiNoExisteix(usuarisRepo, "Facundo jaeggi", "fjaeggi@alumnat.copernic.cat", "1212"," 456789032", "VALIDAT", "74864465N", false, "ADMIN");
             crearUsuariSiNoExisteix(usuarisRepo, "Denis Navio", "dnavio@alumnat.copernic.cat", "1212", "234567890", "VALIDAT", "74827665T", false, "AGENT");
             crearUsuariSiNoExisteix(usuarisRepo, "Carolina Macià", "cemacia@alumnat.copernic.cat", "1212", "600112233", "VALIDAT", "99887766A", true, "CLIENT");
-
+            
             System.out.println("\n----------------------------------------------------------");
             System.out.println(" Aplicació iniciada correctament!");
             System.out.println(" Accés al login: http://localhost:8080/web/usuaris/login");
@@ -46,5 +46,6 @@ public class Projecte1Equip4Application {
         } else {
             System.out.println("L'usuari ja existeix a la BD: " + email);
         }
+        
     }
 }
