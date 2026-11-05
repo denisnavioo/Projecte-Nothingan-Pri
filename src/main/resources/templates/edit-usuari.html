@@ -57,12 +57,12 @@
 
                             <!-- Dades de Contacte i Identificació -->
                             <div class="form-group">
-                                <label for="nom">Nom complet</label>
+                                <label for="nom">Nom complet <span style="color: red;">*</span></label>
                                 <input type="text" id="nom" th:field="*{nom}" th:disabled="${modoLectura}" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="dni">DNI / NIE</label>
+                                <label for="dni">DNI / NIE <span style="color: red;">*</span></label>
                                 <input type="text" id="dni" th:field="*{dni}" th:disabled="${modoLectura}" required>
                             </div>
 
@@ -72,12 +72,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="telefon">Telèfon</label>
-                                <input type="tel" id="telefon" th:field="*{telefon}" th:disabled="${modoLectura}">
+                                <label for="telefon">Telèfon <span style="color: red;">*</span></label>
+                                <input type="tel" id="telefon" th:field="*{telefon}" th:disabled="${modoLectura}" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="email">Email (Usuari)</label>
+                                <label for="email">Email (Usuari) <span style="color: red;">*</span></label>
                                 <input type="email" id="email" th:field="*{email}" th:disabled="${modoLectura}" required>
                             </div>
 

@@ -51,7 +51,7 @@
                     </a>
                 </div>
 
-                <!-- FORMULARIO DE FILTROS COMBINADOS (OPCIONALES, SIN *) -->
+                <!-- FORMULARIO DE FILTROS COMBINADOS -->
                 <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
                     <form th:action="@{/web/vehicles/all}" method="get">
                         <div class="form-grid">
@@ -75,12 +75,14 @@
                                        placeholder="Introdueix la marca"
                                        th:value="${marca}">
                             </div>
-                            <!-- Filtro 3: Texto por Model  -->
+
+                            <!-- Filtro 3: Texto por Model -->
                             <div class="form-group">
                                 <label for="model">Model del vehicle</label>
                                 <input type="text" id="model" name="model" placeholder="Introdueix el model" th:value="${modelParam}">
                             </div>
-                            <!-- Filtro 4: Número por Año de Fabricación (NOU) -->
+
+                            <!-- Filtro 4: Número por Año de Fabricación -->
                             <div class="form-group">
                                 <label for="anyFabricacio">Any de Fabricació</label>
                                 <input type="number" 
@@ -103,7 +105,8 @@
                                             th:selected="${categoriaSel != null and cat == categoriaSel}">SUV</option>
                                 </select>
                             </div>
-                            <!-- Filtro: Data/Hora Inici -->
+
+                            <!-- Filtro 6: Data/Hora Inici -->
                             <div class="form-group">
                                 <label for="dataInici">Disponible des de</label>
                                 <input type="datetime-local" 
@@ -112,7 +115,7 @@
                                        th:value="${dataInici}">
                             </div>
 
-                            <!-- Filtro: Data/Hora Fi -->
+                            <!-- Filtro 7: Data/Hora Fi -->
                             <div class="form-group">
                                 <label for="dataFi">Disponible fins a</label>
                                 <input type="datetime-local" 
@@ -120,7 +123,6 @@
                                        name="dataFi" 
                                        th:value="${dataFi}">
                             </div>
-
 
                         </div>
 
@@ -153,13 +155,18 @@
                             <tr th:each="v : ${vehicle}">
                                 <td th:text="${v.matricula}">1234ABC</td>
                                 <td th:text="${v.marca + ' ' + v.model}">Seat Ibiza</td>
+
+                                <!-- Categoria corregida amb renderitzat direct del nom del Enum -->
                                 <td>
-                                    <span class="badge" th:text="${v.categoria}">SUV</span>
+                                    <span class="badge" 
+                                          th:if="${v.categoria != null}" 
+                                          th:text="${v.categoria.name()}">SUV</span>
+                                    <span th:if="${v.categoria == null}">-</span>
                                 </td>
+
                                 <td th:text="${v.anyFabricacio}">2022</td>
                                 <td th:text="${#numbers.formatDecimal(v.preuDia, 1, 2) + ' €'}">45.00 €</td>
 
-                                <!-- Estado corregido para renderizar v.estatVehicle -->
                                 <td>
                                     <span class="badge"
                                           th:classappend="${v.estatVehicle != null and v.estatVehicle.name() == 'Disponible'} ? ' badge-validat' : ' badge-baixa'"
@@ -195,4 +202,4 @@
         </div>
 
     </body>
-</html>
+</html> 

@@ -38,5 +38,5 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             + "ORDER BY r.usuari.nom ASC, r.dataInici DESC")
     List<Reserva> findReservesPerInforme(@Param("clientId") Integer clientId);
     
-    Optional <Reserva> findByCodiReserva(String codiReserva);
+    Optional<Reserva>findByCodiReserva(String codiReserva);
 }
