@@ -140,6 +140,12 @@
             background: #ffffff;
             color: #1e293b;
         }
+        
+        .required {
+            color: #ef4444;
+            font-weight: bold;
+            margin-left: 2px;
+        }
 
         @media (max-width: 1024px) {
             .booking-layout { grid-template-columns: 1fr; }
@@ -191,26 +197,35 @@
                     </a>
                 </div>
             </header>
+            
+            <!-- BANNER DE ERROR GENERAL -->
+            <div th:if="${error}" class="alert-error" style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; font-weight: 500;">
+                <span th:text="${error}">S'han d'omplir tots els camps obligatoris per poder realitzar la reserva (vehicle, dates i hora).</span>
+            </div>
 
             <!-- FILTRO SUPERIOR DE BÚSQUEDA -->
             <form th:action="@{/web/usuaris/client/reserves/nova}" method="get" class="top-bar">
                 <div class="filter-group" style="flex-wrap: wrap;">
-                    
+
+                    <!-- DATA INICI (OBLIGATORIO) -->
                     <div class="input-wrapper" style="min-width: 130px;">
-                        <label for="dataInici">Data inici</label>
-                        <input type="date" id="dataInici" name="dataInici" value="2026-10-10" style="min-width: auto;">
+                        <label for="dataInici">Data inici <span class="required">*</span></label>
+                        <input type="date" id="dataInici" name="dataInici" value="2026-10-10" required style="min-width: auto;">
                     </div>
 
+                    <!-- HORA (OBLIGATORIO) -->
                     <div class="input-wrapper" style="min-width: 100px;">
-                        <label for="hora">Hora</label>
-                        <input type="time" id="hora" name="hora" value="09:00" style="min-width: auto;">
+                        <label for="hora">Hora <span class="required">*</span></label>
+                        <input type="time" id="hora" name="hora" value="09:00" required style="min-width: auto;">
                     </div>
 
+                    <!-- DATA FI (OBLIGATORIO) -->
                     <div class="input-wrapper" style="min-width: 130px;">
-                        <label for="dataFi">Data fi</label>
-                        <input type="date" id="dataFi" name="dataFi" value="2026-10-12" style="min-width: auto;">
+                        <label for="dataFi">Data fi <span class="required">*</span></label>
+                        <input type="date" id="dataFi" name="dataFi" value="2026-10-12" required style="min-width: auto;">
                     </div>
 
+                    <!-- CATEGORIA (OPCIONAL) -->
                     <div class="input-wrapper" style="min-width: 130px;">
                         <label for="categoria">Categoria</label>
                         <select id="categoria" name="categoria" class="select-input">
@@ -220,6 +235,7 @@
                         </select>
                     </div>
 
+                    <!-- MARCA / MODEL (OPCIONAL) -->
                     <div class="input-wrapper" style="min-width: 140px;">
                         <label for="marcaModel">Marca / model</label>
                         <input type="text" id="marcaModel" name="marcaModel" placeholder="Kia" value="Kia" style="min-width: auto;">
@@ -290,7 +306,6 @@
                 </div>
 
                 <!-- RESUMEN DE LA RESERVA -->
-                <!-- RESUM DE LA RESERVA (100% SERVIDOR / SENSE JAVASCRIPT) -->
                 <aside class="summary-card">
                     <h3>Resum de la reserva</h3>
 
@@ -342,16 +357,15 @@
                     <!-- FORMULARI D'ENVIAMENT -->
                     <form th:action="@{/web/usuaris/client/reserves/save}" method="post" style="margin-top: 20px;">
                         <!-- Camps ocults per enviar la reserva -->
-                        <input type="hidden" name="vehicle.id" th:value="${vehicleSeleccionat != null ? vehicleSeleccionat.id : ''}" />
+                        <input type="hidden" name="vehicle.id" th:value="${vehicleSeleccionat != null ? vehicleSeleccionat.id : '0'}" />
                         <input type="hidden" name="dataInici" th:value="${dataInici}" />
                         <input type="hidden" name="dataFi" th:value="${dataFi}" />
                         <input type="hidden" name="preuLloguer" th:value="${preuLloguer}" />
                         <input type="hidden" name="importFianca" th:value="${importFianca}" />
 
                         <button type="submit" 
-                                class="btn btn-filter" 
-                                style="width: 100%; text-align: center;" 
-                                th:disabled="${vehicleSeleccionat == null}">
+                                    class="btn btn-filter" 
+                                    style="width: 100%; text-align: center;" >
                             Confirmar reserva
                         </button>
                     </form>

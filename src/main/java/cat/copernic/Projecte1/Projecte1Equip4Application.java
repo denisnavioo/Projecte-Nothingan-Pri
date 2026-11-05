@@ -140,6 +140,7 @@ public class Projecte1Equip4Application {
         } else {
             System.out.println("L'usuari ja existeix a la BD: " + email);
         }
+        
     }
 
     private void crearVehicleSiNoExisteix(VehicleRepository repo, String matricula,
