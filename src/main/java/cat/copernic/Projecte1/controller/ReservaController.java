@@ -37,6 +37,7 @@ public class ReservaController {
     @GetMapping("/all")
     public String findAll(
             @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) String codi,
             @RequestParam(required = false) String matricula,
             @RequestParam(required = false) String data,
@@ -47,6 +48,9 @@ public class ReservaController {
         List<Reserva> reserves = reservaLogic.findAllReservas().stream()
                 .filter(r -> dni == null || dni.isBlank()
                         || r.getUsuari().getDni().contains(dni))
+                .filter(r -> email == null || email.isBlank()
+                        || (r.getUsuari() != null && r.getUsuari().getEmail() != null
+                        && r.getUsuari().getEmail().toLowerCase().contains(email.toLowerCase())))
                 .filter(r -> codi == null || codi.isBlank()
                         || r.getCodiReserva().contains(codi))
                 .filter(r -> matricula == null || matricula.isBlank()
@@ -59,6 +63,7 @@ public class ReservaController {
         // Enviamos las reservas y los filtros a la página.
         model.addAttribute("reserves", reserves);
         model.addAttribute("dni", dni);
+        model.addAttribute("email", email);
         model.addAttribute("codi", codi);
         model.addAttribute("matricula", matricula);
         model.addAttribute("data", data);
@@ -89,11 +94,12 @@ public class ReservaController {
         return "edit-reserva";
     }
 
-    // Busca los vehículos disponibles entre las fechas indicadas.
+    // Busca vehículos disponibles por fechas y categoría.
     @GetMapping("/disponibles")
     public String buscarDisponibles(
             @RequestParam String dataInici,
             @RequestParam String dataFi,
+            @RequestParam(required = false) String categoria,
             Model model) {
 
         LocalDateTime inici;
@@ -117,6 +123,7 @@ public class ReservaController {
             model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
             model.addAttribute("dataInici", dataInici);
             model.addAttribute("dataFi", dataFi);
+            model.addAttribute("categoria", categoria);
             
             return "edit-reserva";
         }
@@ -135,14 +142,17 @@ public class ReservaController {
             model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
             model.addAttribute("dataInici", dataInici);
             model.addAttribute("dataFi", dataFi);
+            model.addAttribute("categoria", categoria);
             
             return "edit-reserva";
         }
         
-        // Dejamos únicamente los vehículos disponibles en ese intervalo.
+        // Filtra los vehículos disponibles por fechas y categoría.
         List<Vehicle> disponibles = vehicleLogic.findAllVehicles().stream()
                 .filter(v -> reservaLogic.vehicleDisponible(
                         v.getId(), inici, fi))
+                .filter(v -> categoria == null || categoria.isBlank()
+                        || v.getCategoria().name().equals(categoria))
                 .toList();
         
         // Preparamos la reserva con las fechas seleccionadas.
@@ -159,6 +169,7 @@ public class ReservaController {
         model.addAttribute("usuaris", usuarisLogic.findAllUsuaris());
         model.addAttribute("dataInici", dataInici);
         model.addAttribute("dataFi", dataFi);
+        model.addAttribute("categoria", categoria);
 
         return "edit-reserva";
     }
@@ -187,6 +198,7 @@ public class ReservaController {
     @GetMapping("/detall/{id}")
     public String details(@PathVariable Integer id,
             @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) String codi,
             @RequestParam(required = false) String matricula,
             @RequestParam(required = false) String data,
@@ -197,6 +209,9 @@ public class ReservaController {
         // Conservamos los filtros que ya había aplicado el usuario.
         if (dni != null && !dni.isBlank()) {
             attributes.addAttribute("dni", dni);
+        }
+        if (email != null && !email.isBlank()) {
+            attributes.addAttribute("email", email);
         }
         if (codi != null && !codi.isBlank()) {
             attributes.addAttribute("codi", codi);

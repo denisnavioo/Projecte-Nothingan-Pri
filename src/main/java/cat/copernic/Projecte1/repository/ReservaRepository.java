@@ -4,6 +4,7 @@ import cat.copernic.Projecte1.entity.Enum.EstatReserva;
 import cat.copernic.Projecte1.entity.Reserva;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +31,12 @@ public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
             @Param("dataInici") LocalDateTime dataInici,
             @Param("dataFi") LocalDateTime dataFi,
             @Param("anulada") EstatReserva anulada);
+
+    // BUSQUEDA PER INFORMES    
+    @Query("SELECT r FROM Reserva r WHERE "
+            + "(:clientId IS NULL OR r.usuari.id = :clientId) "
+            + "ORDER BY r.usuari.nom ASC, r.dataInici DESC")
+    List<Reserva> findReservesPerInforme(@Param("clientId") Integer clientId);
+    
+    Optional<Reserva>findByCodiReserva(String codiReserva);
 }

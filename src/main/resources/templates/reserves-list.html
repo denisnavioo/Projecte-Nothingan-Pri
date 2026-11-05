@@ -59,6 +59,13 @@
                         <input type="text" id="dni" name="dni"
                                placeholder="Introdueix el DNI" th:value="${dni}">
                     </div>
+                    
+                    <!-- Filtro por email del cliente. -->
+                    <div class="form-group">
+                        <label for="email">Email del client</label>
+                        <input type="email" id="email" name="email"
+                               placeholder="Introdueix l'email" th:value="${email}">
+                    </div>
 
                     <!-- Filtro por código de reserva. -->
                     <div class="form-group">
@@ -140,6 +147,7 @@
                             <a th:href="@{/web/reserves/detall/{id}(
                                 id=${r.id},
                                 dni=${dni},
+                                email=${email},
                                 codi=${codi},
                                 matricula=${matricula},
                                 data=${data}
@@ -178,6 +186,7 @@
                 <!-- Cierra los detalles conservando los filtros. -->
                 <a th:href="@{/web/reserves/all(
                     dni=${dni},
+                    email=${email},
                     codi=${codi},
                     matricula=${matricula},
                     data=${data}
@@ -259,4 +268,5 @@
 </div>
 
 </body>
+
 </html>

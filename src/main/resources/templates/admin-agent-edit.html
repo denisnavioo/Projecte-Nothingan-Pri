@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ca" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title th:text="${modoLectura} ? 'Detall de l\'agent - Nothingan Pri' : (${agent.id != null} ? 'Editar agent - Nothingan Pri' : 'Nou agent - Nothingan Pri')">Gestió d'Agent</title>
+        <link rel="stylesheet" th:href="@{/css/styles.css}">
+    </head>
+    <body>
+
+        <div class="layout">
+
+            <!-- Menú Lateral Administrador -->
+            <aside class="sidebar">
+                <div class="logo-container">
+                    <a th:href="@{/web/usuaris/login}">
+                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
+                    </a>
+                </div>
+
+                <nav class="nav-menu">
+                    <a th:href="@{/web/admin/usuaris}">• Clients</a>
+                    <a th:href="@{/web/admin/vehicles}">• Vehicles</a>
+                    <a th:href="@{/web/admin/reserves}">• Reserves</a>
+                    <a th:href="@{/web/admin/informes}">• Informes</a>
+                    <a th:href="@{/web/admin/agents}" class="active">• Agents</a>
+                </nav>
+            </aside>
+
+            <!-- Contingut Principal -->
+            <main class="content">
+
+                <!-- Capçalera superior -->
+                <header class="top-header">
+                    <h2>Gestió d'agents</h2>
+
+                    <div class="user-dropdown">
+                        <span>Administrador ▾</span>
+                        <div class="user-avatar"></div>
+                    </div>
+                </header>
+
+                <div class="top-bar">
+                    <h3 th:text="${modoLectura} ? 'Detall de l\'agent' : (${agent.id != null} ? 'Editar agent' : 'Nou agent')">Formulari Agent</h3>
+
+                    <a th:href="@{/web/admin/agents}" class="btn btn-cancel">
+                        Tornar al llistat
+                    </a>
+                </div>
+
+                <!-- Missatges d'error -->
+                <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+                <!-- Formulari d'Agent -->
+                <div class="table-card" style="padding: 24px;">
+
+                    <form th:action="@{/web/admin/agents/save}" th:object="${agent}" method="post">
+
+                        <!-- Camp ocult per a l'ID -->
+                        <input type="hidden" th:field="*{id}" />
+
+                        <div class="form-grid">
+
+                            <!-- DNI -->
+                            <div class="form-group">
+                                <label for="dni">DNI <span style="color: red;">*</span></label>
+                                <input type="text"
+                                       id="dni"
+                                       th:field="*{dni}"
+                                       th:disabled="${modoLectura}"
+                                       placeholder="12345678A"
+                                       required>
+                            </div>
+
+                            <!-- Nom -->
+                            <div class="form-group">
+                                <label for="nom">Nom i Cognoms <span style="color: red;">*</span></label>
+                                <input type="text" 
+                                       id="nom" th:field="*{nom}" 
+                                       class="form-control" 
+                                       th:disabled="${modoLectura}"
+                                       placeholder="Introduce el nombre completo" 
+                                       required />
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email">Correu electrònic <span style="color: red;">*</span></label>
+                                <input type="email"
+                                       id="email"
+                                       th:field="*{email}"
+                                       th:disabled="${modoLectura}"
+                                       placeholder="agent@nothingan.com"
+                                       required>
+                            </div>
+
+                            <!-- Telèfon -->
+                            <div class="form-group">
+                                <label for="telefon">Telèfon <span style="color: red;">*</span></label>
+                                <input type="tel"
+                                       id="telefon"
+                                       th:field="*{telefon}"
+                                       th:disabled="${modoLectura}"
+                                       pattern="[0-9]{9}"
+                                       maxlength="9"
+                                       placeholder="600000000"
+                                       title="El número de telèfon ha de tenir exactament 9 dígits."
+                                       required>
+                            </div>
+
+                            <!-- Contrasenya (S'amaga en mode lectura) -->
+                            <div class="form-group" th:if="${!modoLectura}">
+                                <label for="password">Contrasenya <span style="color: red;">*</span></label>
+                                <input type="password"
+                                       id="password"
+                                       th:field="*{password}"
+                                       placeholder="Deixa en blanc si no vols canviar-la"
+                                       th:required="${agent.id == null}">
+                            </div>
+
+                        </div>
+
+                        <!-- Botons d'acció -->
+                        <div class="button-group" style="margin-top: 24px;">
+                            <button type="submit" class="btn btn-filter" th:if="${!modoLectura}">
+                                Desar agent
+                            </button>
+
+                            <a th:href="@{/web/admin/agents}" class="btn btn-cancel">
+                                <span th:text="${modoLectura} ? 'Tornar' : 'Cancel·lar'">Cancel·lar</span>
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+
+            </main>
+        </div>
+
+    </body>
+</html>

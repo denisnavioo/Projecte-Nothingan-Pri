@@ -7,8 +7,6 @@ import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,12 +19,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-//usamos controller ya que estamos usando un modelo vista controllador (MVC) el cual usa tymleaf, osea html y bbdd
 @Controller
 @RequestMapping("/web/usuaris")
 public class UsuarisController {
-
-    private final Logger logger = LoggerFactory.getLogger(UsuarisController.class);
 
     @Autowired
     private UsuarisLogic usuarisService;
@@ -34,29 +29,41 @@ public class UsuarisController {
     @Autowired
     private ReservaLogic reservaLogic;
 
-    // --- LLISTAT GENERAL / FILTRE DNI (AGENT) ---
+    // --- LLISTAT GENERAL I FILTRATGE MÚLTIPLE (RF26 / CERCA EMAIL) ---
     @GetMapping("/all")
-    // requestParam se usa para recivir/capturar un parametro y que te lo devuelva, entonces le pide a el logic que busque 
-    // ese parametro  con sus metodos i el logic le pide al repositori que busque eso en la bbdd.
-    public String findAll(@RequestParam(value = "dni", required = false) String dni, Model model) {
-        logger.debug("Getting usuaris with filter DNI: " + dni);
+    public String findAll(
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String nacionalitat,
+            @RequestParam(required = false) String poblacio,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String nom,
+            @RequestParam(required = false) String telefon,
+            Model model) {
 
         List<Usuaris> llista;
-        if (dni != null && !dni.trim().isEmpty()) {
-            llista = usuarisService.findByDni(dni.trim());
+
+        // Si ve una cerca directa per email, busquem per email
+        if (email != null && !email.trim().isEmpty()) {
+            llista = usuarisService.findByEmail(email.trim());
         } else {
-            llista = usuarisService.findAllUsuaris();
+            // Si no, executem la consulta multi-filtre
+            llista = usuarisService.filtrarClients(email, nacionalitat, poblacio, dni, nom, telefon);
         }
 
-        model.addAttribute("usuaris", llista);
-        model.addAttribute("dniFiltre", dni);
+        // Filtrem per mantenir només els usuaris amb rol CLIENT
+        List<Usuaris> nomesClients = llista.stream()
+                .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
+                .toList();
+
+        model.addAttribute("usuaris", nomesClients);
+        model.addAttribute("emailFiltre", email);
+
         return "usuaris-list";
     }
 
     // --- CREAR Y EDITAR USUARIO (ADMIN/AGENT) ---
     @GetMapping("/new")
     public String getForm(Model model) {
-        logger.debug("Creating new usuari...");
 
         Usuaris u = new Usuaris();
         u.setEstatRegistre("PENDENT");
@@ -67,8 +74,6 @@ public class UsuarisController {
     }
 
     @GetMapping("/edit/{id}")
-    //path variable  es anotacion corresponiente en identificar un id de un usuario por ejemplo en este caso para 
-    //editar exactamente al usuario que devuelva con su informacion, el controller llama al logic i el logic al repository
     public String editById(@PathVariable("id") Long usuariId, Model model) {
         Usuaris usuari = usuarisService.getUsuariById(usuariId);
 
@@ -90,9 +95,8 @@ public class UsuarisController {
             }
             return "redirect:/web/usuaris/all";
         } catch (IllegalArgumentException e) {
-            // Captura l'error de duplicat o validació i el mostra a la plantilla HTML
             model.addAttribute("error", e.getMessage());
-            model.addAttribute("usuari", usuari); // Manté les dades introduïdes al formulari
+            model.addAttribute("usuari", usuari);
             return "edit-usuari";
         }
     }
@@ -156,7 +160,6 @@ public class UsuarisController {
             @RequestParam("fitxerLlicencia") MultipartFile fitxerLlicencia,
             Model model) {
         try {
-            // Registra el client assignant estat PENDENT i rol CLIENT (executa la validació)
             usuarisService.registrarClientWeb(usuari);
             return "redirect:/web/usuaris/login?registrePendent=true";
 
@@ -180,6 +183,11 @@ public class UsuarisController {
         usuarisService.canviarEstatRegistre(id, nouEstat);
         return "redirect:/web/usuaris/pendents";
     }
+
+    /*@GetMapping("/admin")
+    public String admin(Model model) {
+        return "admin clients";
+    }*/
 
 @GetMapping("/client/reserves")
 public String mostrarReservesClient(HttpSession session, Model model) {
@@ -216,22 +224,16 @@ public String guardarSolicitudAssitencia(@RequestParam("reservaId") Integer id, 
 }
 
 // FORMULARIO CREACIÓN RESERVA CLIENTE
-@GetMapping("/client/reserves/nova")
-public String mostrarNovaReservaClient(HttpSession session, Model model) {
-    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-    
-    if (usuariLoguejat == null) {
-        return "redirect:/web/usuaris/login";
-    }
-    
-    Reserva reserva = new Reserva();
-    reserva.setVehicle(new Vehicle());
-    reserva.setUsuari(usuariLoguejat);
+    @GetMapping("/client/reserves/nova")
+    public String mostrarNovaReservaClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
 
-    model.addAttribute("usuariLoguejat", usuariLoguejat);
-    model.addAttribute("reserva", reserva);
-    return "nova-reserva";
-}
+        Reserva reserva = new Reserva();
+        reserva.setVehicle(new Vehicle());
+        reserva.setUsuari(usuariLoguejat);
 
 @PostMapping("/client/reserves/save")
     public String guardarReservaClient(@ModelAttribute("reserva") Reserva reserva, HttpSession session, RedirectAttributes redirectAttributes) {
@@ -259,22 +261,23 @@ public String mostrarNovaReservaClient(HttpSession session, Model model) {
             return "redirect:/web/usuaris/client/reserves/nova";
         }
     }
-    
-// MOSTRAR PERFIL DEL CLIENTE
-@GetMapping("/client/perfil")
-public String mostrarPerfilClient(HttpSession session, Model model) {
-    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-    if (usuariLoguejat == null) {
-        return "redirect:/web/usuaris/login";
-    }
-    
-    Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
-    model.addAttribute("usuariLoguejat", usuariBD);
-    model.addAttribute("usuari", usuariBD); // Necesario para th:object="${usuari}" en perfil.html
-    return "perfil"; // Nombre de la plantilla: perfil.html
-}
 
-// GUARDAR CAMBIOS DEL PERFIL
+    // MOSTRAR PERFIL DEL CLIENTE
+    @GetMapping("/client/perfil")
+    public String mostrarPerfilClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
+        // Recuperem les dades actualitzades de la base de dades
+        Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+        model.addAttribute("usuariLoguejat", usuariBD);
+        model.addAttribute("usuari", usuariBD); // Necessari per a th:object="${usuari}" a perfil.html
+        return "perfil";
+    }
+
+    // GUARDAR CAMBIOS DEL PERFIL
     @PostMapping("/client/perfil/save")
     public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariForm, HttpSession session, RedirectAttributes redirectAttributes) {
         Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
@@ -302,84 +305,4 @@ public String mostrarPerfilClient(HttpSession session, Model model) {
         return "redirect:/web/usuaris/client/perfil";
     }
 
-// PAGINAS DE ADMIN
-    @GetMapping("/admin")
-    public String admin(@RequestParam(value = "dni", required = false) String dni, Model model) {
-
-        List<Usuaris> llista;
-        if (dni != null && !dni.trim().isEmpty()) {
-            llista = usuarisService.findByDni(dni.trim());
-        } else {
-            llista = usuarisService.findAllUsuaris();
-        }
-
-        model.addAttribute("usuaris", llista);
-        model.addAttribute("dniFiltre", dni);
-
-        return "admin-clients";
-    }
-
-    @GetMapping("/admin/view/{id}")
-    public String viewClientAdmin(@PathVariable("id") Long id, Model model) {
-        Usuaris usuari = usuarisService.getUsuariById(id);
-        model.addAttribute("usuari", usuari);
-        model.addAttribute("modoLectura", true);
-        return "admin-edit-clients";
-    }
-
-
-    
-// Mode d'edició per a Administrador
-    @GetMapping("/admin/edit/{id}")
-    public String editClientAdmin(@PathVariable("id") Long id, Model model) {
-        Usuaris usuari = usuarisService.getUsuariById(id);
-        model.addAttribute("usuari", usuari);
-        model.addAttribute("modoLectura", false);
-        return "admin-edit-clients";
-    }
-    
-        /**
-     * REUTILIZACIÓN DE PLANTILLAS EN THYMELEAF (Principio DRY - Don't Repeat Yourself):
-     * Ambos métodos devuelven la misma vista HTML ("admin-edit-clients").
-     * 
-     * Pasamos la variable 'modoLectura' al Model:
-     * - En viewClientAdmin es TRUE  -> En Thymeleaf se usa (th:readonly="${modoLectura}") para bloquear los campos.
-     * - En editClientAdmin es FALSE -> Los campos del formulario se pueden editar normalmente.
-     * 
-     * De esta forma reutilizamos el mismo archivo HTML sin duplicar código.
-     */
-
-        @GetMapping("/admin/new")
-    public String newClientAdmin(Model model) {
-        model.addAttribute("usuari", new Usuaris());
-        model.addAttribute("modoLectura", false);
-        return "admin-edit-clients";
-    }
-    
-// Donar de baixa per a Administrador i redreçar al panell admin
-    @GetMapping("/admin/delete/{id}")
-    public String deleteClientAdmin(@PathVariable("id") Long id) {
-        usuarisService.deleteUsuariById(id); // o canviar estat a 'BAIXA'
-        return "redirect:/web/usuaris/admin";
-    }
-// 1. Mostrar el formulario para crear un NUEVO cliente como Admin
-
-
-
-// 2. Procesar el guardado desde el formulario de Admin
-    @PostMapping("/admin/save")
-    public String saveClientAdmin(@ModelAttribute("usuari") Usuaris usuari) {
-        // Si la contraseña viene vacía al editar, mantenemos la contraseña guardada
-        if (usuari.getId() != null && (usuari.getPassword() == null || usuari.getPassword().isBlank())) {
-            Usuaris usuariExistente = usuarisService.getUsuariById(usuari.getId());
-            if (usuariExistente != null) {
-                usuari.setPassword(usuariExistente.getPassword());
-            }
-        }
-
-        usuarisService.saveUsuari(usuari);
-
-        // Redirige directamente al listado de clientes de Admin
-        return "redirect:/web/usuaris/admin";
-    }
-}
+} 

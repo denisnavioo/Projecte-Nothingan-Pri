@@ -19,9 +19,9 @@
                 </div>
 
                 <nav class="nav-menu">
-                    <a th:href="@{/web/usuaris/admin}" class="active">• Clients</a>
-                    <a th:href="@{/web/vehicles/all}">• Vehicles</a>
-                    <a th:href="@{/web/reserves/all}">• Reserves</a>
+                    <a th:href="@{/web/admin/usuaris}" class="active">• Clients</a>
+                    <a th:href="@{/web/admin/vehicles}">• Vehicles</a>
+                    <a th:href="@{/web/admin/reserves}">• Reserves</a>
                     <a th:href="@{/web/admin/informes}">• Informes</a>
                     <a th:href="@{/web/admin/agents}">• Agents</a>
                 </nav>
@@ -42,20 +42,22 @@
 
                 <!-- Barra de Filtre per DNI i Botó Alta -->
                 <div class="top-bar">
-                    <form th:action="@{/web/usuaris/all}" method="get" class="filter-group">
+                    <!-- CORREGIDO: th:action apunta a /web/admin/usuaris -->
+                    <form th:action="@{/web/admin/usuaris}" method="get" class="filter-group">
                         <div class="input-wrapper">
                             <label for="filterDni">Filtrar per DNI</label>
                             <input type="text" id="filterDni" name="dni" th:value="${dniFiltre != null ? dniFiltre : param.dni}" placeholder="12345678A" />
                         </div>
                         <button class="btn btn-filter" type="submit">Filtrar</button>
 
+                        <!-- CORREGIDO: th:href del botó Netejar apunta a /web/admin/usuaris -->
                         <a th:if="${(dniFiltre != null and !dniFiltre.empty) or (param.dni != null and !#strings.isEmpty(param.dni))}" 
-                           th:href="@{/web/usuaris/all}" 
+                           th:href="@{/web/admin/usuaris}" 
                            class="btn btn-cancel" 
                            style="padding: 10px 14px; text-decoration: none;">Netejar</a>
                     </form>
 
-                    <a th:href="@{/web/usuaris/admin/new}" class="btn btn-add">+ Alta de client</a>
+                    <a th:href="@{/web/admin/new}" class="btn btn-add">+ Alta de client</a>
                 </div>
 
                 <!-- Taula d'usuaris per a l'Administrador -->
@@ -91,9 +93,9 @@
 
                                 <!-- Columna Accions -->
                                 <td class="actions-cell">
-                                    <a th:href="@{/web/usuaris/admin/view/{id}(id=${u.id})}">Veure</a> · 
-                                    <a th:href="@{/web/usuaris/admin/edit/{id}(id=${u.id})}">Editar</a> · 
-                                    <a th:href="@{/web/usuaris/admin/delete/{id}(id=${u.id})}" onclick="return confirm('Estàs segur de donar de baixa aquest client?')">Baixa</a>
+                                    <a th:href="@{/web/admin/view/{id}(id=${u.id})}">Veure</a> · 
+                                    <a th:href="@{/web/admin/edit/{id}(id=${u.id})}">Editar</a> · 
+                                    <a th:href="@{/web/admin/delete/{id}(id=${u.id})}" onclick="return confirm('Estàs segur de donar de baixa aquest client?')">Baixa</a>
                                 </td>
                             </tr>
 

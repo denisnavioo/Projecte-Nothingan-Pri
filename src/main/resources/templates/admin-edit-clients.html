@@ -19,8 +19,9 @@
                 </div>
 
                 <nav class="nav-menu">
-                    <a th:href="@{/web/usuaris/admin}" class="active">• Clients</a>
-                    <a th:href="@{/web/vehicles/all}">• Vehicles</a>
+                    <!-- CORREGIDO: Ruta a /web/admin/usuaris -->
+                    <a th:href="@{/web/admin/usuaris}" class="active">• Clients</a>
+                    <a th:href="@{/web/admin/reserves}">• Vehicles</a>
                     <a th:href="@{/web/reserves/all}">• Reserves</a>
                     <a th:href="@{/web/admin/informes}">• Informes</a>
                     <a th:href="@{/web/admin/agents}">• Agents</a>
@@ -29,7 +30,7 @@
 
             <main class="content">
 
-                <!-- Capçalera superior ajustada per a l'Administrador -->
+                <!-- Capçalera superior -->
                 <header class="top-header">
                     <h2>Gestió de clients</h2>
 
@@ -42,8 +43,8 @@
                 <div class="top-bar">
                     <h3 th:text="${modoLectura} ? 'Detalls del Client (Només lectura)' : 'Formulari Client'">Formulari Client</h3>
 
-                    <!-- Enllaç de retorn directament al llistat d'Admin -->
-                    <a th:href="@{/web/usuaris/admin}" class="btn btn-cancel">
+                    <!-- CORREGIDO: Ruta de retorn al llistat d'Admin -->
+                    <a th:href="@{/web/admin/usuaris}" class="btn btn-cancel">
                         Tornar al llistat
                     </a>
                 </div>
@@ -52,8 +53,8 @@
 
                 <div class="table-card" style="padding: 24px;">
 
-                    <!-- Formulari connectat amb la ruta d'enviament de l'Administrador -->
-                    <form th:action="@{/web/usuaris/admin/save}" th:object="${usuari}" method="post">
+                    <!-- CORREGIDO: th:action apunta a /web/admin/save -->
+                    <form th:action="@{/web/admin/save}" th:object="${usuari}" method="post">
 
                         <!-- ID ocult per saber si creem o editem -->
                         <input type="hidden" th:field="*{id}" />
@@ -62,12 +63,12 @@
 
                             <!-- Dades de Contacte i Identificació -->
                             <div class="form-group">
-                                <label for="nom">Nom complet</label>
+                                <label for="nom">Nom complet <span style="color: red;">*</span></label>
                                 <input type="text" id="nom" th:field="*{nom}" th:disabled="${modoLectura}" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="dni">DNI / NIE</label>
+                                <label for="dni">DNI / NIE <span style="color: red;">*</span></label>
                                 <input type="text" id="dni" th:field="*{dni}" th:disabled="${modoLectura}" required>
                             </div>
 
@@ -77,12 +78,12 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="telefon">Telèfon</label>
-                                <input type="tel" id="telefon" th:field="*{telefon}" th:disabled="${modoLectura}">
+                                <label for="telefon">Telèfon <span style="color: red;">*</span></label>
+                                <input type="tel" id="telefon" th:field="*{telefon}" th:disabled="${modoLectura}" required>
                             </div>
 
                             <div class="form-group">
-                                <label for="email">Email (Usuari)</label>
+                                <label for="email">Email (Usuari) <span style="color: red;">*</span></label>
                                 <input type="email" id="email" th:field="*{email}" th:disabled="${modoLectura}" required>
                             </div>
 
@@ -133,7 +134,7 @@
                                 </select>
                             </div>
 
-                            <!-- Secció Gestió de l'Estat del Registre (RF12/RF13) -->
+                            <!-- Secció Gestió de l'Estat del Registre -->
                             <div class="form-group">
                                 <label for="estatRegistre">Estat del Registre (RF12/RF13)</label>
                                 <select id="estatRegistre" th:field="*{estatRegistre}" th:disabled="${modoLectura}">
@@ -144,7 +145,7 @@
                                 </select>
                             </div>
 
-                            <!-- Checkbox Client Premium (RF21/RF22) -->
+                            <!-- Checkbox Client Premium -->
                             <div class="form-group" style="grid-column: span 2;">
                                 <label for="premium" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
                                     <input type="checkbox" id="premium" th:field="*{premium}" th:disabled="${modoLectura}" style="width: auto;">
@@ -169,7 +170,8 @@
                                 Desar Client
                             </button>
 
-                            <a th:href="@{/web/usuaris/admin}" class="btn btn-cancel">
+                            <!-- CORREGIDO: Ruta del botó cancel·lar -->
+                            <a th:href="@{/web/admin/usuaris}" class="btn btn-cancel">
                                 <span th:text="${modoLectura} ? 'Tornar' : 'Cancel·lar'">Tornar</span>
                             </a>
                         </div>
