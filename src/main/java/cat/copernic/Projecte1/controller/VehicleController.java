@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.time.Duration;
 
 @Controller
 @RequestMapping("/web/vehicles")
@@ -66,6 +67,35 @@ public class VehicleController {
         model.addAttribute("dataFi", dataFi);
 
         return "vehicles-list";
+    } 
+
+    // Busca vehículos disponibles para las fechas seleccionadas.
+    @GetMapping("/cercar")
+    public String cercarVehicles(
+            @RequestParam("dataInici")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInici,
+            @RequestParam("dataFi")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFi,
+            Model model) {
+
+        if (!dataFi.isAfter(dataInici)) {
+            model.addAttribute("error", "La data final ha de ser posterior a la inicial.");
+            return "index";
+        }
+
+        List<Vehicle> vehicles = vehicleLogic.findVehiclesDisponibles(dataInici, dataFi);
+
+        model.addAttribute("vehicles", vehicles);
+        model.addAttribute("dataInici", dataInici);
+        model.addAttribute("dataFi", dataFi);
+
+        long diesLloguer = (long) Math.ceil(
+                Duration.between(dataInici, dataFi).toMinutes() / 1440.0
+        );
+
+        model.addAttribute("diesLloguer", diesLloguer);
+
+        return "index";
     }
 
     @GetMapping("/new")
