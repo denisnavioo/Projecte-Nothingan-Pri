@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 
 @Service
 public class VehicleLogic {
@@ -73,6 +74,20 @@ public class VehicleLogic {
                 .filter(v -> anyFabricacio == null || anyFabricacio <= 0 || anyFabricacio.equals(v.getAnyFabricacio()))
                 .filter(v -> categoria == null || (v.getCategoria() != null && v.getCategoria().name().equalsIgnoreCase(categoria.name())))
                 .filter(v -> !validarFechas || reservaLogic.vehicleDisponible(v.getId(), dataInici, dataFi))
+                .toList();
+    }
+    
+    // Busca vehículos disponibles para las fechas seleccionadas.
+    public List<Vehicle> findVehiclesDisponibles(
+            LocalDateTime dataInici, LocalDateTime dataFi) {
+
+        if (dataInici == null || dataFi == null || !dataFi.isAfter(dataInici)) {
+            return List.of();
+        }
+
+        return vehicleRepo.findByEstatVehicleAndActiuTrue(EstatVehicle.Disponible)
+                .stream()
+                .filter(v -> reservaLogic.vehicleDisponible(v.getId(), dataInici, dataFi))
                 .toList();
     }
 }
