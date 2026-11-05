@@ -34,7 +34,7 @@ public class AdminController {
 
     @Autowired
     private ReservaLogic reservaLogic;
-    
+
     // Prevencion de error con /web
     // Método de captura predeterminado
     @GetMapping({"", "/"})
@@ -199,13 +199,13 @@ public class AdminController {
 
         List<Reserva> reserves = reservaLogic.findAllReservas().stream()
                 .filter(r -> dni == null || dni.isBlank()
-                        || (r.getUsuari() != null && r.getUsuari().getDni() != null && r.getUsuari().getDni().contains(dni)))
+                || (r.getUsuari() != null && r.getUsuari().getDni() != null && r.getUsuari().getDni().contains(dni)))
                 .filter(r -> codi == null || codi.isBlank()
-                        || (r.getCodiReserva() != null && r.getCodiReserva().contains(codi)))
+                || (r.getCodiReserva() != null && r.getCodiReserva().contains(codi)))
                 .filter(r -> matricula == null || matricula.isBlank()
-                        || (r.getVehicle() != null && r.getVehicle().getMatricula() != null && r.getVehicle().getMatricula().contains(matricula)))
+                || (r.getVehicle() != null && r.getVehicle().getMatricula() != null && r.getVehicle().getMatricula().contains(matricula)))
                 .filter(r -> data == null || data.isBlank()
-                        || (r.getDataReserva() != null && r.getDataReserva().toLocalDate().toString().equals(data)))
+                || (r.getDataReserva() != null && r.getDataReserva().toLocalDate().toString().equals(data)))
                 .toList();
 
         model.addAttribute("reserves", reserves);
@@ -355,11 +355,10 @@ public class AdminController {
         model.addAttribute("vehicles", vehicleLogic.findAllVehicles());
         model.addAttribute("usuaris", usuarisService.findAllUsuaris());
     }
-    
+
     // ==========================================
     // SECCIÓN: GESTIÓN DE AGENTES
     // ==========================================
-
     @GetMapping("/agents")
     public String findAllAgents(@RequestParam(value = "dni", required = false) String dni, Model model) {
         List<Usuaris> llista;
@@ -421,12 +420,11 @@ public class AdminController {
     @PostMapping("/agents/save")
     public String saveAgentAdmin(@ModelAttribute("agent") Usuaris agent, Model model, RedirectAttributes redirectAttributes) {
         try {
-            
-            
+
             agent.setRol("AGENT");
             // Asignar o forzar siempre el rol AGENT
             // Si usas Enum: agent.setRol(cat.copernic.Projecte1.entity.Enum.Rol.AGENT);
-            
+
             // Si la contraseña viene vacía al editar, mantener la contraseña previa
             if (agent.getId() != null && (agent.getPassword() == null || agent.getPassword().isBlank())) {
                 Usuaris usuariExistente = usuarisService.getUsuariById(agent.getId());
@@ -453,5 +451,41 @@ public class AdminController {
         usuarisService.deleteUsuariById(id);
         redirectAttributes.addFlashAttribute("missatge", "Agent eliminat correctament.");
         return "redirect:/web/admin/agents";
+    }
+
+    // ==========================================
+    // SECCIÓ: INFORMES (RF91)
+    // ==========================================
+    @GetMapping({"/informes", "/informes/reserves"})
+    public String mostrarInformeReserves(
+            @RequestParam(value = "clientId", required = false) String clientIdStr,
+            Model model) {
+
+        Integer clientId = null;
+        if (clientIdStr != null && !clientIdStr.trim().isEmpty()) {
+            try {
+                clientId = Integer.parseInt(clientIdStr.trim());
+            } catch (NumberFormatException ignored) {
+                clientId = null;
+            }
+        }
+
+        List<Reserva> reserves = reservaLogic.obtenirInformeReserves(clientId);
+
+        List<Usuaris> totsClients = usuarisService.findAllUsuaris().stream()
+                .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
+                .toList();
+
+        BigDecimal importTotal = reserves.stream()
+                .map(r -> r.getPreuLloguer() != null ? r.getPreuLloguer() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        model.addAttribute("reserves", reserves);
+        model.addAttribute("clients", totsClients);
+        model.addAttribute("clientIdSeleccionat", clientId);
+        model.addAttribute("totalReserves", reserves.size());
+        model.addAttribute("importTotal", importTotal);
+
+        return "admin-informes";
     }
 }

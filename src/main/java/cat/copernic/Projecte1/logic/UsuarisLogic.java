@@ -169,14 +169,32 @@ public class UsuarisLogic {
     }
 
     // Mètode per filtrar usuaris per DNI de forma Parcial
+    public List<Usuaris> findByEmail(String email) {
+        return usuariRepo.findByEmailContainingIgnoreCase(email);
+    }
+
     public List<Usuaris> findByDni(String dni) {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
 
-    
-        //METODO BIEN DOCUMENTADO
-        // Usuaris usuaris trae el objeto de usuaris de la entity usuaris
-        //throw illegalargumentexception indica que este metodo puede devolver excepciones osea lo de los errores
+public List<Usuaris> filtrarClients(String email, String nacionalitat, String poblacio, String dni, String nom, String telefon) {
+    return usuariRepo.findClientByFiltreMultiple(
+            cleanParam(email),
+            cleanParam(nacionalitat),
+            cleanParam(poblacio),
+            cleanParam(dni),
+            cleanParam(nom),
+            cleanParam(telefon)
+    );
+}
+// Método auxiliar para convertir cadenas vacías con espacios ("   ") a null
+private String cleanParam(String param) {
+    return (param != null && !param.trim().isEmpty()) ? param.trim() : null;
+}
+
+    //METODO BIEN DOCUMENTADO
+    // Usuaris usuaris trae el objeto de usuaris de la entity usuaris
+    //throw illegalargumentexception indica que este metodo puede devolver excepciones osea lo de los errores
     public void validarCamposUnicos(Usuaris usuari) throws IllegalArgumentException {
 
         // 1. Validar si l'Email ja existeix
