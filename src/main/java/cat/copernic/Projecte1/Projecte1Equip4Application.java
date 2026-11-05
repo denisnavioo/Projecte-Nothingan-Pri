@@ -119,7 +119,7 @@ public class Projecte1Equip4Application {
 
             System.out.println("\n----------------------------------------------------------");
             System.out.println(" Aplicació iniciada correctament amb dades de prova!");
-            System.out.println(" Accés al login: http://localhost:8080/web/usuaris/login");
+            System.out.println(" Accés al login: http://localhost:8080");
             System.out.println("----------------------------------------------------------\n");
         };
     }
