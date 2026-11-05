@@ -258,11 +258,11 @@
                         <div>
                             <!-- Imatge del vehicle o placeholder si no en té -->
                             <div class="vehicle-image-placeholder">
-                                <img th:if="${v.imatgeUrl != null}" 
-                                        th:src="@{${v.imatgeUrl}}" 
+                                <img th:if="${v.fotoVehicle != null}" 
+                                        th:src="@{${v.fotoVehicle}}" 
                                         th:alt="${v.marca + ' ' + v.model}" 
                                         style="width:100%; height:100%; object-fit:cover; border-radius:8px;" />
-                                <span th:unless="${v.imatgeUrl != null and !v.imatgeUrl.isEmpty()}">Foto vehicle</span>
+                                <span th:unless="${v.fotoVehicle != null and !v.fotoVehicle.isEmpty()}">Foto vehicle</span>
                             </div>
 
                             <!-- Títol i Categoria -->
@@ -271,14 +271,13 @@
                             </div>
 
                             <!-- Preu per dia -->
-                            <div class="vehicle-price" th:text="${v.preuDiari + ' €/dia'}">
+                            <div class="vehicle-price" th:text="${v.preuDia + ' €/dia'}">
                                 65 €/dia
                             </div>
 
                             <!-- Badge d'Estat -->
                             <span class="badge badge-disponible" 
-                                  th:classappend="${v.disponible} ? 'badge-disponible' : 'badge-rebutjat'"
-                                  th:text="${v.disponible ? 'Disponible' : 'No disponible'}">
+                                      th:text="${v.estatVehicle}">
                                 Disponible
                             </span>
                         </div>
@@ -286,7 +285,7 @@
                         <!-- Botó per seleccionar el vehicle -->
                         <button type="button" 
                                 class="btn-select" 
-                                th:onclick="'seleccionarVehicle(' + ${v.id} + ', \'' + ${v.marca + ' ' + v.model} + '\', ' + ${v.preuDiari} + ')'">
+                                th:onclick="|seleccionarVehicle(${v.id}, '${v.marca} ${v.model}', ${v.preuDia})|">
                             Seleccionar
                         </button>
                     </div>
