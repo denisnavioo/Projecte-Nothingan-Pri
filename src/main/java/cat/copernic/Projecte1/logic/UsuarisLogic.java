@@ -234,12 +234,11 @@ private String cleanParam(String param) {
                 throw new IllegalArgumentException("El DNI '" + usuari.getDni() + "' ja està registrat.");
             }
         }
-
-        // 3. Validar si el Telèfon ja existeix
-        // comprueba si ha ingresado algo y no lo ha dejado en blanco 
-        if (usuari.getTelefon() == null || usuari.getTelefon().isBlank()) {
-            throw new IllegalArgumentException("El número de telèfon és obligatori.");
+        
+        if (usuari == null || usuari.getNom() == null || usuari.getNom().isBlank()){
+            throw new IllegalArgumentException("El nom es obligatori");
         }
+        
 
         // ja con la mida comprueba si es de 9 digitos osea logica != 9 (si no es de 9 digitos salta error)
         if (usuari.getTelefon().length() != 9) {

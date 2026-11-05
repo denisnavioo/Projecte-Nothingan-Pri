@@ -1,6 +1,7 @@
 package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Enum.Categoria;
+import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
@@ -35,8 +36,6 @@ public class AdminController {
     @Autowired
     private ReservaLogic reservaLogic;
 
-    // Prevencion de error con /web
-    // Método de captura predeterminado
     @GetMapping({"", "/"})
     public String indexAdmin() {
         return "redirect:/web/admin/usuaris";
@@ -54,7 +53,6 @@ public class AdminController {
             llista = usuarisService.findAllUsuaris();
         }
 
-        // Filtra directamente en el controller para dejar solo los del rol CLIENT
         List<Usuaris> nomesClients = llista.stream()
                 .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
                 .toList();
@@ -101,7 +99,6 @@ public class AdminController {
     @PostMapping("/save")
     public String saveClientAdmin(@ModelAttribute("usuari") Usuaris usuari, Model model) {
         try {
-            // Mantiene la contraseña si se edita y el campo viene vacío
             if (usuari.getId() != null && (usuari.getPassword() == null || usuari.getPassword().isBlank())) {
                 Usuaris usuariExistente = usuarisService.getUsuariById(usuari.getId());
                 if (usuariExistente != null) {
@@ -113,7 +110,6 @@ public class AdminController {
             return "redirect:/web/admin/usuaris";
 
         } catch (IllegalArgumentException e) {
-            // Captura las validaciones de UsuarisLogic (ej. teléfono de 9 dígitos, DNI repetido) y las pasa a la vista
             model.addAttribute("error", e.getMessage());
             model.addAttribute("usuari", usuari);
             model.addAttribute("modoLectura", false);
@@ -136,33 +132,38 @@ public class AdminController {
 
     @GetMapping("/vehicles/new")
     public String getFormVehicle(Model model) {
-        Vehicle p = new Vehicle(0, "", "", "", 0, Categoria.SUV, BigDecimal.ZERO, "");
-        model.addAttribute("vehicle", p);
+        // CORRECCIÓN: Instancia limpia sin asignar ID manual en 0
+        Vehicle vehicle = new Vehicle();
+        vehicle.setCategoria(Categoria.SUV);
+        vehicle.setEstatVehicle(EstatVehicle.Disponible);
+        vehicle.setPreuDia(BigDecimal.ZERO);
+
+        model.addAttribute("vehicle", vehicle);
         return "admin-edit-vehicle";
     }
 
     @PostMapping("/vehicles/save")
-    public String saveVehicle(@ModelAttribute("vehicle") Vehicle vehicle, RedirectAttributes redirectAttributes) {
+    public String saveVehicle(@ModelAttribute("vehicle") Vehicle vehicle, Model model, RedirectAttributes redirectAttributes) {
+        // Validación previa de duplicidad de matrícula
         if (vehicleLogic.existsByMatricula(vehicle.getMatricula(), vehicle.getId())) {
-            redirectAttributes.addFlashAttribute("error", "La matrícula '" + vehicle.getMatricula() + "' ja està registrada al sistema!");
-            redirectAttributes.addFlashAttribute("vehicle", vehicle);
-
-            if (vehicle.getId() > 0) {
-                return "redirect:/web/admin/vehicles/edit/" + vehicle.getId();
-            } else {
-                return "redirect:/web/admin/vehicles/new";
-            }
+            model.addAttribute("error", "La matrícula '" + vehicle.getMatricula() + "' ja està registrada al sistema!");
+            model.addAttribute("vehicle", vehicle);
+            return "admin-edit-vehicle";
         }
 
         try {
+            if (vehicle.getEstatVehicle() == null) {
+                vehicle.setEstatVehicle(EstatVehicle.Disponible);
+            }
             vehicleLogic.saveVehicle(vehicle);
             redirectAttributes.addFlashAttribute("missatge", "Vehicle desat correctament!");
-        } catch (org.springframework.dao.DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("error", "Error: La matrícula introduïda ja existeix.");
-            return "redirect:/web/admin/vehicles/new";
-        }
+            return "redirect:/web/admin/vehicles";
 
-        return "redirect:/web/admin/vehicles";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error en desar el vehicle: " + e.getMessage());
+            model.addAttribute("vehicle", vehicle);
+            return "admin-edit-vehicle";
+        }
     }
 
     @GetMapping("/vehicles/edit/{id}")
@@ -179,8 +180,12 @@ public class AdminController {
 
     @GetMapping("/vehicles/delete/{id}")
     public String deleteVehicleById(@PathVariable("id") Long vehicleId, RedirectAttributes redirectAttributes) {
-        vehicleLogic.deleteVehicleById(vehicleId);
-        redirectAttributes.addFlashAttribute("missatge", "Vehicle eliminat correctament.");
+        try {
+            vehicleLogic.deleteVehicleById(vehicleId);
+            redirectAttributes.addFlashAttribute("missatge", "Vehicle eliminat correctament.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No es pot eliminar el vehicle perquè té reserves associades.");
+        }
 
         return "redirect:/web/admin/vehicles";
     }
@@ -301,16 +306,33 @@ public class AdminController {
     }
 
     @PostMapping("/reserves/save")
-    public String saveReserva(@ModelAttribute Reserva reserva, RedirectAttributes redirectAttributes) {
+    public String saveReserva(@ModelAttribute Reserva reserva, Model model, RedirectAttributes redirectAttributes) {
         try {
+            // CORRECCIÓN: Carga explícita de entidades vinculadas si solo vienen las IDs
+            if (reserva.getVehicle() != null && reserva.getVehicle().getId() > 0) {
+                Vehicle v = vehicleLogic.getVehicleById(reserva.getVehicle().getId());
+                reserva.setVehicle(v);
+            }
+            if (reserva.getUsuari() != null && reserva.getUsuari().getId() != null) {
+                Usuaris u = usuarisService.getUsuariById(reserva.getUsuari().getId());
+                reserva.setUsuari(u);
+            }
+
             reservaLogic.saveReserva(reserva);
             redirectAttributes.addFlashAttribute("missatge", "Reserva creada correctament.");
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/web/admin/reserves/new";
-        }
+            return "redirect:/web/admin/reserves";
 
-        return "redirect:/web/admin/reserves";
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("reserva", reserva);
+            carregarDadesFormulari(model);
+            return "admin-edit-reserva";
+        } catch (Exception e) {
+            model.addAttribute("error", "S'ha produït un error en desar la reserva: " + e.getMessage());
+            model.addAttribute("reserva", reserva);
+            carregarDadesFormulari(model);
+            return "admin-edit-reserva";
+        }
     }
 
     @GetMapping("/reserves/detall/{id}")
@@ -369,7 +391,6 @@ public class AdminController {
             llista = usuarisService.findAllUsuaris();
         }
 
-        // Dejar únicamente los usuarios con rol AGENT
         List<Usuaris> nomesAgents = llista.stream()
                 .filter(u -> u.getRol() != null && "AGENT".equalsIgnoreCase(u.getRol().toString()))
                 .toList();
@@ -383,7 +404,7 @@ public class AdminController {
     @GetMapping("/agents/new")
     public String newAgentAdmin(Model model) {
         Usuaris agent = new Usuaris();
-        agent.setEstatRegistre("VALIDAT"); // Un agente creado por el admin ya nace validado
+        agent.setEstatRegistre("VALIDAT");
         agent.setPremium(false);
 
         model.addAttribute("agent", agent);
@@ -420,12 +441,8 @@ public class AdminController {
     @PostMapping("/agents/save")
     public String saveAgentAdmin(@ModelAttribute("agent") Usuaris agent, Model model, RedirectAttributes redirectAttributes) {
         try {
-
             agent.setRol("AGENT");
-            // Asignar o forzar siempre el rol AGENT
-            // Si usas Enum: agent.setRol(cat.copernic.Projecte1.entity.Enum.Rol.AGENT);
 
-            // Si la contraseña viene vacía al editar, mantener la contraseña previa
             if (agent.getId() != null && (agent.getPassword() == null || agent.getPassword().isBlank())) {
                 Usuaris usuariExistente = usuarisService.getUsuariById(agent.getId());
                 if (usuariExistente != null) {
@@ -438,7 +455,6 @@ public class AdminController {
             return "redirect:/web/admin/agents";
 
         } catch (IllegalArgumentException e) {
-            // Captura las validaciones de UsuarisLogic (teléfono de 9 dígitos, DNI repetido, etc.)
             model.addAttribute("error", e.getMessage());
             model.addAttribute("agent", agent);
             model.addAttribute("modoLectura", false);
