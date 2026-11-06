@@ -17,16 +17,40 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.Duration;
 
+/**
+ * CONTROLADOR WEB DE VEHÍCULOS
+ *
+ * @Controller: Marca la clase como un controlador de Spring MVC (devuelve
+ * nombres de vistas HTML).
+ * @RequestMapping("/web/vehicles"): Define la ruta base HTTP para todas las
+ * URLs de este controlador.
+ * @Scope("request"): Spring crea una instancia nueva de este controlador por
+ * cada petición HTTP.
+ */
 @Controller
 @RequestMapping("/web/vehicles")
 @Scope("request")
 public class VehicleController {
 
+    // Logger para registrar eventos o errores en la consola/logs del servidor
     private final Logger logger = LoggerFactory.getLogger(VehicleController.class);
 
+    // @Autowired: Inyección automática de la capa de lógica/negocio de vehículos
     @Autowired
     private VehicleLogic vehicleLogic;
 
+    /**
+     * MÉTODOS Y ENDPOINTS DE LA APLICACIÓN
+     */
+    /**
+     * @GetMapping("/all"): Atiende peticiones GET a /web/vehicles/all
+     *
+     * ¿QUÉ HACE?: Muestra la lista de vehículos aplicando filtros opcionales de
+     * búsqueda. ¿QUÉ CAPTURA?: Parámetros opcionales de filtro y la interfaz
+     * Model para pasar datos a la plantilla. ¿DE DÓNDE LO SACA?: De la
+     * URL/Query parameters enviados desde el formulario GET de
+     * "vehicles-list.html". ¿QUÉ DEVUELVE?: La plantilla HTML "vehicles-list".
+     */
     @GetMapping("/all")
     public String findAll(
             @RequestParam(name = "matricula", required = false) String matricula,
@@ -35,11 +59,12 @@ public class VehicleController {
             @RequestParam(name = "anyFabricacio", required = false) Integer anyFabricacio,
             @RequestParam(name = "categoria", required = false) Categoria categoria,
             @RequestParam(name = "dataInici", required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInici,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInici, // Parsea fecha ISO (ej. yyyy-MM-ddTHH:mm)
             @RequestParam(name = "dataFi", required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFi,
             Model model) {
 
+        // Limpieza de espacios en blanco en los campos de texto recibidos
         String matriculaClean = (matricula != null) ? matricula.trim() : null;
         String marcaClean = (marca != null) ? marca.trim() : null;
         String modelClean = (modelParam != null) ? modelParam.trim() : null;
@@ -47,6 +72,7 @@ public class VehicleController {
         logger.debug("Getting all vehicles with filters - Matrícula: {}, Marca: {}, Model: {}, Any: {}, Categoria: {}, Inici: {}, Fi: {}",
                 matriculaClean, marcaClean, modelClean, anyFabricacio, categoria, dataInici, dataFi);
 
+        // Consulta a la lógica de negocio pasándole todos los criterios de filtro
         List<Vehicle> llista = vehicleLogic.findByFiltres(
                 matriculaClean,
                 marcaClean,
@@ -57,6 +83,7 @@ public class VehicleController {
                 dataFi
         );
 
+        // Inyección de variables en el modelo para que la vista HTML pueda usarlas
         model.addAttribute("vehicle", llista);
         model.addAttribute("matricula", matriculaClean);
         model.addAttribute("marca", marcaClean);
@@ -66,10 +93,18 @@ public class VehicleController {
         model.addAttribute("dataInici", dataInici);
         model.addAttribute("dataFi", dataFi);
 
-        return "vehicles-list";
-    } 
+        return "vehicles-list"; // Carga el archivo templates/vehicles-list.html
+    }
 
-    // Busca vehículos disponibles para las fechas seleccionadas.
+    /**
+     * @GetMapping("/cercar"): Atiende peticiones GET a /web/vehicles/cercar
+     *
+     * ¿QUÉ HACE?: Busca vehículos disponibles exclusivamente entre un rango de
+     * fechas e calcula los días de alquiler. ¿QUÉ CAPTURA?: dataInici, dataFi y
+     * Model. ¿DE DÓNDE LO SACA?: Parámetros GET enviados desde el formulario de
+     * reserva (ej. index.html). ¿QUÉ DEVUELVE?: La plantilla HTML "index" (con
+     * lista de coches disponibles o error).
+     */
     @GetMapping("/cercar")
     public String cercarVehicles(
             @RequestParam("dataInici")
@@ -78,17 +113,20 @@ public class VehicleController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFi,
             Model model) {
 
+        // Validación: la fecha de fin debe ser estrictamente posterior a la inicial
         if (!dataFi.isAfter(dataInici)) {
             model.addAttribute("error", "La data final ha de ser posterior a la inicial.");
             return "index";
         }
 
+        // Obtención de vehículos libres en ese intervalo
         List<Vehicle> vehicles = vehicleLogic.findVehiclesDisponibles(dataInici, dataFi);
 
         model.addAttribute("vehicles", vehicles);
         model.addAttribute("dataInici", dataInici);
         model.addAttribute("dataFi", dataFi);
 
+        // Cálculo de días enteros de alquiler basándose en los minutos de diferencia entre fechas
         long diesLloguer = (long) Math.ceil(
                 Duration.between(dataInici, dataFi).toMinutes() / 1440.0
         );
@@ -98,25 +136,47 @@ public class VehicleController {
         return "index";
     }
 
+    /**
+     * @GetMapping("/new"): Atiende peticiones GET a /web/vehicles/new
+     *
+     * ¿QUÉ HACE?: Prepara un objeto Vehicle vacío por defecto para rellenarlo
+     * en el formulario de alta. ¿QUÉ CAPTURA?: El objeto Model de Spring MVC.
+     * ¿DE DÓNDE LO SACA?: Inyección automática del framework al entrar en la
+     * URL. ¿QUÉ DEVUELVE?: La plantilla HTML "edit-vehicle".
+     */
     @GetMapping("/new")
     public String getForm(Model model) {
+        // Instancia un objeto Vehicle por defecto con ID = 0 (indica creación)
         Vehicle p = new Vehicle(0, "", "", "", 0, Categoria.SUV, BigDecimal.ZERO, "");
         model.addAttribute("vehicle", p);
         return "edit-vehicle";
     }
 
+    /**
+     * @PostMapping("/save"): Atiende peticiones POST a /web/vehicles/save
+     *
+     * ¿QUÉ HACE?: Procesa la recepción del formulario para crear o guardar
+     * cambios de un vehículo. ¿QUÉ CAPTURA?: El objeto Vehicle relleno y un
+     * contenedor RedirectAttributes para mensajes flash. ¿DE DÓNDE LO SACA?:
+     * Los datos del formulario enviado mediante POST desde "edit-vehicle.html".
+     * ¿QUÉ DEVUELVE?: Redirección HTTP a la lista de vehículos o de nuevo al
+     * formulario si hay errores.
+     */
     @PostMapping("/save")
     public String save(@ModelAttribute("vehicle") Vehicle vehicle, RedirectAttributes redirectAttributes) {
+        // Comprueba si ya existe otro vehículo registrado con la misma matrícula
         if (vehicleLogic.existsByMatricula(vehicle.getMatricula(), vehicle.getId())) {
             redirectAttributes.addFlashAttribute("error", "La matrícula '" + vehicle.getMatricula() + "' ja està registrada al sistema!");
             redirectAttributes.addFlashAttribute("vehicle", vehicle);
+            // Si el ID es mayor que 0 es una edición (vuelve a edit/ID), si es 0 es un alta nueva (vuelve a new)
             return (vehicle.getId() > 0) ? "redirect:/web/vehicles/edit/" + vehicle.getId() : "redirect:/web/vehicles/new";
         }
 
         try {
-            vehicleLogic.saveVehicle(vehicle);
+            vehicleLogic.saveVehicle(vehicle); // Persiste en BD
             redirectAttributes.addFlashAttribute("missatge", "Vehicle desat correctament!");
         } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            // Captura errores lanzados directamente por la BD (restricciones UNIQUE, etc.)
             logger.error("Error de duplicitat a la base de dades", e);
             redirectAttributes.addFlashAttribute("error", "Error: La matrícula introduïda ja existeix.");
             return "redirect:/web/vehicles/new";
@@ -125,6 +185,15 @@ public class VehicleController {
         return "redirect:/web/vehicles/all";
     }
 
+    /**
+     * @GetMapping("/delete/{id}"): Atiende GET a /web/vehicles/delete/{id}
+     *
+     * ¿QUÉ HACE?: Elimina el vehículo correspondiente a la ID especificada en
+     * la URL. ¿QUÉ CAPTURA?: El parámetro {id} de la ruta codificado como Long
+     * y RedirectAttributes. ¿DE DÓNDE LO SACA?: De la URL dinámica llamada
+     * desde el botón de eliminación de la lista. ¿QUÉ DEVUELVE?: Redirección a
+     * /web/vehicles/all.
+     */
     @GetMapping("/delete/{id}")
     public String deleteById(@PathVariable("id") Long vehicleId, RedirectAttributes redirectAttributes) {
         vehicleLogic.deleteVehicleById(vehicleId);
@@ -132,6 +201,15 @@ public class VehicleController {
         return "redirect:/web/vehicles/all";
     }
 
+    /**
+     * @GetMapping("/edit/{id}"): Atiende GET a /web/vehicles/edit/{id}
+     *
+     * ¿QUÉ HACE?: Busca un vehículo por ID y lo pasa a la vista para editar sus
+     * datos. ¿QUÉ CAPTURA?: El parámetro {id} de la ruta y la interfaz Model.
+     * ¿DE DÓNDE LO SACA?: De la URL dinámica pulsada en la columna "Accions"
+     * del listado. ¿QUÉ DEVUELVE?: La plantilla "edit-vehicle" o redirección al
+     * listado si no se encuentra.
+     */
     @GetMapping("/edit/{id}")
     public String editById(@PathVariable("id") Long vehicleId, Model model) {
         Vehicle vehicle = vehicleLogic.getVehicleById(vehicleId);

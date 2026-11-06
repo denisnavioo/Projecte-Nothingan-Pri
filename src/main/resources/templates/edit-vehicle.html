@@ -46,25 +46,35 @@
                         Tornar al llistat
                     </a>
                 </div>
-                
-                <!-- MENSAJE DE ERROR DEL FORMULARIO -->
+
+                <!-- ALERTA DE ERROR DE VALIDACIÓN O DUPLICIDAD -->
                 <div th:if="${error}" class="alert-error" th:text="${error}"></div>
 
                 <!-- FORMULARIO DE EDICIÓN Y CREACIÓN -->
                 <div class="table-card" style="padding: 24px;">
 
+                    <!-- 
+                      th:action="@{/web/vehicles/save}": Destino HTTP POST.
+                      th:object="${vehicle}": Vincula el formulario completo al objeto Java Vehicle recibido del controller.
+                    -->
                     <form th:action="@{/web/vehicles/save}"
                           th:object="${vehicle}"
                           method="post">
 
-                        <!-- Campo oculto con la ID para distinguir entre Alta (0) y Edición -->
+                        <!-- 
+                          Campo oculto ID: 
+                          th:field="*{id}" asigna la propiedad 'id' de 'vehicle'.
+                          Si el ID es 0 o nulo -> Spring lo tratará como un alta (INSERT).
+                          Si tiene un valor > 0 -> Spring lo tratará como una modificación (UPDATE).
+                        -->
                         <input type="hidden" th:field="*{id}" />
 
                         <div class="form-grid">
 
-                            <!-- Campo Obligatorio (*): Matrícula -->
+                            <!-- Campo: Matrícula -->
                             <div class="form-group">
                                 <label for="matricula">Matrícula <span style="color: red;">*</span></label>
+                                <!-- th:field="*{matricula}": Vincula bidireccionalmente el valor de la propiedad matricula -->
                                 <input type="text"
                                        id="matricula"
                                        th:field="*{matricula}"
@@ -72,7 +82,7 @@
                                        required>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Marca -->
+                            <!-- Campo: Marca -->
                             <div class="form-group">
                                 <label for="marca">Marca <span style="color: red;">*</span></label>
                                 <input type="text"
@@ -82,7 +92,7 @@
                                        required>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Model -->
+                            <!-- Campo: Modelo -->
                             <div class="form-group">
                                 <label for="model">Model <span style="color: red;">*</span></label>
                                 <input type="text"
@@ -92,7 +102,7 @@
                                        required>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Año de Fabricación -->
+                            <!-- Campo: Año de Fabricación -->
                             <div class="form-group">
                                 <label for="anyFabricacio">Any de Fabricació <span style="color: red;">*</span></label>
                                 <input type="number"
@@ -103,18 +113,19 @@
                                        required>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Desplegable Categoria -->
+                            <!-- Desplegable Categoria -->
                             <div class="form-group">
                                 <label for="categoria">Categoria <span style="color: red;">*</span></label>
                                 <select id="categoria" th:field="*{categoria}" required>
                                     <option value="" selected disabled>Selecciona una categoria...</option>
+                                    <!-- Carga dinámicamente las opciones del Enum Categoria -->
                                     <option th:each="cat : ${T(cat.copernic.Projecte1.entity.Enum.Categoria).values()}" 
                                             th:value="${cat}" 
                                             th:text="${cat}">SUV</option>
                                 </select>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Precio por Día -->
+                            <!-- Campo: Precio por Día -->
                             <div class="form-group">
                                 <label for="preuDia">Preu per Dia (€) <span style="color: red;">*</span></label>
                                 <input type="number"
@@ -126,17 +137,18 @@
                                        required>
                             </div>
 
-                            <!-- Campo Obligatorio (*): Desplegable Estado del Vehículo -->
+                            <!-- Desplegable Estado del Vehículo -->
                             <div class="form-group">
                                 <label for="estatVehicle">Estat del Vehicle <span style="color: red;">*</span></label>
                                 <select id="estatVehicle" th:field="*{estatVehicle}" required>
+                                    <!-- Carga las opciones del Enum EstatVehicle (Disponible, Taller, etc.) -->
                                     <option th:each="estat : ${T(cat.copernic.Projecte1.entity.Enum.EstatVehicle).values()}" 
                                             th:value="${estat}" 
                                             th:text="${estat}">Disponible</option>
                                 </select>
                             </div>
 
-                            <!-- Campo Opcional (SIN *): Foto/Ruta del vehículo -->
+                            <!-- Campo: Nombre/Ruta de la Foto -->
                             <div class="form-group">
                                 <label for="fotoVehicle">Ruta / Nom de la Foto</label>
                                 <input type="text"
@@ -146,9 +158,10 @@
                                        placeholder="ej: cotxe1.jpg">
                             </div>
 
-                            <!-- Checkbox: Vehículo Activo -->
+                            <!-- Checkbox: Activo -->
                             <div class="form-group" style="grid-column: span 2;">
                                 <label for="actiu" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <!-- th:field en un checkbox mapea el valor boolean (true/false) -->
                                     <input type="checkbox"
                                            id="actiu"
                                            th:field="*{actiu}"
@@ -159,7 +172,7 @@
 
                         </div>
 
-                        <!-- Botones del Formulario -->
+                        <!-- Botones Submit y Cancelar -->
                         <div class="button-group" style="margin-top: 24px;">
                             <button type="submit" class="btn btn-filter">
                                 Desar vehicle
