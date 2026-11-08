@@ -128,7 +128,7 @@ public class UsuarisController {
             String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
             
             if ("CLIENT".equals(rol)) {
-                return "redirect:/web/usuaris/client/reserves";
+                return "redirect:/web/usuaris/client/home";
             } else if ("ADMIN".equals(rol)) {
                 return "redirect:/web/usuaris/admin";
             } else {
@@ -148,7 +148,7 @@ public class UsuarisController {
     @GetMapping("/logout")
     public String tancarSession(HttpSession session) {
         session.invalidate(); //Destrueix la sessió
-        return "redirect:/web/usuaris/login?logout=true";
+        return "redirect:/";
     }
 
     // --- REGISTRE WEB (PUBLIC - RF81) ---

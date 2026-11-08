@@ -7,8 +7,11 @@ import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
 import cat.copernic.Projecte1.logic.VehicleLogic;
 import jakarta.servlet.http.HttpSession;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,87 +38,129 @@ public class ClientController {
     @Autowired
     private VehicleLogic vehicleLogic;
     
-    @GetMapping("/client/reserves")
+    
+    // Pàgina principal loguejat com a client
+    @GetMapping("/home")
+    public String mostrarHomeClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+
+        if (usuariLoguejat == null) {
+            // Si no está logueado, lo mandamos a identificarse
+            return "redirect:/web/usuaris/login";
+        }
+
+        // 2. Pasamos el usuario a la plantilla para la cabecera dinámicia
+        model.addAttribute("usuariLoguejat", usuariLoguejat);
+
+        // 3. Devolvemos la plantilla que acabamos de crear (index-logged.html)
+        return "index-client";
+    }
+    
+    
+    @GetMapping("/reserves")
 public String mostrarReservesClient(HttpSession session, Model model) {
     //Obtenir usuari autenticat desde la sessió http
-    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    Usuaris usuariSessio = (Usuaris) session.getAttribute("usuariLoguejat");
     
     // si no hi ha sessió, redirigir al login.
-    if (usuariLoguejat == null) {
+    if (usuariSessio == null) {
         return "redirect:/web/usuaris/login";
     }
     
-    //passar l'usuari al model per mostrar el nom en el header
-    model.addAttribute("usuariLoguejat", usuariLoguejat);
+    Usuaris usuariLoguejat = usuarisLogic.getUsuariById(usuariSessio.getId());
+    if (usuariLoguejat == null) {           // Si no retorna cap valor o falla i retorna null, el if
+        usuariLoguejat = usuariSessio; // evita un NullPointerException. En canvi assigna
+    }                                                // els valor ja guardats en la sessió HTTP.
+    
+    
+    model.addAttribute("usuariLoguejat", usuariLoguejat); //passar l'usuari al model per mostrar el nom en el header
     
     List<Reserva> reserves = reservaLogic.getReservesPerUsuari(usuariLoguejat.getId());
-    if (reserves == null) {
-        reserves = List.of();
+    if (reserves == null) {    // Si no en té reserves asigna una llista buida per
+        reserves = List.of(); // evitar errors de renderitzat i càrrega.
     }
-    model.addAttribute("reserves", reserves);
+    model.addAttribute("reserves", reserves); // enviat al html i renderitzat per th:each"r: ${reserves}
     return "client-reserves";
 }
 
+
 // FORMULARIO CREACIÓN RESERVA CLIENTE
-    @GetMapping("/client/reserves/nova")
-    public String mostrarNovaReservaClient(@RequestParam(required = false) String categoria, @RequestParam(required = false) String marcaModel, 
-                                                                HttpSession session, Model model) {
-        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-        if (usuariLoguejat == null) {
+    @GetMapping("/reserves/nova")
+    public String mostrarNovaReservaClient(
+            @RequestParam(value = "vehicleId", required = false) Long id,
+            @RequestParam(value = "dataInici", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInici,
+            @RequestParam(value = "dataFi", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFi,
+            HttpSession session, Model model) {
+        
+        // Validació sessió
+        Usuaris usuariSessio = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariSessio == null) {
             return "redirect:/web/usuaris/login";
         }
+        // Carregar usuari complet de la BD
+            Usuaris usuariLoguejat = usuarisLogic.getUsuariById(usuariSessio.getId());
+                if (usuariLoguejat == null) {
+                    usuariLoguejat = usuariSessio;
+          }
+        Vehicle vehicle = null;
+        if (id != null && id > 0) {
+            vehicle = vehicleLogic.getVehicleById(id);
+        }
         
-        //Obtenim tots els vehicles de la BD
-        List<Vehicle> totsVehicles = vehicleLogic.findAllVehicles();
-        // I filtrem només els vehicles disponibles i per els filtres del client.
-        List<Vehicle> vehiclesDisponibles = totsVehicles.stream()
-            .filter(v -> v.getEstatVehicle() != null && "Disponible".equalsIgnoreCase(v.getEstatVehicle().toString()))
-            .filter(v -> (categoria == null || categoria.isBlank() || (v.getCategoria() != null && v.getCategoria().toString().equalsIgnoreCase(categoria))))
-            .filter(v -> (marcaModel == null || marcaModel.isBlank() || 
-                    (v.getMarca() != null && v.getMarca().toLowerCase().contains(marcaModel.toLowerCase())) ||
-                    (v.getModel() != null && v.getModel().toLowerCase().contains(marcaModel.toLowerCase()))))
-            .toList();
-
+        long diesLloguer = 1;
+        if (dataInici != null && dataFi != null && dataFi.isAfter(dataInici)) {
+            diesLloguer = (long) Math.ceil(Duration.between(dataInici, dataFi).toMinutes() / 1440.0);
+        }
         Reserva reserva = new Reserva();
-        reserva.setVehicle(new Vehicle());
+        reserva.setVehicle(vehicle != null ? vehicle : new Vehicle());
         reserva.setUsuari(usuariLoguejat);
+        reserva.setDataInici(dataInici);
+        reserva.setDataFi(dataFi);
         
-        model.addAttribute("vehicles", vehiclesDisponibles);
-        model.addAttribute("usuariLoguejat", usuariLoguejat);
         model.addAttribute("reserva", reserva);
+        model.addAttribute("vehicle", vehicle);
+        model.addAttribute("diesLloguer", diesLloguer);
+        model.addAttribute("usuariLoguejat", usuariLoguejat);
+        
         return "nova-reserva";
      }
         
 
-@PostMapping("/client/reserves/save")
+@PostMapping("/reserves/save")
     public String guardarReservaClient(@ModelAttribute("reserva") Reserva reserva, HttpSession session, RedirectAttributes redirectAttributes) {
-        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-        if (usuariLoguejat == null) {
-            return "redirect:/web/usuaris/login";
-        }
-        
-        boolean faltaVehicle = (reserva.getVehicle() == null || reserva.getVehicle().getId() <= 0);
-        boolean faltaDataInici = (reserva.getDataInici() == null);
-        boolean faltaDataFi = (reserva.getDataFi() == null);
+        Usuaris usuariSessio = (Usuaris) session.getAttribute("usuariLoguejat");
+            if (usuariSessio == null) {
+                return "redirect:/web/usuaris/login";
+            }
 
-        if (faltaVehicle || faltaDataInici || faltaDataFi) {
-            redirectAttributes.addFlashAttribute("error", "S'han d'omplir tots els camps obligatoris per poder realitzar la reserva (vehicle, dates i hora).");
-            return "redirect:/web/usuaris/client/reserves/nova";
-        }
-        
-        try {
-            reserva.setUsuari(usuariLoguejat);
-            reservaLogic.saveReserva(reserva);
-            redirectAttributes.addFlashAttribute("missatge", "Reserva creada amb èxit!");
-            return "redirect:/web/usuaris/client/reserves";
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/web/usuaris/client/reserves/nova";
-        }
+            // Assignem l'usuari real de la BD a la reserva abans de guardar
+            Usuaris usuariBD = usuarisLogic.getUsuariById(usuariSessio.getId());
+            reserva.setUsuari(usuariBD);
+
+            if (reserva.getImportFianca() == null) { // valor predeterminat per evitar excepcions
+                reserva.setImportFianca(java.math.BigDecimal.ZERO);
+            }
+
+            try {
+                reservaLogic.saveReserva(reserva);
+                
+                List<Reserva> mevesReserves = reservaLogic.getReservesPerUsuari(usuariBD.getId());
+                if (!mevesReserves.isEmpty()) {
+                    // Si la llista ve ordenada per ID descendent, la darrera és la primera (get(0))
+                    // Si no, agafem la darrera de la llista (mevesReserves.get(mevesReserves.size() - 1))
+                    Reserva novaReserva = mevesReserves.get(0); 
+                    redirectAttributes.addFlashAttribute("idNovaReserva", novaReserva.getId());
+                }
+                redirectAttributes.addFlashAttribute("missatge", "Reserva creada amb èxit!");
+                return "redirect:/web/usuaris/client/reserves";
+            } catch (IllegalArgumentException e) {
+                redirectAttributes.addFlashAttribute("error", e.getMessage());
+                return "redirect:/web/usuaris/client/reserves/nova";
+            }
     }
-
-    // MOSTRAR PERFIL DEL CLIENTE
-    @GetMapping("/client/perfil")
+    
+    
+    @GetMapping("/perfil")
     public String mostrarPerfilClient(HttpSession session, Model model) {
         Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
         if (usuariLoguejat == null) {
@@ -130,7 +175,7 @@ public String mostrarReservesClient(HttpSession session, Model model) {
     }
 
     // GUARDAR CAMBIOS DEL PERFIL
-    @PostMapping("/client/perfil/save")
+    @PostMapping("/perfil/save") //ModelAttribute vincula camps enviats per formulari a un objecte
     public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariForm, HttpSession session, RedirectAttributes redirectAttributes) {
         Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
         if (usuariLoguejat == null) {

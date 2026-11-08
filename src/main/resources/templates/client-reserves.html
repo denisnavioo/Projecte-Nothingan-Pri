@@ -1,128 +1,201 @@
 <!DOCTYPE html>
 <!-- VISTA DE LLISTAT DE RESERVES DEL CLIENT! -->
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Les meves reserves - Nothingan Pri</title>
-        <link rel="stylesheet" th:href="@{/css/styles.css}">
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Les meves reserves - Nothingan Pri</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
 
-        <div class="layout">
+    <style>
+        .page-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
 
-            <!-- Menú Lateral Client -->
-            <aside class="sidebar">
-                <div class="logo-container">
-                    <a th:href="@{/web/usuaris/login}">
-                        <img th:src="@{/img/logo.png}" alt="Nothingan Pri" class="logo">
-                    </a>
-                </div>
+        .page-header-title {
+            background: linear-gradient(125deg, #0b2246, #174b91);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-                <nav class="nav-menu">
-                    <a th:href="@{/web/usuaris/client/reserves}" class="active">• Les meves reserves</a>
-                    <a th:href="@{/web/usuaris/client/reserves/nova}">• Nova reserva</a>
-                    <a th:href="@{/web/usuaris/client/perfil}">• El meu perfil</a>
-                </nav>
-            </aside>
+        .page-header-title h2 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: white;
+        }
 
-            <!-- Contingut Principal -->
-            <main class="content">
+        .reservations-card {
+            background: #ffffff;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 32px;
+        }
 
-                <!-- Capçalera superior -->
-                <header class="top-header" style="justify-content: space-between;">
-                    <h2>Les meves reserves</h2>
+        .table-responsive {
+            overflow-x: auto;
+        }
 
-                    <div class="user-dropdown">
-                        <a th:href="@{/web/usuaris/client/perfil}" style="display: flex; align-items: center; gap: 8px; text-decoration: none; color: inherit; cursor: pointer;">
-                            <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'Client'}">UsuariLoguejat ▾</span>
-                            <div class="user-avatar"></div>
-                        </a>
-                    </div>
-                </header>
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
 
-                <!-- Taula de Reserves -->
-                <div class="table-card" style="margin-bottom: 32px;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Codi</th>
-                                <th>Vehicle</th>
-                                <th>Inici</th>
-                                <th>Fi</th>
-                                <th>Estat</th>
-                                <th>Accions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="r : ${reserves}">
-                                <td th:text="${r.codiReserva}">R-1021</td>
-                                <td th:text="${r.vehicle != null ? r.vehicle.matricula + ' - ' + r.vehicle.marca : 'N/A'}">1234 ABC</td>
-                                <td th:text="${#temporals.format(r.dataInici, 'dd/MM/yyyy')}">10/10/2026</td>
-                                <td th:text="${#temporals.format(r.dataFi, 'dd/MM/yyyy')}">12/10/2026</td>
+        .data-table th {
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
 
-                                <!-- Badges d'Estat -->
-                                <td>
-                                    <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Confirmada}" class="badge badge-validat">Confirmada</span>
-                                    <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Lliurada}" class="badge" style="background-color: #00a8e8; color: white;">Lliurada</span>
-                                    <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Retornada}" class="badge badge-validat" style="background-color: #00b074;">Retornada</span>
-                                    <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Anulada}" class="badge badge-baixa">Anul·lada</span>
-                                </td>
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
 
-                                <!-- Accions segons l'estat -->
-                                <td class="actions-cell">
-                                    <a th:if="${r.estat == 'CONFIRMADA'}" 
-                                       th:href="@{'/web/client/reserves/anullar/' + ${r.id}}" 
-                                       onclick="return confirm('Estàs segur de voler anul·lar aquesta reserva?')" 
-                                       style="color: #6c757d;">Anul·lar</a>
+        .data-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
 
-                                    <a th:if="${r.estat == 'LLIURADA'}" 
-                                       th:href="@{'#form-assistencia'}" 
-                                       style="color: #0d6efd;">Assistència</a>
+        /* Badges d'estat adaptats */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
 
-                                    <a th:if="${r.estat == 'RETORNADA' or r.estat == 'ANUL·LADA' or r.estat == 'ANULLADA'}" 
-                                       th:href="@{'/web/client/reserves/view/' + ${r.id}}" 
-                                       style="color: #6c757d;">Veure</a>
-                                </td>
-                            </tr>
+        .badge-validat {
+            background-color: #d1fae5;
+            color: #047857;
+        }
 
-                            <!-- Estat buit -->
-                            <tr th:if="${#lists.isEmpty(reserves)}">
-                                <td colspan="6" class="empty-state">
-                                    No tens cap reserva actualment.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <p style="font-size: 0.85rem; color: #888; margin-top: 12px; margin-left: 16px;">
-                        Només es pot anul·lar abans del lliurament.
-                    </p>
-                </div>
+        .badge-baixa {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
+        .logout-link {
+            color: #dc2626 !important;
+            font-size: 1rem;
+            margin-left: 10px;
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-                <!-- Targeta Sol·licitar Assistència -->
-<div id="form-assistencia" class="table-card" style="padding: 24px; max-width: 480px;">
-    <h3 style="font-size: 1.1rem; margin-bottom: 16px; color: #1a253c;">Sol·licitar assistència</h3>
+        .logout-link:hover {
+            color: #b91c1c !important;
+            text-decoration: underline;
+        }
 
-    <!-- RUTA CORREGIDA: se añade /usuaris -->
-    <form th:action="@{/web/usuaris/client/assistencia/save}" method="post">
-        <div class="form-group" style="margin-bottom: 16px;">
-            <label for="reservaCodi" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Reserva</label>
-            <input type="text" id="reservaCodi" name="reservaCodi" placeholder="R-1018" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;">
+        .empty-state {
+            text-align: center;
+            padding: 40px 10px !important;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Capçalera superior amb la mateixa estructura de la pàgina principal -->
+    <header class="home-header">
+        <a th:href="@{/web/usuaris/client/home}" class="home-logo">
+            <img th:src="@{/img/logo.png}" alt="Nothingan Pri">
+        </a>
+        <!-- logo redirigeix a la pàgina principal -->
+
+        <nav class="home-nav">
+            <a th:href="@{/web/usuaris/client/home}">Nova reserva</a>
+            <a th:href="@{/web/usuaris/client/perfil}" class="user-nav-item">
+                <div class="nav-avatar"></div>
+                <span th:text="${usuariLoguejat != null ? usuariLoguejat.nom : 'El meu perfil'}">El meu perfil</span>
+            </a>
+
+            <a th:href="@{/web/usuaris/logout}" class="logout-link">Tancar sessió</a>
+        </nav>
+    </header>
+
+    <main class="page-container">
+
+        <!-- Capçalera blava corporativa de la secció -->
+        <div class="page-header-title">
+            <h2>Les meves reserves</h2>
         </div>
 
-        <div class="form-group" style="margin-bottom: 20px;">
-            <label for="descripcion" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block;">Descripció del problema</label>
-            <textarea id="descripcion" name="descripcion" rows="4" placeholder="Descriu la incidència..." style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; resize: none;"></textarea>
-        </div>
+        <!-- Taula de Reserves -->
+        <div class="reservations-card">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Codi</th>
+                            <th>Vehicle</th>
+                            <th>Inici</th>
+                            <th>Fi</th>
+                            <th>Estat</th>
+                            <th>Accions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Fila iterada amb classe dinàmica si és la nova reserva -->
+                        <tr th:each="r : ${reserves}" 
+                            th:classappend="${r.id == idNovaReserva} ? 'table-success nova-reserva-row' : ''">
 
-        <button type="submit" class="btn btn-filter" style="width: 100%; text-align: center; justify-content: center; background-color: #3b82f6;">
-            Enviar sol·licitud
-        </button>
-    </form>
-</div>
+                            <td>
+                                <span th:text="${r.codiReserva}">R-1021</span>
+                                <!-- Indicador visual NOVA! -->
+                                <span th:if="${r.id == idNovaReserva}" 
+                                      class="badge" 
+                                      style="background-color: #10b981; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 6px;">
+                                    NOVA!
+                                </span>
+                            </td>
+                            <td th:text="${r.vehicle != null ? r.vehicle.matricula + ' - ' + r.vehicle.marca : 'N/A'}">1234 ABC</td>
+                            <td th:text="${#temporals.format(r.dataInici, 'dd/MM/yyyy')}">10/10/2026</td>
+                            <td th:text="${#temporals.format(r.dataFi, 'dd/MM/yyyy')}">12/10/2026</td>
 
-            </main>
-        </div>
+                            <!-- Badges d'Estat -->
+                            <td>
+                                <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Confirmada}" class="badge badge-validat">Confirmada</span>
+                                <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Lliurada}" class="badge" style="background-color: #00a8e8; color: white;">Lliurada</span>
+                                <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Retornada}" class="badge badge-validat" style="background-color: #00b074;">Retornada</span>
+                                <span th:if="${r.estat == T(cat.copernic.Projecte1.entity.Enum.EstatReserva).Anulada}" class="badge badge-baixa">Anul·lada</span>
+                            </td>
 
-    </body>
-</html>
+                            <!-- Accions -->
+                            <td class="actions-cell">
+                                <a th:if="${r.estat == 'CONFIRMADA'}" 
+                                   th:href="@{'/web/client/reserves/anullar/' + ${r.id}}" 
+                                   onclick="return confirm('Estàs segur de voler anul·lar aquesta reserva?')" 
+                                   style="color: #6c757d;">Anul·lar</a>
+                            </td>
+                        </tr>
+
+                        <!-- Estat buit -->
+                        <tr th:if="${#lists.isEmpty(reserves)}">
+                            <td colspan="6" class="empty-state">
+                                No tens cap reserva actualment.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p style="font-size: 0.85rem; color: #94a3b8; margin-
