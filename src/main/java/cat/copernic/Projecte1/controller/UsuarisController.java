@@ -193,3 +193,65 @@ public class UsuarisController {
     public String admin(Model model) {
         return "admin clients";
     }*/
+
+@GetMapping("/client/reserves")
+public String mostrarReservesClient(HttpSession session, Model model) {
+    //Obtenir usuari autenticat desde la sessió http
+    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+    
+    // si no hi ha sessió, redirigir al login.
+    if (usuariLoguejat == null) {
+        return "redirect:/web/usuaris/login";
+    }
+    
+    //passar l'usuari al model per mostrar el nom en el header
+    model.addAttribute("usuariLoguejat", usuariLoguejat);
+    
+    List<Reserva> reserves = reservaLogic.getReservesPerUsuari(usuariLoguejat.getId());
+    if (reserves == null) {
+        reserves = List.of();
+    }
+    model.addAttribute("reserves", reserves);
+    return "client-reserves";
+}
+
+// FORMULARIO CREACIÓN RESERVA CLIENTE
+    @GetMapping("/client/reserves/nova")
+    public String mostrarNovaReservaClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
+        Reserva reserva = new Reserva();
+        reserva.setVehicle(new Vehicle());
+        reserva.setUsuari(usuariLoguejat);
+
+        model.addAttribute("reserva", reserva);
+        return "nova-reserva-client";
+    }
+
+    // MOSTRAR PERFIL DEL CLIENTE
+    @GetMapping("/client/perfil")
+    public String mostrarPerfilClient(HttpSession session, Model model) {
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        if (usuariLoguejat == null) {
+            return "redirect:/web/usuaris/login";
+        }
+
+        // Recuperem les dades actualitzades de la base de dades
+        Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
+        model.addAttribute("usuariLoguejat", usuariBD);
+        model.addAttribute("usuari", usuariBD); // Necessari per a th:object="${usuari}" a perfil.html
+        return "perfil";
+    }
+
+    // GUARDAR CAMBIOS DEL PERFIL
+    @PostMapping("/client/perfil/save")
+    public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariActualitzat, RedirectAttributes redirectAttributes) {
+        usuarisService.saveUsuari(usuariActualitzat);
+        redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
+        return "redirect:/web/usuaris/client/perfil";
+    }
+
+} 

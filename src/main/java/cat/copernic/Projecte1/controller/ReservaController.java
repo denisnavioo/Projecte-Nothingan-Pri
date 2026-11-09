@@ -91,7 +91,7 @@ public class ReservaController {
         // Cargamos los vehículos y usuarios de los desplegables.
         carregarDadesFormulari(model);
 
-        return "edit-reserva";
+        return "nova-reserva-agent";
     }
 
     // Busca vehículos disponibles por fechas y categoría.
@@ -125,7 +125,7 @@ public class ReservaController {
             model.addAttribute("dataFi", dataFi);
             model.addAttribute("categoria", categoria);
             
-            return "edit-reserva";
+            return "nova-reserva-agent";
         }
         
         // Comprobamos que la fecha final sea posterior a la inicial.
@@ -144,7 +144,7 @@ public class ReservaController {
             model.addAttribute("dataFi", dataFi);
             model.addAttribute("categoria", categoria);
             
-            return "edit-reserva";
+            return "nova-reserva-agent";
         }
         
         // Filtra los vehículos disponibles por fechas y categoría.
@@ -171,7 +171,7 @@ public class ReservaController {
         model.addAttribute("dataFi", dataFi);
         model.addAttribute("categoria", categoria);
 
-        return "edit-reserva";
+        return "nova-reserva-agent";
     }
 
     // Recibe y guarda los datos del formulario.
