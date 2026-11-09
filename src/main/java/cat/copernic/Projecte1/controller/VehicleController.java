@@ -1,8 +1,10 @@
 package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Enum.Categoria;
+import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.VehicleLogic;
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -111,12 +113,13 @@ public class VehicleController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInici,
             @RequestParam("dataFi")
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFi,
-            Model model) {
+            Model model, HttpSession session) {
 
-        // Validación: la fecha de fin debe ser estrictamente posterior a la inicial
+        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
+        
         if (!dataFi.isAfter(dataInici)) {
             model.addAttribute("error", "La data final ha de ser posterior a la inicial.");
-            return "index";
+            return determinarVistaSegonsRol(usuariLoguejat, model);
         }
 
         // Obtención de vehículos libres en ese intervalo
@@ -133,8 +136,31 @@ public class VehicleController {
 
         model.addAttribute("diesLloguer", diesLloguer);
 
-        return "index";
+        return determinarVistaSegonsRol(usuariLoguejat, model);
     }
+    
+            // Mètode auxiliar per determinar quina plantilla carregar segons el rol de la sessió
+            private String determinarVistaSegonsRol(Usuaris usuariLoguejat, Model model) {
+                if (usuariLoguejat != null) {
+                model.addAttribute("usuariLoguejat", usuariLoguejat);
+
+                String rol = (usuariLoguejat.getRol() != null) 
+                             ? usuariLoguejat.getRol().trim().toUpperCase() 
+                             : "";
+
+                switch (rol) {
+                    case "CLIENT":
+                        return "index-client"; // O "index-logged"
+                    case "ADMIN":
+                        // TO DO: RETURN LA VISTA PERTINENT D'ADMIN
+                    case "AGENT":
+                        // TO DO: RETURN LA VISTA PERTINENT D'AGENT
+                }
+            }
+
+            // Si no hi ha cap sessió oberta, mostrem la pàgina pública general
+            return "index";
+            }
 
     /**
      * @GetMapping("/new"): Atiende peticiones GET a /web/vehicles/new

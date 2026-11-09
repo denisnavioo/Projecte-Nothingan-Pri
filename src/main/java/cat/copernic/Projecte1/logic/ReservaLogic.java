@@ -42,6 +42,9 @@ public class ReservaLogic {
     }
 
     public List<Reserva> getReservesPerUsuari(Long id) {
+        if (id == null) {
+            return List.of();
+        }
         return reservaRepo.findByUsuariId(id);
     }
 
