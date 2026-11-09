@@ -22,24 +22,24 @@
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="nom" class="form-label">Nom complet</label>
+                        <label for="nom" class="form-label">Nom complet <span class="text-danger">*</span></label>
                         <input type="text" id="nom" th:field="*{nom}" class="form-control" required />
                     </div>
 
                     <div class="col-md-6">
-                        <label for="dni" class="form-label">Número d'identificació (DNI/NIE)</label>
+                        <label for="dni" class="form-label">Número d'identificació (DNI/NIE) <span class="text-danger">*</span></label>
                         <input type="text" id="dni" th:field="*{dni}" class="form-control" required />
                     </div>
 
                     <!-- Data de Caducitat DNI -->
                     <div class="col-md-6">
-                        <label for="dataCaducitatDni" class="form-label">Caducitat del document</label>
+                        <label for="dataCaducitatDni" class="form-label">Caducitat del document <span class="text-danger">*</span></label>
                         <input type="date" id="dataCaducitatDni" th:field="*{dataCaducitatDni}" class="form-control" required />
                     </div>
 
                     <!-- Pujada Imatge DNI -->
                     <div class="col-md-6">
-                        <label for="fitxerDni" class="form-label">Imatge DNI/Passaport (JPG/PNG)</label>
+                        <label for="fitxerDni" class="form-label">Imatge DNI/Passaport (JPG/PNG) <span class="text-danger">*</span></label>
                         <input type="file" id="fitxerDni" name="fitxerDni" accept="image/*" class="form-control" required />
                     </div>
 
@@ -56,12 +56,12 @@
 
                     <!-- Pujada Imatge Llicència -->
                     <div class="col-md-6">
-                        <label for="fitxerLlicencia" class="form-label">Imatge de la Llicència (JPG/PNG)</label>
+                        <label for="fitxerLlicencia" class="form-label">Imatge de la Llicència (JPG/PNG) <span class="text-danger">*</span></label>
                         <input type="file" id="fitxerLlicencia" name="fitxerLlicencia" accept="image/*" class="form-control" required />
                     </div>
 
                     <div class="col-md-6">
-                        <label for="telefon" class="form-label">Telèfon</label>
+                        <label for="telefon" class="form-label">Telèfon <span class="text-danger">*</span></label>
                         <input type="tel" id="telefon" th:field="*{telefon}" class="form-control" required />
                     </div>
 
@@ -87,12 +87,12 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Email (nom d'usuari)</label>
+                        <label for="email" class="form-label">Email (nom d'usuari) <span class="text-danger">*</span></label>
                         <input type="email" id="email" th:field="*{email}" class="form-control" required />
                     </div>
 
                     <div class="col-md-6">
-                        <label for="password" class="form-label">Contrasenya</label>
+                        <label for="password" class="form-label">Contrasenya <span class="text-danger">*</span></label>
                         <input type="password" id="password" th:field="*{password}" class="form-control" required />
                     </div>
                 </div>

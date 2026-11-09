@@ -1,9 +1,11 @@
 <!DOCTYPE html>
+<!-- xmlns:th="http://www.thymeleaf.org": Habilita el motor de plantillas Thymeleaf -->
 <html lang="ca" xmlns:th="http://www.thymeleaf.org">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Gestió de vehicles - Nothingan Pri</title>
+        <!-- th:href: Resuelve la ruta relativa al contexto de la aplicación para el CSS -->
         <link rel="stylesheet" th:href="@{/css/styles.css}">
     </head>
     <body>
@@ -38,7 +40,11 @@
                     </div>
                 </header>
 
-                <!-- MENSAJES DE ÉXITO Y ERROR -->
+                <!-- 
+                  MENSAJES DE ÉXITO Y ERROR (Muestran alertas 'Flash' enviadas desde el controlador):
+                  th:if="${variable}": Renderiza el <div> SOLO si la variable existe en el modelo.
+                  th:text="${variable}": Reemplaza el texto interno con el mensaje.
+                -->
                 <div th:if="${missatge}" class="alert-success" th:text="${missatge}"></div>
                 <div th:if="${error}" class="alert-error" th:text="${error}"></div>
 
@@ -51,14 +57,15 @@
                     </a>
                 </div>
 
-                <!-- FORMULARIO DE FILTROS COMBINADOS (OPCIONALES, SIN *) -->
+                <!-- FORMULARIO DE FILTROS COMBINADOS (Envía datos por GET a /web/vehicles/all) -->
                 <div class="table-card" style="padding: 20px; margin-bottom: 20px;">
                     <form th:action="@{/web/vehicles/all}" method="get">
                         <div class="form-grid">
 
-                            <!-- Filtro 1: Texto por Matrícula -->
+                            <!-- Filtro 1: Matrícula -->
                             <div class="form-group">
                                 <label for="matricula">Matrícula del vehicle</label>
+                                <!-- th:value="${matricula}": Mantiene escrito el texto que el usuario buscó previamente -->
                                 <input type="text"
                                        id="matricula"
                                        name="matricula"
@@ -66,7 +73,7 @@
                                        th:value="${matricula}">
                             </div>
 
-                            <!-- Filtro 2: Texto por Marca -->
+                            <!-- Filtro 2: Marca -->
                             <div class="form-group">
                                 <label for="marca">Marca del vehicle</label>
                                 <input type="text"
@@ -75,12 +82,14 @@
                                        placeholder="Introdueix la marca"
                                        th:value="${marca}">
                             </div>
-                            <!-- Filtro 3: Texto por Model  -->
+
+                            <!-- Filtro 3: Modelo -->
                             <div class="form-group">
                                 <label for="model">Model del vehicle</label>
                                 <input type="text" id="model" name="model" placeholder="Introdueix el model" th:value="${modelParam}">
                             </div>
-                            <!-- Filtro 4: Número por Año de Fabricación (NOU) -->
+
+                            <!-- Filtro 4: Año de Fabricación -->
                             <div class="form-group">
                                 <label for="anyFabricacio">Any de Fabricació</label>
                                 <input type="number" 
@@ -97,13 +106,18 @@
                                 <label for="categoria">Categoria</label>
                                 <select id="categoria" name="categoria">
                                     <option value="">-- Totes les categories --</option>
+                                    <!-- 
+                                      T(clase).values(): Obtiene los valores de la Enum Categoria de Java.
+                                      th:selected: Marca el <option> si coincide con la categoría seleccionada en el filtro.
+                                    -->
                                     <option th:each="cat : ${T(cat.copernic.Projecte1.entity.Enum.Categoria).values()}" 
                                             th:value="${cat.name()}" 
                                             th:text="${cat}"
                                             th:selected="${categoriaSel != null and cat == categoriaSel}">SUV</option>
                                 </select>
                             </div>
-                            <!-- Filtro: Data/Hora Inici -->
+
+                            <!-- Filtro 6: Fecha/Hora Inicio -->
                             <div class="form-group">
                                 <label for="dataInici">Disponible des de</label>
                                 <input type="datetime-local" 
@@ -112,7 +126,7 @@
                                        th:value="${dataInici}">
                             </div>
 
-                            <!-- Filtro: Data/Hora Fi -->
+                            <!-- Filtro 7: Fecha/Hora Fin -->
                             <div class="form-group">
                                 <label for="dataFi">Disponible fins a</label>
                                 <input type="datetime-local" 
@@ -121,10 +135,9 @@
                                        th:value="${dataFi}">
                             </div>
 
-
                         </div>
 
-                        <!-- Botones para enviar o limpiar los filtros -->
+                        <!-- Botones de acción del filtro -->
                         <div class="button-group" style="margin-top: 15px;">
                             <button type="submit" class="btn btn-filter">Filtrar</button>
                             <a th:href="@{/web/vehicles/all}" class="btn btn-cancel">Netejar filtres</a>
@@ -149,18 +162,28 @@
                         </thead>
 
                         <tbody>
-                            <!-- Iteración de cada vehículo cargado -->
+                            <!-- 
+                              th:each="v : ${vehicle}": Itera sobre la lista de vehículos guardada en el Model. 
+                              Cada elemento pasa a llamarse 'v'.
+                            -->
                             <tr th:each="v : ${vehicle}">
                                 <td th:text="${v.matricula}">1234ABC</td>
                                 <td th:text="${v.marca + ' ' + v.model}">Seat Ibiza</td>
+
+                                <!-- Categoría con renderizado seguro de Enum -->
                                 <td>
-                                    <span class="badge" th:text="${v.categoria}">SUV</span>
+                                    <span class="badge" 
+                                          th:if="${v.categoria != null}" 
+                                          th:text="${v.categoria.name()}">SUV</span>
+                                    <span th:if="${v.categoria == null}">-</span>
                                 </td>
+
                                 <td th:text="${v.anyFabricacio}">2022</td>
+                                <!-- #numbers.formatDecimal: Da formato de moneda de 2 decimales -->
                                 <td th:text="${#numbers.formatDecimal(v.preuDia, 1, 2) + ' €'}">45.00 €</td>
 
-                                <!-- Estado corregido para renderizar v.estatVehicle -->
                                 <td>
+                                    <!-- th:classappend: Asigna clases CSS dinámicas según el valor del estado del vehículo -->
                                     <span class="badge"
                                           th:classappend="${v.estatVehicle != null and v.estatVehicle.name() == 'Disponible'} ? ' badge-validat' : ' badge-baixa'"
                                           th:text="${v.estatVehicle}">Disponible</span>
@@ -171,6 +194,7 @@
                                     <span th:unless="${v.actiu}" class="badge badge-rebutjat">No</span>
                                 </td>
                                 <td class="actions-cell">
+                                    <!-- Enlaces de edición y borrado inyectando la ID de la iteración actual 'v.id' -->
                                     <a th:href="@{/web/vehicles/edit/{id}(id=${v.id})}">Editar</a>
                                     <a th:href="@{/web/vehicles/delete/{id}(id=${v.id})}"
                                        class="action-link"
@@ -181,7 +205,7 @@
                                 </td>
                             </tr>
 
-                            <!-- Estado vacío cuando no hay resultados -->
+                            <!-- th:if="${#lists.isEmpty(vehicle)}": Mensaje si la lista devuelta por el servidor está vacía -->
                             <tr th:if="${#lists.isEmpty(vehicle)}">
                                 <td colspan="8" class="empty-state">
                                     No s'han trobat vehicles registrats.

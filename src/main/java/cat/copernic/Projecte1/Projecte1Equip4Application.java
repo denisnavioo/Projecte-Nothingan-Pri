@@ -1,12 +1,16 @@
 package cat.copernic.Projecte1;
 
 import cat.copernic.Projecte1.entity.Enum.Categoria;
+import cat.copernic.Projecte1.entity.Enum.EstatReserva;
 import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
+import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
+import cat.copernic.Projecte1.repository.ReservaRepository;
 import cat.copernic.Projecte1.repository.UsuarisRepository;
 import cat.copernic.Projecte1.repository.VehicleRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,24 +24,105 @@ public class Projecte1Equip4Application {
     }
 
     @Bean
-    public CommandLineRunner initData(UsuarisRepository usuarisRepo, VehicleRepository vehicleRepo) {
+    public CommandLineRunner initData(
+            UsuarisRepository usuarisRepo,
+            VehicleRepository vehicleRepo,
+            ReservaRepository reservaRepo) {
         return args -> {
 
-            crearUsuariSiNoExisteix(usuarisRepo, "Alejandro Lorente", "alorente@alumnat.copernic.cat", "1212", "384639013", "VALIDAT", "74827465H", false, "AGENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Facundo jaeggi", "fjaeggi@alumnat.copernic.cat", "1212", " 456789032", "VALIDAT", "74864465N", false, "ADMIN");
-            crearUsuariSiNoExisteix(usuarisRepo, "Denis Navio", "dnavio@alumnat.copernic.cat", "1212", "234567890", "VALIDAT", "74827665T", false, "AGENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Carolina Macià", "cemacia@alumnat.copernic.cat", "1212", "600112233", "VALIDAT", "99887766A", true, "CLIENT");
+            // 1. Creació d'usuaris (1 Admin + 3 Agents + 3 Clients diferents)
+            crearUsuariSiNoExisteix(usuarisRepo, "Admin Principal", "alorente@alumnat.copernic.cat", "1212", "384639013", "VALIDAT", "74827465H", false, "ADMIN");
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 1", "fjaeggi@alumnat.copernic.cat", "1212", "456789032", "VALIDAT", "74864465N", false, "AGENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 2", "dnavio@alumnat.copernic.cat", "1212", "234567890", "VALIDAT", "74827665T", false, "AGENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 3", "mruiz@alumnat.copernic.cat", "1212", "678901234", "VALIDAT", "55443322K", false, "AGENT");
 
-            crearVehicleSiNoExisteix(vehicleRepo, "3343 DGY", "Seat", "Altea", 2005, Categoria.Monovolum, new BigDecimal("24.56"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-150.0530855697-b586d89ba3ee");
-            crearVehicleSiNoExisteix(vehicleRepo, "1123 FRG", "Seat", "Leon", 2014, Categoria.Compacte, new BigDecimal("31.43"), EstatVehicle.En_manteniment, "https://images.unsplash.com/photo-150.0530855697-b586d89ba3ee");
-            crearVehicleSiNoExisteix(vehicleRepo, "4312 NGR", "Nissan", "Micra", 2025, Categoria.Utilitari, new BigDecimal("34.76"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-150.0530855697-b586d89ba3ee");
-            crearVehicleSiNoExisteix(vehicleRepo, "8162 GWX", "Mazda", "2", 2010, Categoria.Compacte, new BigDecimal("35.12"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-150.0530855697-b586d89ba3ee");
-            crearVehicleSiNoExisteix(vehicleRepo, "4365 FDE", "Mercedes", "Vito", 2006, Categoria.Furgoneta, new BigDecimal("40.65"), EstatVehicle.En_manteniment, "https://images.unsplash.com/photo-150.0530855697-b586d89ba3ee");
-            crearVehicleSiNoExisteix(vehicleRepo, "5821 LKM", "Volkswagen", "Touran", 2010, Categoria.Monovolum, new BigDecimal("35.00"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2"
-            );
+            crearUsuariSiNoExisteix(usuarisRepo, "Carolina Macià", "cemacia@alumnat.copernic.cat", "1212", "600112233", "VALIDAT", "99887766A", true, "CLIENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Marc Gómez", "mgomez@alumnat.copernic.cat", "1212", "611223344", "VALIDAT", "88776655B", true, "CLIENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Laura Vila", "lvila@alumnat.copernic.cat", "1212", "622334455", "VALIDAT", "77665544C", true, "CLIENT");
+
+            // 2. Creació de vehicles
+            crearVehicleSiNoExisteix(vehicleRepo, "3343 DGY", "Seat", "Altea", 2005, Categoria.Monovolum, new BigDecimal("24.56"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+            crearVehicleSiNoExisteix(vehicleRepo, "1123 FRG", "Seat", "Leon", 2014, Categoria.Compacte, new BigDecimal("31.43"), EstatVehicle.En_manteniment, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+            crearVehicleSiNoExisteix(vehicleRepo, "4312 NGR", "Nissan", "Micra", 2025, Categoria.Utilitari, new BigDecimal("34.76"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+            crearVehicleSiNoExisteix(vehicleRepo, "8162 GWX", "Mazda", "2", 2010, Categoria.Compacte, new BigDecimal("35.12"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+            crearVehicleSiNoExisteix(vehicleRepo, "4365 FDE", "Mercedes", "Vito", 2006, Categoria.Furgoneta, new BigDecimal("40.65"), EstatVehicle.En_manteniment, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
+            crearVehicleSiNoExisteix(vehicleRepo, "5821 LKM", "Volkswagen", "Touran", 2010, Categoria.Monovolum, new BigDecimal("35.00"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2");
+
+            // 3. Creació de 2 reserves per cada vehicle
+            usuarisRepo.findByEmail("cemacia@alumnat.copernic.cat").ifPresent(client1 -> {
+                usuarisRepo.findByEmail("mgomez@alumnat.copernic.cat").ifPresent(client2 -> {
+                    usuarisRepo.findByEmail("lvila@alumnat.copernic.cat").ifPresent(client3 -> {
+
+                        // Vehicle 1: 3343 DGY (Seat Altea)
+                        vehicleRepo.findByMatriculaIgnoreCase("3343 DGY").stream().findFirst().ifPresent(v1 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-001", client1, v1,
+                                    LocalDateTime.of(2026, 11, 10, 10, 0), LocalDateTime.of(2026, 11, 15, 10, 0),
+                                    new BigDecimal("122.80"), EstatReserva.Confirmada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-002", client2, v1,
+                                    LocalDateTime.of(2026, 12, 1, 9, 0), LocalDateTime.of(2026, 12, 5, 18, 0),
+                                    new BigDecimal("98.24"), EstatReserva.Confirmada);
+                        });
+
+                        // Vehicle 2: 1123 FRG (Seat Leon)
+                        vehicleRepo.findByMatriculaIgnoreCase("1123 FRG").stream().findFirst().ifPresent(v2 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-003", client2, v2,
+                                    LocalDateTime.of(2026, 10, 5, 10, 0), LocalDateTime.of(2026, 10, 8, 10, 0),
+                                    new BigDecimal("94.29"), EstatReserva.Lliurada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-004", client3, v2,
+                                    LocalDateTime.of(2026, 12, 10, 10, 0), LocalDateTime.of(2026, 12, 15, 10, 0),
+                                    new BigDecimal("157.15"), EstatReserva.Anulada);
+                        });
+
+                        // Vehicle 3: 4312 NGR (Nissan Micra)
+                        vehicleRepo.findByMatriculaIgnoreCase("4312 NGR").stream().findFirst().ifPresent(v3 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-005", client3, v3,
+                                    LocalDateTime.of(2026, 11, 20, 9, 0), LocalDateTime.of(2026, 11, 25, 18, 0),
+                                    new BigDecimal("173.80"), EstatReserva.Confirmada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-006", client1, v3,
+                                    LocalDateTime.of(2026, 12, 15, 10, 0), LocalDateTime.of(2026, 12, 20, 10, 0),
+                                    new BigDecimal("173.80"), EstatReserva.Confirmada);
+                        });
+
+                        // Vehicle 4: 8162 GWX (Mazda 2)
+                        vehicleRepo.findByMatriculaIgnoreCase("8162 GWX").stream().findFirst().ifPresent(v4 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-007", client1, v4,
+                                    LocalDateTime.of(2026, 9, 10, 10, 0), LocalDateTime.of(2026, 9, 12, 10, 0),
+                                    new BigDecimal("70.24"), EstatReserva.Lliurada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-008", client2, v4,
+                                    LocalDateTime.of(2026, 11, 28, 9, 0), LocalDateTime.of(2026, 12, 2, 18, 0),
+                                    new BigDecimal("140.48"), EstatReserva.Confirmada);
+                        });
+
+                        // Vehicle 5: 4365 FDE (Mercedes Vito)
+                        vehicleRepo.findByMatriculaIgnoreCase("4365 FDE").stream().findFirst().ifPresent(v5 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-009", client2, v5,
+                                    LocalDateTime.of(2026, 10, 15, 10, 0), LocalDateTime.of(2026, 10, 18, 10, 0),
+                                    new BigDecimal("121.95"), EstatReserva.Lliurada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-010", client3, v5,
+                                    LocalDateTime.of(2026, 12, 20, 9, 0), LocalDateTime.of(2026, 12, 30, 18, 0),
+                                    new BigDecimal("406.50"), EstatReserva.Anulada);
+                        });
+
+                        // Vehicle 6: 5821 LKM (Volkswagen Touran)
+                        vehicleRepo.findByMatriculaIgnoreCase("5821 LKM").stream().findFirst().ifPresent(v6 -> {
+                            crearReservaSiNoExisteix(reservaRepo, "RES-011", client3, v6,
+                                    LocalDateTime.of(2026, 9, 12, 10, 0), LocalDateTime.of(2026, 9, 16, 10, 0),
+                                    new BigDecimal("140.00"), EstatReserva.Lliurada);
+                            crearReservaSiNoExisteix(reservaRepo, "RES-012", client1, v6,
+                                    LocalDateTime.of(2026, 12, 5, 9, 0), LocalDateTime.of(2026, 12, 10, 18, 0),
+                                    new BigDecimal("175.00"), EstatReserva.Confirmada);
+                        });
+
+                    });
+                });
+            });
+
             System.out.println("\n----------------------------------------------------------");
-            System.out.println(" Aplicació iniciada correctament!");
-            System.out.println(" Accés al login: http://localhost:8080/web/usuaris/login");
+            System.out.println(" Aplicació iniciada correctament amb dades de prova!");
+            System.out.println("Client de prova Email :cemacia@alumnat.copernic.cat  password: 1212");
+            System.out.println("Agent de prova Email :fjaeggi@alumnat.copernic.cat  password: 1212");
+            System.out.println("Admin de prova Email :alorente@alumnat.copernic.cat: 1212");
+            System.out.println(" Accés al login: http://localhost:8080");
             System.out.println("----------------------------------------------------------\n");
         };
     }
@@ -58,6 +143,7 @@ public class Projecte1Equip4Application {
         } else {
             System.out.println("L'usuari ja existeix a la BD: " + email);
         }
+
     }
 
     private void crearVehicleSiNoExisteix(VehicleRepository repo, String matricula,
@@ -76,6 +162,25 @@ public class Projecte1Equip4Application {
             System.out.println("Vehicle creat: " + matricula + " [Marca: " + marca + "]");
         } else {
             System.out.println("El vehicle ja existeix a la BD: " + matricula);
+        }
+    }
+
+    private void crearReservaSiNoExisteix(ReservaRepository repo, String codiReserva, Usuaris usuari, Vehicle vehicle, LocalDateTime dataInici, LocalDateTime dataFi, BigDecimal preuTotal, EstatReserva estat) {
+        if (repo.findByCodiReserva(codiReserva).isEmpty()) {
+            Reserva r = new Reserva();
+            r.setCodiReserva(codiReserva);
+            r.setUsuari(usuari);
+            r.setVehicle(vehicle);
+            r.setDataInici(dataInici);
+            r.setDataFi(dataFi);
+            r.setDataReserva(LocalDateTime.now());
+            r.setPreuLloguer(preuTotal);
+            r.setImportFianca(new BigDecimal("200.00"));
+            r.setEstat(estat);
+            repo.save(r);
+            System.out.println("Reserva creada: " + codiReserva + " per a " + usuari.getNom());
+        } else {
+            System.out.println("La reserva " + codiReserva + " ja existeix a la BD.");
         }
     }
 }

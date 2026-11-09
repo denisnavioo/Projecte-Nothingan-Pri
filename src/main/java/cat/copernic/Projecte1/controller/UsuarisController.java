@@ -5,6 +5,7 @@ import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
 import cat.copernic.Projecte1.logic.ReservaLogic;
 import cat.copernic.Projecte1.logic.UsuarisLogic;
+import cat.copernic.Projecte1.logic.VehicleLogic;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,12 @@ public class UsuarisController {
 
     @Autowired
     private UsuarisLogic usuarisService;
-    
+
     @Autowired
     private ReservaLogic reservaLogic;
+    
+    @Autowired
+    private VehicleLogic vehicleLogic;
 
     // --- LLISTAT GENERAL I FILTRATGE MÚLTIPLE (RF26 / CERCA EMAIL) ---
     @GetMapping("/all")
@@ -120,17 +124,17 @@ public class UsuarisController {
         try {
             Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
             session.setAttribute("usuariLoguejat", usuari);
-            
+
             String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
-            
+
             if ("CLIENT".equals(rol)) {
-                return "redirect:/web/usuaris/client/reserves";
+                return "redirect:/web/usuaris/client/home";
             } else if ("ADMIN".equals(rol)) {
-                return "redirect:/web/usuaris/admin";
+                return "redirect:/web/admin/usuaris";
             } else {
-                return "redirect:/web/usuaris/all";
+                return "redirect:/web/reserves/all";
             }
-           
+
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -139,12 +143,12 @@ public class UsuarisController {
             return "login";
         }
     }
-    
+
     // Tancar sessió
     @GetMapping("/logout")
     public String tancarSession(HttpSession session) {
         session.invalidate(); //Destrueix la sessió
-        return "redirect:/web/usuaris/login?logout=true";
+        return "redirect:/";
     }
 
     // --- REGISTRE WEB (PUBLIC - RF81) ---
@@ -183,6 +187,7 @@ public class UsuarisController {
         usuarisService.canviarEstatRegistre(id, nouEstat);
         return "redirect:/web/usuaris/pendents";
     }
+}
 
     /*@GetMapping("/admin")
     public String admin(Model model) {
