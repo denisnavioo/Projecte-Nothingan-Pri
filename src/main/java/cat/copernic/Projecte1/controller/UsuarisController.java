@@ -26,7 +26,7 @@ public class UsuarisController {
 
     @Autowired
     private UsuarisLogic usuarisService;
-    
+
     @Autowired
     private ReservaLogic reservaLogic;
     
@@ -124,9 +124,9 @@ public class UsuarisController {
         try {
             Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
             session.setAttribute("usuariLoguejat", usuari);
-            
+
             String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
-            
+
             if ("CLIENT".equals(rol)) {
                 return "redirect:/web/usuaris/client/home";
             } else if ("ADMIN".equals(rol)) {
@@ -134,7 +134,7 @@ public class UsuarisController {
             } else {
                 return "redirect:/web/usuaris/all";
             }
-           
+
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -143,7 +143,7 @@ public class UsuarisController {
             return "login";
         }
     }
-    
+
     // Tancar sessió
     @GetMapping("/logout")
     public String tancarSession(HttpSession session) {
