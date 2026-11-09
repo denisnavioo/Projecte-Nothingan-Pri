@@ -122,7 +122,7 @@ public String mostrarReservesClient(HttpSession session, Model model) {
         model.addAttribute("diesLloguer", diesLloguer);
         model.addAttribute("usuariLoguejat", usuariLoguejat);
         
-        return "nova-reserva";
+        return "nova-reserva-client";
      }
         
 
