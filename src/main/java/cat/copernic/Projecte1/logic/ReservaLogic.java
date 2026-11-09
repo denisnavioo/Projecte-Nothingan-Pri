@@ -17,6 +17,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/*
+ * Lógica para gestionar las reservas.
+ * Comprueba las condiciones, calcula los precios y realiza las operaciones.
+ */
 @Service
 public class ReservaLogic {
 

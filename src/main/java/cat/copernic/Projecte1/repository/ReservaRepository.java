@@ -9,7 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-// Gestiona las consultas de reservas en la base de datos.
+/*
+ * Repositorio de reservas.
+ * Permite consultar, buscar y comprobar reservas en la base de datos.
+ */
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
     // Comprueba si el código de reserva ya existe.

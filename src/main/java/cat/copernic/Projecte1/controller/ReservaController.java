@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-// Controlador que gestiona las páginas web de las reservas.
+/*
+ * Controlador de reservas de agentes.
+ * Permite listar y filtrar reservas, consultar detalles,
+ * buscar vehículos disponibles, crear reservas y anularlas.
+ */
 @Controller
 @RequestMapping("/web/reserves")
 @RequestScope
