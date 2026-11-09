@@ -24,9 +24,27 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/css/**", "/js/**", "/images/**", "/web/usuaris/registre", "/web/usuaris/login", "/").permitAll()
+                // 1. Rutes PÚBLIQUES (Fitxers estàtics, login, registre, Home i cerca de cotxes)
+                .requestMatchers(
+                        "/", 
+                        "/home", 
+                        "/css/**", 
+                        "/js/**", 
+                        "/images/**", 
+                        "/uploads/**", 
+                        "/assets/**",
+                        "/web/usuaris/registre", 
+                        "/web/usuaris/login",
+                        "/coches/**", 
+                        "/web/coches/**", 
+                        "/api/coches/**"
+                ).permitAll()
+                
+                // 2. Rutes protegides per Rol
                 .requestMatchers("/web/admin/**", "/web/usuaris/pendents").hasRole("ADMIN")
                 .requestMatchers("/web/usuaris/client/**").hasRole("CLIENT")
+                
+                // 3. Qualsevol altra sol·licitud requereix estar autenticat
                 .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
