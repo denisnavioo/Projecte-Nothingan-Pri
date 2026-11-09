@@ -1,7 +1,10 @@
 package cat.copernic.Projecte1.entity;
 
 import jakarta.persistence.Column;
+import cat.copernic.Projecte1.entity.Enum.rol;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +27,8 @@ public class Usuaris {
     private String adreca;
     private String poblacio;
     private String nacionalitat;
-    private String rol;
+    @Enumerated(EnumType.STRING)
+    private rol rol;
 
     // Document d'identitat (DNI/Passaport)
     @Column(nullable = false, unique = true)
@@ -49,7 +53,7 @@ public class Usuaris {
     public Usuaris() {
     }
 
-    public Usuaris(String nom, String dni, String email, String password, String telefon, String estatRegistre, String rol) {
+    public Usuaris(String nom, String dni, String email, String password, String telefon, String estatRegistre, rol rol) {
         this.nom = nom;
         this.dni = dni;
         this.email = email;
@@ -60,7 +64,6 @@ public class Usuaris {
     }
 
     // --- GETTERS Y SETTERS ---
-
     public Long getId() {
         return id;
     }
@@ -187,8 +190,7 @@ public class Usuaris {
 
     public void setPremium(Boolean premium) {
         this.premium = premium;
-    }   
-
+    }
 
     public String getPoblacio() {
         return poblacio;
@@ -198,12 +200,11 @@ public class Usuaris {
         this.poblacio = poblacio;
     }
 
-    public String getRol() {
+    public rol getRol() {
         return rol;
     }
 
-    public void setRol(String rol) {
+    public void setRol(rol rol) {
         this.rol = rol;
     }
-}    
-    
+}

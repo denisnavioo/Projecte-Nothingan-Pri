@@ -1,5 +1,6 @@
 package cat.copernic.Projecte1.controller;
 
+import cat.copernic.Projecte1.entity.Enum.rol;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
@@ -29,7 +30,7 @@ public class UsuarisController {
 
     @Autowired
     private ReservaLogic reservaLogic;
-    
+
     @Autowired
     private VehicleLogic vehicleLogic;
 
@@ -56,7 +57,7 @@ public class UsuarisController {
 
         // Filtrem per mantenir només els usuaris amb rol CLIENT
         List<Usuaris> nomesClients = llista.stream()
-                .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
+                .filter(u -> u.getRol() == rol.CLIENT)
                 .toList();
 
         model.addAttribute("usuaris", nomesClients);
@@ -125,11 +126,13 @@ public class UsuarisController {
             Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
             session.setAttribute("usuariLoguejat", usuari);
 
-            String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
-
-            if ("CLIENT".equals(rol)) {
+            rol rolUsuari = (usuari.getRol() != null)
+                    ? rol.valueOf(usuari.getRol().toString())
+                    : rol.CLIENT;
+            
+            if (rolUsuari == rol.CLIENT) {
                 return "redirect:/web/usuaris/client/home";
-            } else if ("ADMIN".equals(rol)) {
+            } else if (rolUsuari == rol.ADMIN) {
                 return "redirect:/web/admin/usuaris";
             } else {
                 return "redirect:/web/reserves/all";
@@ -188,8 +191,3 @@ public class UsuarisController {
         return "redirect:/web/usuaris/pendents";
     }
 }
-
-    /*@GetMapping("/admin")
-    public String admin(Model model) {
-        return "admin clients";
-    }*/
