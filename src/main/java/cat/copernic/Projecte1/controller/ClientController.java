@@ -29,6 +29,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/web/usuaris/client")
 public class ClientController {
     
+    
+    
     @Autowired
     private UsuarisLogic usuarisLogic;
     
