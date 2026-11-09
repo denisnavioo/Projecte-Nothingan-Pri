@@ -126,7 +126,7 @@ public class Projecte1Equip4Application {
             System.out.println("Agent de prova Email :fjaeggi@alumnat.copernic.cat  password: 1212");
             System.out.println("Admin de prova Email :alorente@alumnat.copernic.cat: 1212 ");
             System.out.println("");
-            System.out.println(" Accés al login: http://localhost:8080");
+            System.out.println(" Accés al login: https://localhost:8443");
             System.out.println("----------------------------------------------------------\n");
         };
     }
