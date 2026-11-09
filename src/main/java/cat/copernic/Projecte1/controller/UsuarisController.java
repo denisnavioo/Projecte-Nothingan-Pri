@@ -223,7 +223,7 @@ public String mostrarReservesClient(HttpSession session, Model model) {
         reserva.setUsuari(usuariLoguejat);
 
         model.addAttribute("reserva", reserva);
-        return "nova-reserva";
+        return "nova-reserva-client";
     }
 
     // MOSTRAR PERFIL DEL CLIENTE
