@@ -1,5 +1,6 @@
 package cat.copernic.Projecte1.logic;
 
+import cat.copernic.Projecte1.entity.Enum.rol;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.repository.UsuarisRepository;
 import java.time.LocalDate;
@@ -26,8 +27,8 @@ public class UsuarisLogic {
         if (usuari.getEstatRegistre() == null || usuari.getEstatRegistre().isBlank()) {
             usuari.setEstatRegistre("PENDENT");
         }
-        if (usuari.getRol() == null || usuari.getRol().isBlank()) {
-            usuari.setRol("CLIENT"); // Rol per defecte si no s'especifica
+        if (usuari.getRol() == null) {
+            usuari.setRol(rol.CLIENT); // Asignas el valor del Enum
         }
         if (usuari.getPremium() == null) {
             usuari.setPremium(false);
@@ -75,7 +76,7 @@ public class UsuarisLogic {
 
         // Estat inicial i rol per defecte per al registre web (RF81)
         client.setEstatRegistre("PENDENT");
-        client.setRol("CLIENT");
+        client.setRol(rol.CLIENT);
         client.setPremium(false);
 
         Usuaris nouClient = usuariRepo.save(client);
@@ -177,20 +178,21 @@ public class UsuarisLogic {
         return usuariRepo.findByDniContainingIgnoreCase(dni);
     }
 
-public List<Usuaris> filtrarClients(String email, String nacionalitat, String poblacio, String dni, String nom, String telefon) {
-    return usuariRepo.findClientByFiltreMultiple(
-            cleanParam(email),
-            cleanParam(nacionalitat),
-            cleanParam(poblacio),
-            cleanParam(dni),
-            cleanParam(nom),
-            cleanParam(telefon)
-    );
-}
+    public List<Usuaris> filtrarClients(String email, String nacionalitat, String poblacio, String dni, String nom, String telefon) {
+        return usuariRepo.findClientByFiltreMultiple(
+                cleanParam(email),
+                cleanParam(nacionalitat),
+                cleanParam(poblacio),
+                cleanParam(dni),
+                cleanParam(nom),
+                cleanParam(telefon)
+        );
+    }
 // Método auxiliar para convertir cadenas vacías con espacios ("   ") a null
-private String cleanParam(String param) {
-    return (param != null && !param.trim().isEmpty()) ? param.trim() : null;
-}
+
+    private String cleanParam(String param) {
+        return (param != null && !param.trim().isEmpty()) ? param.trim() : null;
+    }
 
     //METODO BIEN DOCUMENTADO
     // Usuaris usuaris trae el objeto de usuaris de la entity usuaris
@@ -234,11 +236,10 @@ private String cleanParam(String param) {
                 throw new IllegalArgumentException("El DNI '" + usuari.getDni() + "' ja està registrat.");
             }
         }
-        
-        if (usuari == null || usuari.getNom() == null || usuari.getNom().isBlank()){
+
+        if (usuari == null || usuari.getNom() == null || usuari.getNom().isBlank()) {
             throw new IllegalArgumentException("El nom es obligatori");
         }
-        
 
         // ja con la mida comprueba si es de 9 digitos osea logica != 9 (si no es de 9 digitos salta error)
         if (usuari.getTelefon().length() != 9) {

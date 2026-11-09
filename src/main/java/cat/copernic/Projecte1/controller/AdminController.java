@@ -2,6 +2,7 @@ package cat.copernic.Projecte1.controller;
 
 import cat.copernic.Projecte1.entity.Enum.Categoria;
 import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
+import cat.copernic.Projecte1.entity.Enum.rol;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
@@ -441,7 +442,7 @@ public class AdminController {
     @PostMapping("/agents/save")
     public String saveAgentAdmin(@ModelAttribute("agent") Usuaris agent, Model model, RedirectAttributes redirectAttributes) {
         try {
-            agent.setRol("AGENT");
+            agent.setRol(rol.AGENT);
 
             if (agent.getId() != null && (agent.getPassword() == null || agent.getPassword().isBlank())) {
                 Usuaris usuariExistente = usuarisService.getUsuariById(agent.getId());

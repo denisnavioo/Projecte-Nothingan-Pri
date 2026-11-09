@@ -1,5 +1,6 @@
 package cat.copernic.Projecte1.controller;
 
+import cat.copernic.Projecte1.entity.Enum.rol;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
@@ -29,7 +30,7 @@ public class UsuarisController {
 
     @Autowired
     private ReservaLogic reservaLogic;
-    
+
     @Autowired
     private VehicleLogic vehicleLogic;
 
@@ -56,7 +57,7 @@ public class UsuarisController {
 
         // Filtrem per mantenir només els usuaris amb rol CLIENT
         List<Usuaris> nomesClients = llista.stream()
-                .filter(u -> u.getRol() != null && "CLIENT".equalsIgnoreCase(u.getRol().toString()))
+                .filter(u -> u.getRol() == rol.CLIENT)
                 .toList();
 
         model.addAttribute("usuaris", nomesClients);
@@ -125,11 +126,13 @@ public class UsuarisController {
             Usuaris usuari = usuarisService.autenticarIValidarEstat(email, password);
             session.setAttribute("usuariLoguejat", usuari);
 
-            String rol = (usuari.getRol() != null) ? usuari.getRol().trim().toUpperCase() : "";
-
-            if ("CLIENT".equals(rol)) {
+            rol rolUsuari = (usuari.getRol() != null)
+                    ? rol.valueOf(usuari.getRol().toString())
+                    : rol.CLIENT;
+            
+            if (rolUsuari == rol.CLIENT) {
                 return "redirect:/web/usuaris/client/home";
-            } else if ("ADMIN".equals(rol)) {
+            } else if (rolUsuari == rol.ADMIN) {
                 return "redirect:/web/admin/usuaris";
             } else {
                 return "redirect:/web/reserves/all";
@@ -188,70 +191,3 @@ public class UsuarisController {
         return "redirect:/web/usuaris/pendents";
     }
 }
-
-    /*@GetMapping("/admin")
-    public String admin(Model model) {
-        return "admin clients";
-    }*/
-
-@GetMapping("/client/reserves")
-public String mostrarReservesClient(HttpSession session, Model model) {
-    //Obtenir usuari autenticat desde la sessió http
-    Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-    
-    // si no hi ha sessió, redirigir al login.
-    if (usuariLoguejat == null) {
-        return "redirect:/web/usuaris/login";
-    }
-    
-    //passar l'usuari al model per mostrar el nom en el header
-    model.addAttribute("usuariLoguejat", usuariLoguejat);
-    
-    List<Reserva> reserves = reservaLogic.getReservesPerUsuari(usuariLoguejat.getId());
-    if (reserves == null) {
-        reserves = List.of();
-    }
-    model.addAttribute("reserves", reserves);
-    return "client-reserves";
-}
-
-// FORMULARIO CREACIÓN RESERVA CLIENTE
-    @GetMapping("/client/reserves/nova")
-    public String mostrarNovaReservaClient(HttpSession session, Model model) {
-        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-        if (usuariLoguejat == null) {
-            return "redirect:/web/usuaris/login";
-        }
-
-        Reserva reserva = new Reserva();
-        reserva.setVehicle(new Vehicle());
-        reserva.setUsuari(usuariLoguejat);
-
-        model.addAttribute("reserva", reserva);
-        return "nova-reserva-client";
-    }
-
-    // MOSTRAR PERFIL DEL CLIENTE
-    @GetMapping("/client/perfil")
-    public String mostrarPerfilClient(HttpSession session, Model model) {
-        Usuaris usuariLoguejat = (Usuaris) session.getAttribute("usuariLoguejat");
-        if (usuariLoguejat == null) {
-            return "redirect:/web/usuaris/login";
-        }
-
-        // Recuperem les dades actualitzades de la base de dades
-        Usuaris usuariBD = usuarisService.getUsuariById(usuariLoguejat.getId());
-        model.addAttribute("usuariLoguejat", usuariBD);
-        model.addAttribute("usuari", usuariBD); // Necessari per a th:object="${usuari}" a perfil.html
-        return "perfil";
-    }
-
-    // GUARDAR CAMBIOS DEL PERFIL
-    @PostMapping("/client/perfil/save")
-    public String guardarPerfilClient(@ModelAttribute("usuari") Usuaris usuariActualitzat, RedirectAttributes redirectAttributes) {
-        usuarisService.saveUsuari(usuariActualitzat);
-        redirectAttributes.addFlashAttribute("missatge", "Perfil actualitzat amb èxit!");
-        return "redirect:/web/usuaris/client/perfil";
-    }
-
-} 

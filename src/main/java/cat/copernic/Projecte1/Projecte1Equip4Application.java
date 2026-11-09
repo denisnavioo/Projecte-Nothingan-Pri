@@ -3,6 +3,10 @@ package cat.copernic.Projecte1;
 import cat.copernic.Projecte1.entity.Enum.Categoria;
 import cat.copernic.Projecte1.entity.Enum.EstatReserva;
 import cat.copernic.Projecte1.entity.Enum.EstatVehicle;
+import cat.copernic.Projecte1.entity.Enum.rol;
+import static cat.copernic.Projecte1.entity.Enum.rol.ADMIN;
+import static cat.copernic.Projecte1.entity.Enum.rol.AGENT;
+import static cat.copernic.Projecte1.entity.Enum.rol.CLIENT;
 import cat.copernic.Projecte1.entity.Reserva;
 import cat.copernic.Projecte1.entity.Usuaris;
 import cat.copernic.Projecte1.entity.Vehicle;
@@ -31,14 +35,14 @@ public class Projecte1Equip4Application {
         return args -> {
 
             // 1. Creació d'usuaris (1 Admin + 3 Agents + 3 Clients diferents)
-            crearUsuariSiNoExisteix(usuarisRepo, "Admin Principal", "alorente@alumnat.copernic.cat", "1212", "384639013", "VALIDAT", "74827465H", false, "ADMIN");
-            crearUsuariSiNoExisteix(usuarisRepo, "Agent 1", "fjaeggi@alumnat.copernic.cat", "1212", "456789032", "VALIDAT", "74864465N", false, "AGENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Agent 2", "dnavio@alumnat.copernic.cat", "1212", "234567890", "VALIDAT", "74827665T", false, "AGENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Agent 3", "mruiz@alumnat.copernic.cat", "1212", "678901234", "VALIDAT", "55443322K", false, "AGENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Admin Principal", "alorente@alumnat.copernic.cat", "1212", "384639013", "VALIDAT", "74827465H", false, ADMIN);
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 1", "fjaeggi@alumnat.copernic.cat", "1212", "456789032", "VALIDAT", "74864465N", false, AGENT);
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 2", "dnavio@alumnat.copernic.cat", "1212", "234567890", "VALIDAT", "74827665T", false,AGENT);
+            crearUsuariSiNoExisteix(usuarisRepo, "Agent 3", "mruiz@alumnat.copernic.cat", "1212", "678901234", "VALIDAT", "55443322K", false, AGENT);
 
-            crearUsuariSiNoExisteix(usuarisRepo, "Carolina Macià", "cemacia@alumnat.copernic.cat", "1212", "600112233", "VALIDAT", "99887766A", true, "CLIENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Marc Gómez", "mgomez@alumnat.copernic.cat", "1212", "611223344", "VALIDAT", "88776655B", true, "CLIENT");
-            crearUsuariSiNoExisteix(usuarisRepo, "Laura Vila", "lvila@alumnat.copernic.cat", "1212", "622334455", "VALIDAT", "77665544C", true, "CLIENT");
+            crearUsuariSiNoExisteix(usuarisRepo, "Carolina Macià", "cemacia@alumnat.copernic.cat", "1212", "600112233", "VALIDAT", "99887766A", true, CLIENT);
+            crearUsuariSiNoExisteix(usuarisRepo, "Marc Gómez", "mgomez@alumnat.copernic.cat", "1212", "611223344", "VALIDAT", "88776655B", true, CLIENT);
+            crearUsuariSiNoExisteix(usuarisRepo, "Laura Vila", "lvila@alumnat.copernic.cat", "1212", "622334455", "VALIDAT", "77665544C", true, CLIENT);
 
             // 2. Creació de vehicles
             crearVehicleSiNoExisteix(vehicleRepo, "3343 DGY", "Seat", "Altea", 2005, Categoria.Monovolum, new BigDecimal("24.56"), EstatVehicle.Disponible, "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee");
@@ -127,7 +131,7 @@ public class Projecte1Equip4Application {
         };
     }
 
-    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, String telefon, String estat, String dni, boolean premium, String rol) {
+    private void crearUsuariSiNoExisteix(UsuarisRepository repo, String nom, String email, String password, String telefon, String estat, String dni, boolean premium, rol rol) {
         if (repo.findByEmail(email).isEmpty() && repo.findByDni(dni).isEmpty()) {
             Usuaris u = new Usuaris();
             u.setNom(nom);
