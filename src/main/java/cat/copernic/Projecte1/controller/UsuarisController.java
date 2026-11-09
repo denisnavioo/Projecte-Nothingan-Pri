@@ -130,9 +130,9 @@ public class UsuarisController {
             if ("CLIENT".equals(rol)) {
                 return "redirect:/web/usuaris/client/home";
             } else if ("ADMIN".equals(rol)) {
-                return "redirect:/web/usuaris/admin";
+                return "redirect:/web/admin/usuaris";
             } else {
-                return "redirect:/web/usuaris/all";
+                return "redirect:/web/reserves/all";
             }
 
         } catch (IllegalArgumentException e) {
