@@ -14,7 +14,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
-// Entidad que representa una reserva en la base de datos.
+/*
+ * Entidad que representa una reserva.
+ * Guarda sus fechas, importes, estado y los datos del vehículo y usuario asociados.
+ */
 @Entity
 public class Reserva {
 
