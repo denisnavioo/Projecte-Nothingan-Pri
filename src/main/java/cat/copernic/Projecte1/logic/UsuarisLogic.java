@@ -37,6 +37,9 @@ public class UsuarisLogic {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+    // Format d'un hash de BCrypt: "$2a$", "$2b$" o "$2y$", el cost (2 dígits), "$" i 53 caràcters
+    private static final String FORMAT_BCRYPT = "^\\$2[aby]\\$\\d{2}\\$[./A-Za-z0-9]{53}$";
+
     // --- OPERACIONES BÁSICAS CRUD ---
     public List<Usuaris> findAllUsuaris() {
         return usuariRepo.findAll();
@@ -89,15 +92,31 @@ public class UsuarisLogic {
 
     /**
      * Encripta la contrasenya de l'usuari amb BCrypt si encara no ho està.
-     * Les contrasenyes de BCrypt sempre comencen per "$2a$", "$2b$" o "$2y$".
+     *
+     * No n'hi ha prou de mirar si comença per "$2": una contrasenya escrita
+     * per l'usuari, com "$2hola", es guardaria sense xifrar. Per això es
+     * comprova el format complet d'un hash de BCrypt (veure
+     * esContrasenyaXifrada).
      *
      * @param usuari usuari amb la contrasenya a encriptar
      */
     public void xifrarContrasenya(Usuaris usuari) {
         String password = usuari.getPassword();
-        if (password != null && !password.isBlank() && !password.startsWith("$2")) {
+        if (password != null && !password.isBlank() && !esContrasenyaXifrada(password)) {
             usuari.setPassword(passwordEncoder.encode(password));
         }
+    }
+
+    /**
+     * Comprova si un text té el format d'un hash de BCrypt: "$2a$", "$2b$" o
+     * "$2y$", el cost (2 dígits), "$" i 53 caràcters (60 caràcters en total).
+     * Exemple: $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+     *
+     * @param password text a comprovar
+     * @return true si ja és una contrasenya xifrada amb BCrypt
+     */
+    public boolean esContrasenyaXifrada(String password) {
+        return password != null && password.matches(FORMAT_BCRYPT);
     }
 
     public Usuaris getUsuariById(Long id) {
@@ -136,6 +155,10 @@ public class UsuarisLogic {
         // 5. La contrasenya és obligatòria i es guarda encriptada (RN52)
         if (client.getPassword() == null || client.getPassword().isBlank()) {
             throw new IllegalArgumentException("La contrasenya és obligatòria.");
+        }
+        // Una contrasenya amb el format d'un hash de BCrypt no es xifraria: no es permet
+        if (esContrasenyaXifrada(client.getPassword())) {
+            throw new IllegalArgumentException("La contrasenya no és vàlida. Tria'n una altra.");
         }
         xifrarContrasenya(client);
 
