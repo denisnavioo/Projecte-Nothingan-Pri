@@ -1,7 +1,10 @@
 = Projecte1 – Gestió de lloguer de vehicles
-:toc:
+:toc: preamble
 :toc-title: Índex
 :icons: font
+
+.Documentació del projecte
+link:Projecte%20Nothingan%20Pri.pdf[📄 Obrir documentació PDF]
 
 == Descripció del projecte
 
