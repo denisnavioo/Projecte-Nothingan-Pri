@@ -34,6 +34,10 @@ import static org.mockito.Mockito.*;
  * pla).</li>
  * <li>saveUsuari: una contrasenya que ja està encriptada no es torna a
  * encriptar (ex: quan s'edita el perfil).</li>
+ * <li>saveUsuari: una contrasenya que comença per "$2" però no és un hash de
+ * BCrypt (ex: "$2hola") sí que es xifra.</li>
+ * <li>registrarClientWeb: no es pot triar una contrasenya amb el format d'un
+ * hash de BCrypt, perquè no es xifraria.</li>
  * </ol>
  *
  * @author Denis
@@ -116,14 +120,49 @@ public class UsuarisLogicValidacioTest {
     @DisplayName("4. saveUsuari: una contrasenya ja encriptada no es torna a encriptar")
     void testSaveUsuari_NoEncriptaDuesVegades() {
         // GIVEN: L'usuari ja té la contrasenya encriptada (ex: editar perfil)
-        usuari.setPassword("$2a$10$jaEncriptada");
+        usuari.setPassword(HASH_REAL);
         when(usuariRepo.save(any(Usuaris.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // WHEN
         usuarisLogic.saveUsuari(usuari);
 
         // THEN: Es manté igual
-        assertEquals("$2a$10$jaEncriptada", usuari.getPassword());
+        assertEquals(HASH_REAL, usuari.getPassword());
         verify(passwordEncoder, never()).encode(any());
     }
+
+    @Test
+    @DisplayName("5. saveUsuari: una contrasenya que comença per $2 però no és un hash es xifra")
+    void testSaveUsuari_ContrasenyaAmbDolar2EsXifra() {
+        // GIVEN: L'usuari tria una contrasenya que comença per "$2"
+        usuari.setPassword("$2hola");
+        when(passwordEncoder.encode("$2hola")).thenReturn(HASH_REAL);
+        when(usuariRepo.save(any(Usuaris.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // WHEN
+        usuarisLogic.saveUsuari(usuari);
+
+        // THEN: No es guarda en text pla
+        assertEquals(HASH_REAL, usuari.getPassword());
+        verify(passwordEncoder, times(1)).encode("$2hola");
+    }
+
+    @Test
+    @DisplayName("6. registrarClientWeb: no es pot triar una contrasenya amb format de hash de BCrypt")
+    void testRegistrarClientWeb_ContrasenyaAmbFormatDeHash() {
+        // GIVEN: El client escriu com a contrasenya un text amb el format d'un hash
+        usuari.setPassword(HASH_REAL);
+
+        // WHEN & THEN: Error i no es guarda a la BD
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> usuarisLogic.registrarClientWeb(usuari)
+        );
+
+        assertTrue(exception.getMessage().contains("contrasenya"));
+        verify(usuariRepo, never()).save(any(Usuaris.class));
+    }
+
+    // Hash de BCrypt amb el format real (60 caràcters)
+    private static final String HASH_REAL = "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 }
